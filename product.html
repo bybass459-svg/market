@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product · MarketStall Investments</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+/* ===== GLOBAL STYLES ===== */
+:root {
+    --primary: #2a7de1;
+    --primary-dark: #1a5fb0;
+    --secondary: #f8b400;
+    --accent: #ff6b35;
+    --success: #28a745;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --info: #17a2b8;
+    --dark: #0b1b2b;
+    --light: #f5f7fa;
+    --gray: #5b768b;
+}
+
+/* ===== TOAST NOTIFICATIONS ===== */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 420px;
+    width: 100%;
+    pointer-events: none;
+}
+
+.toast {
+    background: white;
+    border-radius: 16px;
+    padding: 16px 20px;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+    border-left: 5px solid var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.toast.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.toast.hide {
+    transform: translateX(120%);
+    opacity: 0;
+}
+
+.toast-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.toast-success .toast-icon { background: #d4edda; color: #155724; }
+.toast-error .toast-icon { background: #f8d7da; color: #721c24; }
+.toast-warning .toast-icon { background: #fff3cd; color: #856404; }
+.toast-info .toast-icon { background: #d1ecf1; color: #0c5460; }
+
+.toast-success { border-left-color: var(--success); }
+.toast-error { border-left-color: var(--danger); }
+.toast-warning { border-left-color: var(--warning); }
+.toast-info { border-left-color: var(--info); }
+
+.toast-content { flex: 1; }
+.toast-content .toast-title { font-weight: 600; font-size: 0.95rem; color: var(--dark); margin-bottom: 2px; }
+.toast-content .toast-message { font-size: 0.85rem; color: var(--gray); }
+
+.toast-close {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0 4px;
+    transition: 0.2s;
+    flex-shrink: 0;
+}
+.toast-close:hover { color: #333; }
+
+.toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    animation: toastProgress 4s linear forwards;
+}
+.toast-success .toast-progress { background: var(--success); }
+.toast-error .toast-progress { background: var(--danger); }
+.toast-warning .toast-progress { background: var(--warning); }
+.toast-info .toast-progress { background: var(--info); }
+
+@keyframes toastProgress {
+    0% { width: 100%; }
+    100% { width: 0%; }
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+    padding: 0.7rem 2rem;
+    border-radius: 60px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-secondary { background: var(--secondary); color: var(--dark); }
+.btn-secondary:hover { background: #e0a000; }
+.btn-success { background: var(--success); color: white; }
+.btn-success:hover { background: #218838; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-danger:hover { background: #c82333; }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family: system-ui, sans-serif; }
+        body { background:#f5f7fa; }
+        .app { max-width:1100px; margin:0 auto; padding:1rem; }
+        .header { background:white; border-radius:20px; padding:0.8rem 2rem; margin-bottom:1.5rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+        .logo { font-size:1.8rem; font-weight:700; color:#0f2b3c; text-decoration:none; }
+        .logo i { color:#2a7de1; }
+        .nav-icons a { color:#1f3a4b; font-size:1.2rem; text-decoration:none; margin-left:1rem; position:relative; }
+        .cart-count { position:absolute; top:-8px; right:-10px; background:#dc3545; color:white; border-radius:50%; padding:0.1rem 0.5rem; font-size:0.7rem; font-weight:600; }
+        .product-detail { background:white; border-radius:24px; padding:2rem; display:grid; grid-template-columns:1fr 1fr; gap:2.5rem; border:1px solid #eef2f6; }
+        .product-image-large { background:#f1f4f8; border-radius:20px; height:400px; display:flex; align-items:center; justify-content:center; font-size:6rem; color:#2a7de1; }
+        .product-info h1 { font-size:1.8rem; margin-bottom:0.5rem; }
+        .product-info .price { font-size:2rem; font-weight:700; color:#2a7de1; }
+        .product-info .old-price { font-size:1.2rem; color:#999; text-decoration:line-through; margin-left:1rem; }
+        .product-info .rating { color:#f5a623; font-size:1.1rem; margin:0.5rem 0; }
+        .product-info .stock { display:inline-block; padding:0.3rem 1rem; border-radius:30px; font-size:0.9rem; margin:0.5rem 0; }
+        .in-stock { background:#e6f3e6; color:#0f5c3a; }
+        .out-of-stock { background:#fde8e8; color:#dc3545; }
+        .product-info .description { color:#3b5c72; line-height:1.6; margin:1rem 0; }
+        .product-info .meta { color:#5b768b; font-size:0.9rem; }
+        .quantity-selector { display:flex; align-items:center; gap:1rem; margin:1.5rem 0; }
+        .quantity-selector button { width:40px; height:40px; border-radius:50%; border:1px solid #dce5ed; background:white; font-size:1.2rem; cursor:pointer; }
+        .quantity-selector button:hover { background:#f1f4f8; }
+        .quantity-selector span { font-size:1.2rem; font-weight:500; min-width:30px; text-align:center; }
+        .btn-primary { background:#2a7de1; color:white; border:none; padding:0.8rem 2.5rem; border-radius:60px; font-weight:600; font-size:1rem; cursor:pointer; transition:0.2s; }
+        .btn-primary:hover { background:#1a5fb0; }
+        .btn-secondary { background:#f1f4f8; color:#1f3a4b; border:none; padding:0.8rem 2rem; border-radius:60px; font-weight:500; cursor:pointer; transition:0.2s; }
+        .btn-secondary:hover { background:#dce5ed; }
+        .back-link { display:inline-block; margin-bottom:1rem; color:#2a7de1; text-decoration:none; }
+        .back-link:hover { text-decoration:underline; }
+        .reviews { background:white; border-radius:24px; padding:1.5rem 2rem; margin-top:2rem; border:1px solid #eef2f6; }
+        .review { border-bottom:1px solid #eef2f6; padding:1rem 0; }
+        .review:last-child { border-bottom:none; }
+        .review .author { font-weight:600; }
+        .review .date { color:#5b768b; font-size:0.85rem; margin-left:0.5rem; }
+        @media (max-width:768px) { .product-detail { grid-template-columns:1fr; gap:1.5rem; padding:1.5rem; } .product-image-large { height:250px; font-size:4rem; } }
+    </style>
+</head>
+<body>
+<div class="app">
+    <header class="header">
+        <a href="index.html" class="logo"><i class="fas fa-store-alt"></i> MarketStall Investments</a>
+        <div class="nav-icons">
+            <a href="wishlist.html"><i class="fas fa-heart"></i></a>
+            <a href="cart.html"><i class="fas fa-shopping-cart"></i> <span class="cart-count" id="cartCount">0</span></a>
+            <a href="profile.html"><i class="fas fa-user"></i></a>
+        <a href="editor.html" style="background:#f8b400; color:#0b1b2b; padding:0.3rem 1rem; border-radius:30px; text-decoration:none; font-size:0.85rem; font-weight:600;"><i class="fas fa-edit"></i> Edit</a></div>
+    </header>
+
+    <a href="javascript:history.back()" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+    <div id="productDetail"></div>
+</div>
+
+<script>
+    const products = JSON.parse(localStorage.getItem('products')) || [];
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = parseInt(urlParams.get('id'));
+    const product = products.find(function(p) { return p.id === productId; });
+
+    function getCart() { return JSON.parse(localStorage.getItem('cart')) || []; }
+    function updateCartCount() {
+        const cart = getCart();
+        const count = cart.reduce(function(sum, item) { return sum + item.quantity; }, 0);
+        document.getElementById('cartCount').textContent = count;
+    }
+
+    if (product) {
+        const stockClass = product.stock > 0 ? 'in-stock' : 'out-of-stock';
+        const stockText = product.stock > 0 ? '<i class="fas fa-check-circle"></i> In Stock (' + product.stock + ' available)' : '<i class="fas fa-times-circle"></i> Out of Stock';
+        const oldPrice = product.oldPrice ? '<span class="old-price">$' + product.oldPrice.toFixed(2) + '</span>' : '';
+        const stars = '★'.repeat(Math.floor(product.rating)) + '☆'.repeat(5 - Math.floor(product.rating));
+        
+        const reviews = [
+            { author: 'John D.', date: '2 days ago', text: 'Excellent product! Highly recommend.', rating: 5 },
+            { author: 'Sarah M.', date: '1 week ago', text: 'Great quality and fast shipping.', rating: 4 },
+            { author: 'Mike R.', date: '2 weeks ago', text: 'Good value for the price.', rating: 4 },
+        ];
+
+        document.getElementById('productDetail').innerHTML = 
+            '<div class="product-detail">' +
+                '<div class="product-image-large"><i class="fas ' + product.image + '"></i></div>' +
+                '<div class="product-info">' +
+                    '<h1>' + product.name + '</h1>' +
+                    '<div class="rating">' + stars + ' ' + product.rating + ' (128 reviews)</div>' +
+                    '<div class="price">$' + product.price.toFixed(2) + ' ' + oldPrice + '</div>' +
+                    '<div class="stock ' + stockClass + '">' + stockText + '</div>' +
+                    '<p class="description">This premium product is designed with quality and durability in mind. Perfect for everyday use.</p>' +
+                    '<div class="meta"><p><i class="fas fa-tag"></i> Category: ' + product.category + '</p>' +
+                    '<p><i class="fas fa-box"></i> SKU: SKU-' + String(product.id).padStart(4, '0') + '</p></div>' +
+                    '<div class="quantity-selector">' +
+                        '<button onclick="changeQty(-1)">−</button>' +
+                        '<span id="qtyDisplay">1</span>' +
+                        '<button onclick="changeQty(1)">+</button>' +
+                    '</div>' +
+                    '<div style="display:flex; gap:1rem; flex-wrap:wrap;">' +
+                        '<button class="btn-primary" onclick="addToCart()"><i class="fas fa-cart-plus"></i> Add to Cart</button>' +
+                        '<button class="btn-secondary" onclick="addToWishlist()"><i class="fas fa-heart"></i> Add to Wishlist</button>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="reviews">' +
+                '<h3><i class="fas fa-comments"></i> Customer Reviews</h3>' +
+                reviews.map(function(r) {
+                    return '<div class="review"><div><span class="author">' + r.author + '</span><span class="date">' + r.date + '</span><span style="color:#f5a623;">' + '★'.repeat(r.rating) + '</span></div><p>' + r.text + '</p></div>';
+                }).join('') +
+            '</div>';
+
+        let quantity = 1;
+        window.changeQty = function(change) {
+            quantity = Math.max(1, Math.min(product.stock, quantity + change));
+            document.getElementById('qtyDisplay').textContent = quantity;
+        };
+
+        window.addToCart = function() {
+            if (product.stock <= 0) {
+                toast.info("❌ Product is out of stock!", "Info");
+                return;
+            }
+            if (quantity > product.stock) {
+                alert('❌ Only ' + product.stock + ' items available!');
+                return;
+            }
+            let cart = getCart();
+            const existing = cart.find(function(item) { return item.id === productId; });
+            if (existing) {
+                if (existing.quantity + quantity > product.stock) {
+                    alert('❌ Only ' + product.stock + ' items available!');
+                    return;
+                }
+                existing.quantity += quantity;
+            } else {
+                cart.push({ ...product, quantity: quantity });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            alert('✅ ' + product.name + ' (' + quantity + 'x) added to cart!');
+        };
+
+        window.addToWishlist = function() {
+            let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+            if (!wishlist.find(function(p) { return p.id === productId; })) {
+                wishlist.push(product);
+                localStorage.setItem('wishlist', JSON.stringify(wishlist));
+                toast.info("❤️ Added to wishlist!", "Info");
+            } else {
+                toast.info("Already in wishlist!", "Info");
+            }
+        };
+    } else {
+        document.getElementById('productDetail').innerHTML = '<p style="text-align:center; padding:2rem;">Product not found.</p>';
+    }
+
+    updateCartCount();
+</script>
+<script>
+// ============================================================
+// MODERN TOAST NOTIFICATION SYSTEM
+// ============================================================
+class ToastManager {
+    constructor() {
+        this.container = null;
+        this.init();
+    }
+
+    init() {
+        if (!document.querySelector('.toast-container')) {
+            this.container = document.createElement('div');
+            this.container.className = 'toast-container';
+            document.body.appendChild(this.container);
+        } else {
+            this.container = document.querySelector('.toast-container');
+        }
+    }
+
+    show(message, options) {
+        options = options || {};
+        var type = options.type || 'info';
+        var title = options.title || '';
+        var duration = options.duration || 4000;
+        var icon = options.icon || null;
+
+        var toast = document.createElement('div');
+        toast.className = 'toast toast-' + type;
+
+        var icons = {
+            success: 'fa-check-circle',
+            error: 'fa-times-circle',
+            warning: 'fa-exclamation-circle',
+            info: 'fa-info-circle'
+        };
+
+        var iconClass = icon || icons[type] || icons.info;
+
+        var defaultTitles = {
+            success: '✅ Success!',
+            error: '❌ Error!',
+            warning: '⚠️ Warning!',
+            info: 'ℹ️ Info'
+        };
+        var displayTitle = title || defaultTitles[type] || defaultTitles.info;
+
+        toast.innerHTML = 
+            '<div class="toast-icon"><i class="fas ' + iconClass + '"></i></div>' +
+            '<div class="toast-content">' +
+                '<div class="toast-title">' + displayTitle + '</div>' +
+                '<div class="toast-message">' + message + '</div>' +
+            '</div>' +
+            '<button class="toast-close" onclick="this.closest('.toast').remove()">&times;</button>' +
+            '<div class="toast-progress"></div>';
+
+        this.container.appendChild(toast);
+
+        setTimeout(function() { toast.classList.add('show'); }, 10);
+
+        var timeout = setTimeout(function() { 
+            if (toast.parentNode) {
+                toast.classList.remove('show');
+                toast.classList.add('hide');
+                setTimeout(function() { if (toast.parentNode) toast.remove(); }, 500);
+            }
+        }, duration);
+
+        toast.addEventListener('click', function(e) {
+            if (e.target.closest('.toast-close')) return;
+            if (toast.parentNode) {
+                toast.classList.remove('show');
+                toast.classList.add('hide');
+                setTimeout(function() { if (toast.parentNode) toast.remove(); }, 500);
+            }
+            clearTimeout(timeout);
+        });
+
+        return toast;
+    }
+
+    success(message, title) { return this.show(message, { type: 'success', title: title || '' }); }
+    error(message, title) { return this.show(message, { type: 'error', title: title || '' }); }
+    warning(message, title) { return this.show(message, { type: 'warning', title: title || '' }); }
+    info(message, title) { return this.show(message, { type: 'info', title: title || '' }); }
+}
+
+window.toast = new ToastManager();
+
+// Show welcome notification
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        toast.success('Welcome to MarketStall Investments! 🏪', '🎉 Welcome!');
+    }, 800);
+});
+</script>
+</body>
+</html>

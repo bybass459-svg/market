@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile · MarketStall Investments</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+/* ===== GLOBAL STYLES ===== */
+:root {
+    --primary: #2a7de1;
+    --primary-dark: #1a5fb0;
+    --secondary: #f8b400;
+    --accent: #ff6b35;
+    --success: #28a745;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --info: #17a2b8;
+    --dark: #0b1b2b;
+    --light: #f5f7fa;
+    --gray: #5b768b;
+}
+
+/* ===== TOAST NOTIFICATIONS ===== */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 420px;
+    width: 100%;
+    pointer-events: none;
+}
+
+.toast {
+    background: white;
+    border-radius: 16px;
+    padding: 16px 20px;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+    border-left: 5px solid var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.toast.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.toast.hide {
+    transform: translateX(120%);
+    opacity: 0;
+}
+
+.toast-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.toast-success .toast-icon { background: #d4edda; color: #155724; }
+.toast-error .toast-icon { background: #f8d7da; color: #721c24; }
+.toast-warning .toast-icon { background: #fff3cd; color: #856404; }
+.toast-info .toast-icon { background: #d1ecf1; color: #0c5460; }
+
+.toast-success { border-left-color: var(--success); }
+.toast-error { border-left-color: var(--danger); }
+.toast-warning { border-left-color: var(--warning); }
+.toast-info { border-left-color: var(--info); }
+
+.toast-content { flex: 1; }
+.toast-content .toast-title { font-weight: 600; font-size: 0.95rem; color: var(--dark); margin-bottom: 2px; }
+.toast-content .toast-message { font-size: 0.85rem; color: var(--gray); }
+
+.toast-close {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0 4px;
+    transition: 0.2s;
+    flex-shrink: 0;
+}
+.toast-close:hover { color: #333; }
+
+.toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    animation: toastProgress 4s linear forwards;
+}
+.toast-success .toast-progress { background: var(--success); }
+.toast-error .toast-progress { background: var(--danger); }
+.toast-warning .toast-progress { background: var(--warning); }
+.toast-info .toast-progress { background: var(--info); }
+
+@keyframes toastProgress {
+    0% { width: 100%; }
+    100% { width: 0%; }
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+    padding: 0.7rem 2rem;
+    border-radius: 60px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-secondary { background: var(--secondary); color: var(--dark); }
+.btn-secondary:hover { background: #e0a000; }
+.btn-success { background: var(--success); color: white; }
+.btn-success:hover { background: #218838; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-danger:hover { background: #c82333; }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family: system-ui, sans-serif; }
+        body { background:#f5f7fa; padding:1.5rem; }
+        .app { max-width:1100px; margin:0 auto; }
+        
+        .header { background:white; border-radius:20px; padding:0.8rem 2rem; margin-bottom:1.5rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+        .logo { font-size:1.8rem; font-weight:700; color:#0f2b3c; text-decoration:none; }
+        .logo i { color:#2a7de1; }
+        .nav-icons a { color:#1f3a4b; font-size:1.2rem; text-decoration:none; margin-left:1rem; position:relative; }
+        .nav-icons a:hover { color:#2a7de1; }
+        .cart-count { position:absolute; top:-8px; right:-10px; background:#dc3545; color:white; border-radius:50%; padding:0.1rem 0.5rem; font-size:0.7rem; font-weight:600; }
+        
+        .back-link { display:inline-block; margin-bottom:1rem; color:#2a7de1; text-decoration:none; }
+        .back-link:hover { text-decoration:underline; }
+        
+        .profile-grid { display:grid; grid-template-columns:300px 1fr; gap:1.5rem; }
+        
+        /* Profile Sidebar */
+        .profile-sidebar { background:white; border-radius:20px; padding:2rem; border:1px solid #eef2f6; text-align:center; }
+        .avatar { width:120px; height:120px; border-radius:50%; background:#f1f4f8; display:flex; align-items:center; justify-content:center; font-size:4rem; color:#2a7de1; margin:0 auto 1rem; border:4px solid #eef2f6; }
+        .profile-sidebar h2 { font-size:1.2rem; margin-bottom:0.2rem; }
+        .profile-sidebar .email { color:#5b768b; font-size:0.9rem; }
+        .profile-sidebar .member-since { color:#999; font-size:0.85rem; margin-top:0.5rem; }
+        .profile-sidebar .stats { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin:1.5rem 0; }
+        .profile-sidebar .stat-box { background:#f8f9fa; padding:0.8rem; border-radius:12px; }
+        .profile-sidebar .stat-box .number { font-size:1.3rem; font-weight:700; color:#0b1b2b; }
+        .profile-sidebar .stat-box .label { font-size:0.8rem; color:#5b768b; }
+        
+        /* Profile Content */
+        .profile-content { display:flex; flex-direction:column; gap:1.5rem; }
+        .content-card { background:white; border-radius:20px; padding:1.5rem 2rem; border:1px solid #eef2f6; }
+        .content-card h3 { font-size:1.1rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem; }
+        .content-card h3 i { color:#2a7de1; }
+        
+        .form-group { margin-bottom:1rem; }
+        .form-group label { display:block; font-weight:500; margin-bottom:0.3rem; font-size:0.9rem; color:#1f3a4b; }
+        .form-group input, .form-group textarea { width:100%; padding:0.7rem 1rem; border:1px solid #dce5ed; border-radius:12px; font-size:0.95rem; background:#fafbfc; }
+        .form-group input:focus, .form-group textarea:focus { outline:2px solid #2a7de1; border-color:transparent; background:white; }
+        .form-group input:disabled { background:#f1f4f8; color:#5b768b; cursor:not-allowed; }
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+        
+        .btn { padding:0.7rem 2rem; border-radius:60px; border:none; font-weight:500; cursor:pointer; transition:0.2s; display:inline-flex; align-items:center; gap:0.5rem; }
+        .btn-primary { background:#2a7de1; color:white; }
+        .btn-primary:hover { background:#1a5fb0; }
+        .btn-secondary { background:#f1f4f8; color:#1f3a4b; }
+        .btn-secondary:hover { background:#dce5ed; }
+        .btn-danger { background:#dc3545; color:white; }
+        .btn-danger:hover { background:#c82333; }
+        .btn-success { background:#28a745; color:white; }
+        .btn-success:hover { background:#218838; }
+        
+        .address-item { display:flex; justify-content:space-between; align-items:center; padding:0.8rem 0; border-bottom:1px solid #eef2f6; }
+        .address-item:last-child { border-bottom:none; }
+        .address-item .address-text { color:#1f3a4b; }
+        .address-item .address-actions { display:flex; gap:0.5rem; }
+        .address-item .address-actions button { padding:0.2rem 0.8rem; border-radius:30px; border:1px solid #dce5ed; background:white; cursor:pointer; font-size:0.8rem; }
+        .address-item .address-actions button:hover { background:#f1f4f8; }
+        
+        .wishlist-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:1rem; }
+        .wishlist-item { background:#f8f9fa; border-radius:12px; padding:1rem; text-align:center; }
+        .wishlist-item .wish-icon { font-size:2rem; color:#2a7de1; margin-bottom:0.5rem; }
+        .wishlist-item h4 { font-size:0.9rem; }
+        .wishlist-item .price { font-weight:600; color:#2a7de1; margin-top:0.2rem; }
+        
+        .login-prompt { text-align:center; padding:3rem 2rem; background:white; border-radius:20px; border:1px solid #eef2f6; }
+        .login-prompt i { font-size:3rem; color:#dce5ed; margin-bottom:1rem; display:block; }
+        .login-prompt h3 { margin-bottom:0.5rem; }
+        .login-prompt .btn-group { display:flex; gap:1rem; justify-content:center; margin-top:1.5rem; flex-wrap:wrap; }
+        
+        .edit-toggle { cursor:pointer; color:#2a7de1; font-size:0.85rem; }
+        .edit-toggle:hover { text-decoration:underline; }
+        
+        @media (max-width:768px) {
+            .profile-grid { grid-template-columns:1fr; }
+            .form-row { grid-template-columns:1fr; }
+            .header { flex-direction:column; padding:1rem; }
+            .wishlist-grid { grid-template-columns:repeat(auto-fill, minmax(120px,1fr)); }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <!-- Header -->
+    <header class="header">
+        <a href="index.html" class="logo"><i class="fas fa-store-alt"></i> MarketStall Investments</a>
+        <div class="nav-icons">
+            <a href="wishlist.html"><i class="fas fa-heart"></i></a>
+            <a href="cart.html"><i class="fas fa-shopping-cart"></i> <span class="cart-count" id="cartCount">0</span></a>
+            <a href="profile.html"><i class="fas fa-user" style="color:#2a7de1;"></i></a>
+        <a href="editor.html" style="background:#f8b400; color:#0b1b2b; padding:0.3rem 1rem; border-radius:30px; text-decoration:none; font-size:0.85rem; font-weight:600;"><i class="fas fa-edit"></i> Edit</a></div>
+    </header>
+
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+
+    <div id="profileContent">
+        <!-- Dynamic content loaded by JavaScript -->
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // DATA HELPERS
+    // ============================================================
+    function getCurrentUser() {
+        return JSON.parse(localStorage.getItem('currentUser')) || null;
+    }
+
+    function getOrders() {
+        return JSON.parse(localStorage.getItem('orders')) || [];
+    }
+
+    function getWishlist() {
+        return JSON.parse(localStorage.getItem('wishlist')) || [];
+    }
+
+    function getCart() {
+        return JSON.parse(localStorage.getItem('cart')) || [];
+    }
+
+    function getUsers() {
+        return JSON.parse(localStorage.getItem('users')) || [];
+    }
+
+    function updateCartCount() {
+        const cart = getCart();
+        const count = cart.reduce(function(sum, item) { return sum + item.quantity; }, 0);
+        const badge = document.getElementById('cartCount');
+        if (badge) badge.textContent = count;
+    }
+
+    // ============================================================
+    // RENDER PROFILE
+    // ============================================================
+    function renderProfile() {
+        const container = document.getElementById('profileContent');
+        const user = getCurrentUser();
+
+        if (!user) {
+            // Show login prompt
+            container.innerHTML = `
+                <div class="login-prompt">
+                    <i class="fas fa-user-circle"></i>
+                    <h3>Not Logged In</h3>
+                    <p>Please login or create an account to view your profile.</p>
+                    <div class="btn-group">
+                        <a href="login.html" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Login</a>
+                        <a href="signup.html" class="btn btn-secondary"><i class="fas fa-user-plus"></i> Sign Up</a>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        const orders = getOrders();
+        const wishlist = getWishlist();
+        const totalOrders = orders.length;
+        const totalSpent = orders.reduce(function(sum, o) { return sum + (o.total || 0); }, 0);
+        const pendingOrders = orders.filter(function(o) { return o.status === 'Processing' || o.status === 'Shipped'; }).length;
+
+        // Get user data from users array for editing
+        const users = getUsers();
+        const userData = users.find(function(u) { return u.email === user.email; });
+
+        container.innerHTML = `
+            <div class="profile-grid">
+                <!-- Sidebar -->
+                <div class="profile-sidebar">
+                    <div class="avatar"><i class="fas fa-user-circle"></i></div>
+                    <h2>${user.name || 'User'}</h2>
+                    <p class="email"><i class="far fa-envelope"></i> ${user.email}</p>
+                    <p class="member-since"><i class="far fa-calendar-alt"></i> Member since ${new Date().getFullYear()}</p>
+                    
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="number">${totalOrders}</div>
+                            <div class="label">Orders</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="number">$${totalSpent.toFixed(0)}</div>
+                            <div class="label">Spent</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="number">${wishlist.length}</div>
+                            <div class="label">Wishlist</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="number">${pendingOrders}</div>
+                            <div class="label">Pending</div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-danger" onclick="logout()" style="width:100%; justify-content:center;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+
+                <!-- Content -->
+                <div class="profile-content">
+                    <!-- Personal Information -->
+                    <div class="content-card">
+                        <h3><i class="fas fa-user-edit"></i> Personal Information</h3>
+                        <form id="profileForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Full Name</label>
+                                    <input type="text" id="profileName" value="${user.name || ''}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" id="profileEmail" value="${user.email}" disabled>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Phone</label>
+                                    <input type="tel" id="profilePhone" value="${userData?.phone || ''}" placeholder="+1 234 567 890">
+                                </div>
+                                <div class="form-group">
+                                    <label>Date of Birth</label>
+                                    <input type="date" id="profileDob" value="${userData?.dob || ''}">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update Profile</button>
+                        </form>
+                    </div>
+
+                    <!-- Saved Addresses -->
+                    <div class="content-card">
+                        <h3><i class="fas fa-map-marker-alt"></i> Saved Addresses</h3>
+                        <div id="addressesContainer">
+                            ${userData?.addresses && userData.addresses.length > 0 ? 
+                                userData.addresses.map(function(addr, index) {
+                                    return `
+                                        <div class="address-item">
+                                            <span class="address-text">${addr}</span>
+                                            <div class="address-actions">
+                                                <button onclick="editAddress(${index})"><i class="fas fa-edit"></i></button>
+                                                <button onclick="deleteAddress(${index})"><i class="fas fa-trash"></i></button>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('') :
+                                '<p style="color:#5b768b;">No saved addresses.</p>'
+                            }
+                        </div>
+                        <button class="btn btn-secondary" onclick="addAddress()" style="margin-top:0.5rem;">
+                            <i class="fas fa-plus"></i> Add New Address
+                        </button>
+                    </div>
+
+                    <!-- Wishlist Preview -->
+                    <div class="content-card">
+                        <h3><i class="fas fa-heart"></i> Wishlist</h3>
+                        ${wishlist.length > 0 ? `
+                            <div class="wishlist-grid">
+                                ${wishlist.slice(0, 4).map(function(item) {
+                                    return `
+                                        <div class="wishlist-item">
+                                            <div class="wish-icon"><i class="fas ${item.icon || 'fa-heart'}"></i></div>
+                                            <h4>${item.name}</h4>
+                                            <div class="price">$${item.price.toFixed(2)}</div>
+                                            <a href="product.html?id=${item.id}" style="font-size:0.8rem; color:#2a7de1; text-decoration:none;">View</a>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                            ${wishlist.length > 4 ? `<p style="text-align:center; margin-top:0.5rem;"><a href="wishlist.html" style="color:#2a7de1; text-decoration:none;">View all ${wishlist.length} items →</a></p>` : ''}
+                        ` : `
+                            <p style="color:#5b768b;">Your wishlist is empty.</p>
+                            <a href="products.html" class="btn btn-secondary" style="margin-top:0.5rem; display:inline-block;">
+                                <i class="fas fa-shopping-bag"></i> Browse Products
+                            </a>
+                        `}
+                    </div>
+
+                    <!-- Recent Orders -->
+                    <div class="content-card">
+                        <h3><i class="fas fa-receipt"></i> Recent Orders</h3>
+                        ${orders.length > 0 ? `
+                            ${orders.slice(-3).reverse().map(function(order) {
+                                const statusClass = order.status === 'Processing' ? 'status-processing' : 
+                                                   order.status === 'Shipped' ? 'status-shipped' : 
+                                                   order.status === 'Delivered' ? 'status-delivered' : 'status-cancelled';
+                                return `
+                                    <div style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0; border-bottom:1px solid #eef2f6;">
+                                        <div>
+                                            <strong>#${order.id}</strong>
+                                            <span style="color:#5b768b; font-size:0.85rem; margin-left:0.5rem;">${order.date || 'N/A'}</span>
+                                        </div>
+                                        <div>
+                                            <span style="font-weight:600; margin-right:1rem;">$${order.total ? order.total.toFixed(2) : '0.00'}</span>
+                                            <span class="order-status ${statusClass}" style="padding:0.2rem 0.8rem; border-radius:30px; font-size:0.75rem;">${order.status || 'Processing'}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                            <a href="transactions.html" style="display:inline-block; margin-top:0.5rem; color:#2a7de1; text-decoration:none;">
+                                View All Orders →
+                            </a>
+                        ` : `
+                            <p style="color:#5b768b;">No orders yet.</p>
+                            <a href="index.html" class="btn btn-secondary" style="margin-top:0.5rem; display:inline-block;">
+                                <i class="fas fa-shopping-bag"></i> Start Shopping
+                            </a>
+                        `}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Attach form submit handler
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            updateProfile();
+        });
+    }
+
+    // ============================================================
+    // PROFILE ACTIONS
+    // ============================================================
+    window.updateProfile = function() {
+        const name = document.getElementById('profileName').value.trim();
+        const phone = document.getElementById('profilePhone').value.trim();
+        const dob = document.getElementById('profileDob').value;
+
+        if (!name) {
+            toast.info("Please enter your name.", "Info");
+            return;
+        }
+
+        const user = getCurrentUser();
+        if (!user) return;
+
+        const users = getUsers();
+        const userIndex = users.findIndex(function(u) { return u.email === user.email; });
+        
+        if (userIndex !== -1) {
+            users[userIndex].name = name;
+            users[userIndex].phone = phone;
+            users[userIndex].dob = dob;
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // Update current user
+            user.name = name;
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            
+            toast.success("✅ Profile updated successfully!", "Success");
+            renderProfile();
+        } else {
+            toast.error("❌ Error updating profile. Please try again.", "Error");
+        }
+    };
+
+    window.logout = function() {
+        if (confirm('Are you sure you want to logout?')) {
+            localStorage.removeItem('currentUser');
+            renderProfile();
+            updateCartCount();
+            toast.success("👋 Logged out successfully!", "Success");
+        }
+    };
+
+    window.addAddress = function() {
+        const address = prompt('Enter your address:');
+        if (address && address.trim()) {
+            const user = getCurrentUser();
+            if (!user) return;
+            
+            const users = getUsers();
+            const userIndex = users.findIndex(function(u) { return u.email === user.email; });
+            
+            if (userIndex !== -1) {
+                if (!users[userIndex].addresses) users[userIndex].addresses = [];
+                users[userIndex].addresses.push(address.trim());
+                localStorage.setItem('users', JSON.stringify(users));
+                renderProfile();
+                toast.success("✅ Address added successfully!", "Success");
+            }
+        }
+    };
+
+    window.editAddress = function(index) {
+        const user = getCurrentUser();
+        if (!user) return;
+        
+        const users = getUsers();
+        const userIndex = users.findIndex(function(u) { return u.email === user.email; });
+        
+        if (userIndex !== -1 && users[userIndex].addresses && users[userIndex].addresses[index]) {
+            const newAddress = prompt('Edit address:', users[userIndex].addresses[index]);
+            if (newAddress && newAddress.trim()) {
+                users[userIndex].addresses[index] = newAddress.trim();
+                localStorage.setItem('users', JSON.stringify(users));
+                renderProfile();
+                toast.info("✅ Address updated!", "Info");
+            }
+        }
+    };
+
+    window.deleteAddress = function(index) {
+        if (!confirm('Delete this address?')) return;
+        
+        const user = getCurrentUser();
+        if (!user) return;
+        
+        const users = getUsers();
+        const userIndex = users.findIndex(function(u) { return u.email === user.email; });
+        
+        if (userIndex !== -1 && users[userIndex].addresses) {
+            users[userIndex].addresses.splice(index, 1);
+            localStorage.setItem('users', JSON.stringify(users));
+            renderProfile();
+            toast.info("✅ Address deleted!", "Info");
+        }
+    };
+
+    // ============================================================
+    // SAMPLE USER FOR DEMO (if no user exists)
+    // ============================================================
+    function seedSampleUser() {
+        const users = getUsers();
+        if (users.length === 0) {
+            const sampleUser = {
+                name: 'Alex Rivera',
+                email: 'alex@example.com',
+                password: 'password123',
+                phone: '+1 234 567 890',
+                dob: '1990-01-01',
+                addresses: [
+                    '123 Main Street, New York, NY 10001',
+                    '456 Oak Avenue, Los Angeles, CA 90001'
+                ]
+            };
+            users.push(sampleUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // Auto-login for demo
+            localStorage.setItem('currentUser', JSON.stringify({
+                name: sampleUser.name,
+                email: sampleUser.email
+            }));
+        }
+    }
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    seedSampleUser();
+    renderProfile();
+    updateCartCount();
+
+    console.log('✅ Profile page loaded successfully!');
+    console.log('👤 User:', getCurrentUser());
+</script>
+<script>
+// ============================================================
+// MODERN TOAST NOTIFICATION SYSTEM
+// ============================================================
+class ToastManager {
+    constructor() {
+        this.container = null;
+        this.init();
+    }
+
+    init() {
+        if (!document.querySelector('.toast-container')) {
+            this.container = document.createElement('div');
+            this.container.className = 'toast-container';
+            document.body.appendChild(this.container);
+        } else {
+            this.container = document.querySelector('.toast-container');
+        }
+    }
+
+    show(message, options) {
+        options = options || {};
+        var type = options.type || 'info';
+        var title = options.title || '';
+        var duration = options.duration || 4000;
+        var icon = options.icon || null;
+
+        var toast = document.createElement('div');
+        toast.className = 'toast toast-' + type;
+
+        var icons = {
+            success: 'fa-check-circle',
+            error: 'fa-times-circle',
+            warning: 'fa-exclamation-circle',
+            info: 'fa-info-circle'
+        };
+
+        var iconClass = icon || icons[type] || icons.info;
+
+        var defaultTitles = {
+            success: '✅ Success!',
+            error: '❌ Error!',
+            warning: '⚠️ Warning!',
+            info: 'ℹ️ Info'
+        };
+        var displayTitle = title || defaultTitles[type] || defaultTitles.info;
+
+        toast.innerHTML = 
+            '<div class="toast-icon"><i class="fas ' + iconClass + '"></i></div>' +
+            '<div class="toast-content">' +
+                '<div class="toast-title">' + displayTitle + '</div>' +
+                '<div class="toast-message">' + message + '</div>' +
+            '</div>' +
+            '<button class="toast-close" onclick="this.closest('.toast').remove()">&times;</button>' +
+            '<div class="toast-progress"></div>';
+
+        this.container.appendChild(toast);
+
+        setTimeout(function() { toast.classList.add('show'); }, 10);
+
+        var timeout = setTimeout(function() { 
+            if (toast.parentNode) {
+                toast.classList.remove('show');
+                toast.classList.add('hide');
+                setTimeout(function() { if (toast.parentNode) toast.remove(); }, 500);
+            }
+        }, duration);
+
+        toast.addEventListener('click', function(e) {
+            if (e.target.closest('.toast-close')) return;
+            if (toast.parentNode) {
+                toast.classList.remove('show');
+                toast.classList.add('hide');
+                setTimeout(function() { if (toast.parentNode) toast.remove(); }, 500);
+            }
+            clearTimeout(timeout);
+        });
+
+        return toast;
+    }
+
+    success(message, title) { return this.show(message, { type: 'success', title: title || '' }); }
+    error(message, title) { return this.show(message, { type: 'error', title: title || '' }); }
+    warning(message, title) { return this.show(message, { type: 'warning', title: title || '' }); }
+    info(message, title) { return this.show(message, { type: 'info', title: title || '' }); }
+}
+
+window.toast = new ToastManager();
+
+// Show welcome notification
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        toast.success('Welcome to MarketStall Investments! 🏪', '🎉 Welcome!');
+    }, 800);
+});
+</script>
+</body>
+</html>

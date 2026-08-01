@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders · MarketStall Investments</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+/* ===== GLOBAL STYLES ===== */
+:root {
+    --primary: #2a7de1;
+    --primary-dark: #1a5fb0;
+    --secondary: #f8b400;
+    --accent: #ff6b35;
+    --success: #28a745;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --info: #17a2b8;
+    --dark: #0b1b2b;
+    --light: #f5f7fa;
+    --gray: #5b768b;
+}
+
+/* ===== TOAST NOTIFICATIONS ===== */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 420px;
+    width: 100%;
+    pointer-events: none;
+}
+
+.toast {
+    background: white;
+    border-radius: 16px;
+    padding: 16px 20px;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+    border-left: 5px solid var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.toast.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.toast.hide {
+    transform: translateX(120%);
+    opacity: 0;
+}
+
+.toast-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.toast-success .toast-icon { background: #d4edda; color: #155724; }
+.toast-error .toast-icon { background: #f8d7da; color: #721c24; }
+.toast-warning .toast-icon { background: #fff3cd; color: #856404; }
+.toast-info .toast-icon { background: #d1ecf1; color: #0c5460; }
+
+.toast-success { border-left-color: var(--success); }
+.toast-error { border-left-color: var(--danger); }
+.toast-warning { border-left-color: var(--warning); }
+.toast-info { border-left-color: var(--info); }
+
+.toast-content { flex: 1; }
+.toast-content .toast-title { font-weight: 600; font-size: 0.95rem; color: var(--dark); margin-bottom: 2px; }
+.toast-content .toast-message { font-size: 0.85rem; color: var(--gray); }
+
+.toast-close {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0 4px;
+    transition: 0.2s;
+    flex-shrink: 0;
+}
+.toast-close:hover { color: #333; }
+
+.toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    animation: toastProgress 4s linear forwards;
+}
+.toast-success .toast-progress { background: var(--success); }
+.toast-error .toast-progress { background: var(--danger); }
+.toast-warning .toast-progress { background: var(--warning); }
+.toast-info .toast-progress { background: var(--info); }
+
+@keyframes toastProgress {
+    0% { width: 100%; }
+    100% { width: 0%; }
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+    padding: 0.7rem 2rem;
+    border-radius: 60px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-secondary { background: var(--secondary); color: var(--dark); }
+.btn-secondary:hover { background: #e0a000; }
+.btn-success { background: var(--success); color: white; }
+.btn-success:hover { background: #218838; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-danger:hover { background: #c82333; }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family: system-ui, sans-serif; }
+        body { background:#f5f7fa; padding:1.5rem; }
+        .app { max-width:1100px; margin:0 auto; }
+        
+        .header { background:white; border-radius:20px; padding:0.8rem 2rem; margin-bottom:1.5rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+        .logo { font-size:1.8rem; font-weight:700; color:#0f2b3c; text-decoration:none; }
+        .logo i { color:#2a7de1; }
+        .nav-icons a { color:#1f3a4b; font-size:1.2rem; text-decoration:none; margin-left:1rem; position:relative; }
+        .nav-icons a:hover { color:#2a7de1; }
+        .cart-count { position:absolute; top:-8px; right:-10px; background:#dc3545; color:white; border-radius:50%; padding:0.1rem 0.5rem; font-size:0.7rem; font-weight:600; }
+        
+        .back-link { display:inline-block; margin-bottom:1rem; color:#2a7de1; text-decoration:none; }
+        .back-link:hover { text-decoration:underline; }
+        
+        .page-title { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; }
+        .page-title h1 { font-size:1.8rem; font-weight:600; }
+        .page-title .badge { background:#e6f0fa; padding:0.3rem 1.2rem; border-radius:60px; font-size:0.9rem; color:#1f5680; }
+        
+        .order-card { background:white; border-radius:20px; padding:1.5rem 2rem; margin-bottom:1.5rem; border:1px solid #eef2f6; transition:0.2s; }
+        .order-card:hover { box-shadow:0 4px 16px rgba(0,0,0,0.06); }
+        
+        .order-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem 1rem; padding-bottom:1rem; border-bottom:1px solid #eef2f6; }
+        .order-header .order-id { font-weight:600; font-size:1.1rem; }
+        .order-header .order-date { color:#5b768b; font-size:0.9rem; }
+        .order-header .order-status { padding:0.3rem 1rem; border-radius:30px; font-size:0.85rem; font-weight:500; }
+        .status-processing { background:#fef3e6; color:#a8641a; }
+        .status-shipped { background:#e6f0fa; color:#1f5680; }
+        .status-delivered { background:#e6f3e6; color:#0f5c3a; }
+        .status-cancelled { background:#fde8e8; color:#dc3545; }
+        
+        .order-items { padding:1rem 0; }
+        .order-item { display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0; border-bottom:1px solid #f5f7fa; }
+        .order-item:last-child { border-bottom:none; }
+        .order-item .item-name { display:flex; align-items:center; gap:1rem; }
+        .order-item .item-icon { background:#f1f4f8; width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#2a7de1; }
+        .order-item .item-qty { color:#5b768b; font-size:0.9rem; }
+        .order-item .item-price { font-weight:600; }
+        
+        .order-footer { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; padding-top:1rem; border-top:1px solid #eef2f6; }
+        .order-footer .total { font-size:1.2rem; font-weight:700; color:#0b1b2b; }
+        .order-footer .total span { color:#2a7de1; }
+        .order-actions { display:flex; gap:0.5rem; flex-wrap:wrap; }
+        .order-actions button { padding:0.4rem 1.2rem; border-radius:30px; border:1px solid #dce5ed; background:white; cursor:pointer; transition:0.2s; font-size:0.85rem; }
+        .order-actions button:hover { background:#f1f4f8; border-color:#b8cee2; }
+        .order-actions .track-btn { background:#2a7de1; color:white; border-color:#2a7de1; }
+        .order-actions .track-btn:hover { background:#1a5fb0; border-color:#1a5fb0; }
+        
+        .empty-state { text-align:center; padding:3rem 2rem; background:white; border-radius:20px; border:1px solid #eef2f6; }
+        .empty-state i { font-size:3rem; color:#dce5ed; margin-bottom:1rem; display:block; }
+        .empty-state h3 { margin-bottom:0.5rem; color:#0b1b2b; }
+        .empty-state p { color:#5b768b; }
+        .empty-state .btn { display:inline-block; margin-top:1.5rem; background:#2a7de1; color:white; padding:0.7rem 2.5rem; border-radius:60px; text-decoration:none; font-weight:500; transition:0.2s; }
+        .empty-state .btn:hover { background:#1a5fb0; }
+        
+        .tracking-modal { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; padding:1rem; }
+        .tracking-modal.active { display:flex; }
+        .tracking-content { background:white; border-radius:24px; padding:2rem; max-width:500px; width:100%; max-height:80vh; overflow-y:auto; }
+        .tracking-content h2 { margin-bottom:1rem; }
+        .tracking-content .close { float:right; background:none; border:none; font-size:1.5rem; cursor:pointer; color:#5b768b; }
+        .tracking-step { display:flex; gap:1rem; padding:1rem 0; border-left:2px solid #dce5ed; padding-left:1.5rem; margin-left:0.5rem; position:relative; }
+        .tracking-step:last-child { border-left-color:transparent; }
+        .tracking-step .step-dot { position:absolute; left:-6px; width:12px; height:12px; border-radius:50%; background:#dce5ed; }
+        .tracking-step .step-dot.active { background:#28a745; }
+        .tracking-step .step-dot.current { background:#2a7de1; width:16px; height:16px; left:-8px; }
+        .tracking-step .step-content h4 { font-weight:600; }
+        .tracking-step .step-content p { color:#5b768b; font-size:0.9rem; }
+        
+        @media (max-width:640px) {
+            .header { flex-direction:column; padding:1rem; }
+            .order-card { padding:1rem; }
+            .order-header { flex-direction:column; align-items:flex-start; }
+            .order-footer { flex-direction:column; align-items:flex-start; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <!-- Header -->
+    <header class="header">
+        <a href="index.html" class="logo"><i class="fas fa-store-alt"></i> MarketStall Investments</a>
+        <div class="nav-icons">
+            <a href="wishlist.html"><i class="fas fa-heart"></i></a>
+            <a href="cart.html"><i class="fas fa-shopping-cart"></i> <span class="cart-count" id="cartCount">0</span></a>
+            <a href="profile.html"><i class="fas fa-user"></i></a>
+        <a href="editor.html" style="background:#f8b400; color:#0b1b2b; padding:0.3rem 1rem; border-radius:30px; text-decoration:none; font-size:0.85rem; font-weight:600;"><i class="fas fa-edit"></i> Edit</a></div>
+    </header>
+
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+
+    <!-- Page Title -->
+    <div class="page-title">
+        <h1><i class="fas fa-receipt"></i> My Orders</h1>
+        <span class="badge"><i class="fas fa-clock"></i> Order history</span>
+    </div>
+
+    <!-- Orders List -->
+    <div id="ordersContainer"></div>
+
+    <!-- Tracking Modal -->
+    <div class="tracking-modal" id="trackingModal">
+        <div class="tracking-content">
+            <button class="close" onclick="closeTracking()">&times;</button>
+            <h2><i class="fas fa-truck"></i> Order Tracking</h2>
+            <div id="trackingDetails">
+                <p style="color:#5b768b;">Loading tracking information...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // DATA
+    // ============================================================
+    function getOrders() {
+        return JSON.parse(localStorage.getItem('orders')) || [];
+    }
+
+    function getCart() {
+        return JSON.parse(localStorage.getItem('cart')) || [];
+    }
+
+    function updateCartCount() {
+        const cart = getCart();
+        const count = cart.reduce(function(sum, item) { return sum + item.quantity; }, 0);
+        const badge = document.getElementById('cartCount');
+        if (badge) badge.textContent = count;
+    }
+
+    // ============================================================
+    // STATUS HELPER
+    // ============================================================
+    function getStatusClass(status) {
+        const map = {
+            'Processing': 'status-processing',
+            'Shipped': 'status-shipped',
+            'Delivered': 'status-delivered',
+            'Cancelled': 'status-cancelled'
+        };
+        return map[status] || 'status-processing';
+    }
+
+    function getStatusIcon(status) {
+        const map = {
+            'Processing': 'fa-clock',
+            'Shipped': 'fa-truck',
+            'Delivered': 'fa-check-circle',
+            'Cancelled': 'fa-times-circle'
+        };
+        return map[status] || 'fa-clock';
+    }
+
+    // ============================================================
+    // RENDER ORDERS
+    // ============================================================
+    function renderOrders() {
+        const container = document.getElementById('ordersContainer');
+        const orders = getOrders();
+
+        if (orders.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-receipt"></i>
+                    <h3>No orders yet</h3>
+                    <p>Start shopping to see your orders here!</p>
+                    <a href="index.html" class="btn"><i class="fas fa-shopping-bag"></i> Start Shopping</a>
+                </div>
+            `;
+            return;
+        }
+
+        // Sort by newest first
+        const sortedOrders = [...orders].reverse();
+
+        let html = '';
+        sortedOrders.forEach(function(order) {
+            const statusClass = getStatusClass(order.status);
+            const statusIcon = getStatusIcon(order.status);
+            const itemCount = order.items ? order.items.length : 0;
+
+            html += `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <span class="order-id"><i class="fas fa-hashtag"></i> Order #${order.id}</span>
+                            <span class="order-date"><i class="far fa-calendar-alt"></i> ${order.date || 'N/A'}</span>
+                        </div>
+                        <span class="order-status ${statusClass}"><i class="fas ${statusIcon}"></i> ${order.status || 'Processing'}</span>
+                    </div>
+
+                    <div class="order-items">
+                        ${order.items && order.items.length > 0 ? order.items.map(function(item) {
+                            return `
+                                <div class="order-item">
+                                    <div class="item-name">
+                                        <span class="item-icon"><i class="fas ${item.icon || 'fa-box'}"></i></span>
+                                        <span>${item.name} <span class="item-qty">× ${item.quantity || 1}</span></span>
+                                    </div>
+                                    <span class="item-price">$${(item.price * (item.quantity || 1)).toFixed(2)}</span>
+                                </div>
+                            `;
+                        }).join('') : '<p style="color:#5b768b; padding:0.5rem 0;">No items in this order.</p>'}
+                    </div>
+
+                    <div class="order-footer">
+                        <div class="total">Total: <span>$${order.total ? order.total.toFixed(2) : '0.00'}</span></div>
+                        <div class="order-actions">
+                            <button onclick="trackOrder('${order.id}')" class="track-btn"><i class="fas fa-truck"></i> Track</button>
+                            ${order.status !== 'Delivered' ? `<button onclick="cancelOrder('${order.id}')"><i class="fas fa-times"></i> Cancel</button>` : ''}
+                            <button onclick="reorder('${order.id}')"><i class="fas fa-redo"></i> Reorder</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    // ============================================================
+    // TRACK ORDER
+    // ============================================================
+    window.trackOrder = function(orderId) {
+        const orders = getOrders();
+        const order = orders.find(function(o) { return o.id == orderId; });
+        if (!order) {
+            toast.info("Order not found!", "Info");
+            return;
+        }
+
+        // Simulate tracking steps
+        const steps = [
+            { status: 'Order Confirmed', description: 'Your order has been confirmed and is being processed.', time: '1 hour ago' },
+            { status: 'Preparing for Shipment', description: 'We are preparing your items for shipment.', time: '2 hours ago' },
+            { status: 'Shipped', description: 'Your order has been shipped and is on its way!', time: '1 day ago' },
+            { status: 'Out for Delivery', description: 'Your package is out for delivery.', time: '2 days ago' },
+            { status: 'Delivered', description: 'Your order has been delivered successfully!', time: '3 days ago' }
+        ];
+
+        // Filter steps based on order status
+        let activeSteps = [];
+        const statuses = ['Processing', 'Shipped', 'Out for Delivery', 'Delivered'];
+        const currentIndex = statuses.indexOf(order.status);
+        
+        if (currentIndex === -1) {
+            // Default fallback
+            activeSteps = steps.slice(0, 3);
+        } else {
+            activeSteps = steps.slice(0, currentIndex + 2);
+        }
+
+        const modal = document.getElementById('trackingModal');
+        const details = document.getElementById('trackingDetails');
+
+        details.innerHTML = `
+            <div style="margin-bottom:1rem; padding:1rem; background:#f8f9fa; border-radius:12px;">
+                <p><strong>Order #${order.id}</strong></p>
+                <p style="color:#5b768b; font-size:0.9rem;">Status: <span class="order-status ${getStatusClass(order.status)}">${order.status}</span></p>
+                <p style="color:#5b768b; font-size:0.9rem;">Total: $${order.total ? order.total.toFixed(2) : '0.00'}</p>
+            </div>
+            ${activeSteps.map(function(step, index) {
+                const isActive = index <= currentIndex + 1;
+                const isCurrent = index === currentIndex + 1;
+                return `
+                    <div class="tracking-step">
+                        <span class="step-dot ${isActive ? (isCurrent ? 'current' : 'active') : ''}"></span>
+                        <div class="step-content">
+                            <h4>${step.status}</h4>
+                            <p>${step.description}</p>
+                            <p style="font-size:0.8rem; color:#999;">${step.time}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        `;
+
+        modal.classList.add('active');
+    };
+
+    window.closeTracking = function() {
+        document.getElementById('trackingModal').classList.remove('active');
+    };
+
+    // Close modal on click outside
+    document.getElementById('trackingModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeTracking();
+        }
+    });
+
+    // ============================================================
+    // CANCEL ORDER
+    // ============================================================
+    window.cancelOrder = function(orderId) {
+        if (!confirm('Are you sure you want to cancel this order?')) return;
+
+        const orders = getOrders();
+        const orderIndex = orders.findIndex(function(o) { return o.id == orderId; });
+        if (orderIndex === -1) {
+            toast.info("Order not found!", "Info");
+            return;
+        }
+
+        orders[orderIndex].status = 'Cancelled';
+        localStorage.setItem('orders', JSON.stringify(orders));
+        renderOrders();
+        alert('✅ Order #' + orderId + ' has been cancelled.');
+    };
+
+    // ============================================================
+    // REORDER
+    // ============================================================
+    window.reorder = function(orderId) {
+        const orders = getOrders();
+        const order = orders.find(function(o) { return o.id == orderId; });
+        if (!order || !order.items) {
+            toast.info("Cannot reorder: items not found.", "Info");
+            return;
+        }
+
+        let cart = getCart();
+        order.items.forEach(function(item) {
+            const existing = cart.find(function(c) { return c.id === item.id; });
+            if (existing) {
+                existing.quantity += (item.quantity || 1);
+            } else {
+                cart.push({ ...item, quantity: (item.quantity || 1) });
+            }
+        });
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
+        toast.info("✅ Items added to cart! Redirecting to cart...", "Info");
+        window.location.href = 'cart.html';
+    };
+
+    // ============================================================
+    // SAMPLE ORDERS FOR DEMO (if no orders exist)
+    // ============================================================
+    function seedSampleOrders() {
+        const orders = getOrders();
+        if (orders.length === 0) {
+            const sampleOrders = [
+                {
+                    id: 1001,
+                    date: '2026-03-15',
+                    items: [
+                        { id: 1, name: 'Wireless Noise-Canceling Headphones', price: 149.99, quantity: 1, icon: 'fa-headphones' },
+                        { id: 8, name: 'Coffee Maker Pro', price: 79.99, quantity: 1, icon: 'fa-mug-saucer' }
+                    ],
+                    total: 229.98,
+                    status: 'Delivered'
+                },
+                {
+                    id: 1002,
+                    date: '2026-03-10',
+                    items: [
+                        { id: 2, name: 'Smart Fitness Watch', price: 199.00, quantity: 1, icon: 'fa-watch' },
+                        { id: 3, name: 'Premium Leather Jacket', price: 89.99, quantity: 1, icon: 'fa-tshirt' }
+                    ],
+                    total: 288.99,
+                    status: 'Shipped'
+                },
+                {
+                    id: 1003,
+                    date: '2026-03-05',
+                    items: [
+                        { id: 4, name: 'Organic Skincare Set', price: 59.99, quantity: 2, icon: 'fa-spa' }
+                    ],
+                    total: 119.98,
+                    status: 'Processing'
+                }
+            ];
+            localStorage.setItem('orders', JSON.stringify(sampleOrders));
+        }
+    }
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    seedSampleOrders();
+    renderOrders();
+    updateCartCount();
+
+    console.log('✅ Transactions page loaded successfully!');
+    console.log('📦 Orders:', getOrders().length);
+</script>
+<script>
+// ============================================================
+// MODERN TOAST NOTIFICATION SYSTEM
+// ============================================================
+class ToastManager {
+    constructor() {
+        this.container = null;
+        this.init();
+    }
+
+    init() {
+        if (!document.querySelector('.toast-container')) {
+            this.container = document.createElement('div');
+            this.container.className = 'toast-container';
+            document.body.appendChild(this.container);
+        } else {
+            this.container = document.querySelector('.toast-container');
+        }
+    }
+
+    show(message, options) {
+        options = options || {};
+        var type = options.type || 'info';
+        var title = options.title || '';
+        var duration = options.duration || 4000;
+        var icon = options.icon || null;
+
+        var toast = document.createElement('div');
+        toast.className = 'toast toast-' + type;
+
+        var icons = {
+            success: 'fa-check-circle',
+            error: 'fa-times-circle',
+            warning: 'fa-exclamation-circle',
+            info: 'fa-info-circle'
+        };
+
+        var iconClass = icon || icons[type] || icons.info;
+
+        var defaultTitles = {
+            success: '✅ Success!',
+            error: '❌ Error!',
+            warning: '⚠️ Warning!',
+            info: 'ℹ️ Info'
+        };
+        var displayTitle = title || defaultTitles[type] || defaultTitles.info;
+
+        toast.innerHTML = 
+            '<div class="toast-icon"><i class="fas ' + iconClass + '"></i></div>' +
+            '<div class="toast-content">' +
+                '<div class="toast-title">' + displayTitle + '</div>' +
+                '<div class="toast-message">' + message + '</div>' +
+            '</div>' +
+            '<button class="toast-close" onclick="this.closest('.toast').remove()">&times;</button>' +
+            '<div class="toast-progress"></div>';
+
+        this.container.appendChild(toast);
+
+        setTimeout(function() { toast.classList.add('show'); }, 10);
+
+        var timeout = setTimeout(function() { 
+            if (toast.parentNode) {
+                toast.classList.remove('show');
+                toast.classList.add('hide');
+                setTimeout(function() { if (toast.parentNode) toast.remove(); }, 500);
+            }
+        }, duration);
+
+        toast.addEventListener('click', function(e) {
+            if (e.target.closest('.toast-close')) return;
+            if (toast.parentNode) {
+                toast.classList.remove('show');
+                toast.classList.add('hide');
+                setTimeout(function() { if (toast.parentNode) toast.remove(); }, 500);
+            }
+            clearTimeout(timeout);
+        });
+
+        return toast;
+    }
+
+    success(message, title) { return this.show(message, { type: 'success', title: title || '' }); }
+    error(message, title) { return this.show(message, { type: 'error', title: title || '' }); }
+    warning(message, title) { return this.show(message, { type: 'warning', title: title || '' }); }
+    info(message, title) { return this.show(message, { type: 'info', title: title || '' }); }
+}
+
+window.toast = new ToastManager();
+
+// Show welcome notification
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        toast.success('Welcome to MarketStall Investments! 🏪', '🎉 Welcome!');
+    }, 800);
+});
+</script>
+</body>
+</html>

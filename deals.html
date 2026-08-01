@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deals · MarketStall Investments</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+/* ===== GLOBAL STYLES ===== */
+:root {
+    --primary: #2a7de1;
+    --primary-dark: #1a5fb0;
+    --secondary: #f8b400;
+    --accent: #ff6b35;
+    --success: #28a745;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --info: #17a2b8;
+    --dark: #0b1b2b;
+    --light: #f5f7fa;
+    --gray: #5b768b;
+}
+
+/* ===== TOAST NOTIFICATIONS ===== */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 420px;
+    width: 100%;
+    pointer-events: none;
+}
+
+.toast {
+    background: white;
+    border-radius: 16px;
+    padding: 16px 20px;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+    border-left: 5px solid var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.toast.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.toast.hide {
+    transform: translateX(120%);
+    opacity: 0;
+}
+
+.toast-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.toast-success .toast-icon { background: #d4edda; color: #155724; }
+.toast-error .toast-icon { background: #f8d7da; color: #721c24; }
+.toast-warning .toast-icon { background: #fff3cd; color: #856404; }
+.toast-info .toast-icon { background: #d1ecf1; color: #0c5460; }
+
+.toast-success { border-left-color: var(--success); }
+.toast-error { border-left-color: var(--danger); }
+.toast-warning { border-left-color: var(--warning); }
+.toast-info { border-left-color: var(--info); }
+
+.toast-content { flex: 1; }
+.toast-content .toast-title { font-weight: 600; font-size: 0.95rem; color: var(--dark); margin-bottom: 2px; }
+.toast-content .toast-message { font-size: 0.85rem; color: var(--gray); }
+
+.toast-close {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0 4px;
+    transition: 0.2s;
+    flex-shrink: 0;
+}
+.toast-close:hover { color: #333; }
+
+.toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    animation: toastProgress 4s linear forwards;
+}
+.toast-success .toast-progress { background: var(--success); }
+.toast-error .toast-progress { background: var(--danger); }
+.toast-warning .toast-progress { background: var(--warning); }
+.toast-info .toast-progress { background: var(--info); }
+
+@keyframes toastProgress {
+    0% { width: 100%; }
+    100% { width: 0%; }
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+    padding: 0.7rem 2rem;
+    border-radius: 60px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-secondary { background: var(--secondary); color: var(--dark); }
+.btn-secondary:hover { background: #e0a000; }
+.btn-success { background: var(--success); color: white; }
+.btn-success:hover { background: #218838; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-danger:hover { background: #c82333; }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family: system-ui, sans-serif; }
+        body { background:#f5f7fa; }
+        .app { max-width:1280px; margin:0 auto; padding:1rem; }
+        .header { background:white; border-radius:20px; padding:0.8rem 2rem; margin-bottom:1.5rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+        .logo { font-size:1.8rem; font-weight:700; color:#0f2b3c; text-decoration:none; }
+        .logo i { color:#2a7de1; }
+        .nav-icons a { color:#1f3a4b; font-size:1.2rem; text-decoration:none; margin-left:1rem; position:relative; }
+        .cart-count { position:absolute; top:-8px; right:-10px; background:#dc3545; color:white; border-radius:50%; padding:0.1rem 0.5rem; font-size:0.7rem; font-weight:600; }
+        .deals-banner { background:linear-gradient(135deg, #dc3545, #ff6b6b); border-radius:24px; padding:2.5rem 3rem; margin-bottom:2rem; color:white; text-align:center; }
+        .deals-banner h1 { font-size:2.5rem; }
+        .deals-banner p { font-size:1.2rem; opacity:0.9; }
+        .product-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:1.5rem; }
+        .product-card { background:white; border-radius:20px; padding:1.2rem; border:1px solid #eef2f6; transition:0.3s; text-decoration:none; color:inherit; display:block; position:relative; }
+        .product-card:hover { transform:translateY(-6px); box-shadow:0 12px 32px rgba(0,0,0,0.08); }
+        .product-card .discount-badge { position:absolute; top:10px; right:10px; background:#dc3545; color:white; padding:0.2rem 0.8rem; border-radius:30px; font-size:0.8rem; font-weight:600; }
+        .product-image { background:#f1f4f8; border-radius:16px; height:180px; display:flex; align-items:center; justify-content:center; font-size:3rem; color:#2a7de1; margin-bottom:0.8rem; }
+        .product-card h4 { font-size:1rem; font-weight:600; }
+        .product-card .price { font-size:1.2rem; font-weight:700; color:#dc3545; }
+        .product-card .old-price { font-size:0.9rem; color:#999; text-decoration:line-through; margin-left:0.5rem; }
+        .product-card .rating { color:#f5a623; }
+        .back-link { display:inline-block; margin-bottom:1rem; color:#2a7de1; text-decoration:none; }
+        .back-link:hover { text-decoration:underline; }
+    </style>
+</head>
+<body>
+<div class="app">
+    <header class="header">
+        <a href="index.html" class="logo"><i class="fas fa-store-alt"></i> MarketStall Investments</a>
+        <div class="nav-icons">
+            <a href="wishlist.html"><i class="fas fa-heart"></i></a>
+            <a href="cart.html"><i class="fas fa-shopping-cart"></i> <span class="cart-count" id="cartCount">0</span></a>
+            <a href="profile.html"><i class="fas fa-user"></i></a>
+        <a href="editor.html" style="background:#f8b400; color:#0b1b2b; padding:0.3rem 1rem; border-radius:30px; text-decoration:none; font-size:0.85rem; font-weight:600;"><i class="fas fa-edit"></i> Edit</a></div>
+    </header>
+
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+
+    <div class="deals-banner">
+        <h1>🔥 Hot Deals!</h1>
+        <p>Limited time offers. Up to 70% off.</p>
+    </div>
+
+    <div class="product-grid" id="dealsGrid"></div>
+</div>
+
+<script>
+    const products = JSON.parse(localStorage.getItem('products')) || [];
+    const deals = products.filter(function(p) { return p.oldPrice !== null; });
+
+    function getCart() { return JSON.parse(localStorage.getItem('cart')) || []; }
+    function updateCartCount() {
+        const cart = getCart();
+        const count = cart.reduce(function(sum, item) { return sum + item.quantity; }, 0);
+        document.getElementById('cartCount').textContent = count;
+    }
+
+    function renderDeals() {
+        const grid = document.getElementById('dealsGrid');
+        if (deals.length === 0) {
+            grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:2rem; color:#5b768b;">No deals available right now.</p>';
+            return;
+        }
+
+        grid.innerHTML = deals.map(function(p) {
+            const discount = Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100);
+            const stars = '★'.repeat(Math.floor(p.rating)) + '☆'.repeat(5 - Math.floor(p.rating));
+            return '<a href="product.html?id=' + p.id + '" class="product-card">' +
+                '<span class="discount-badge">-' + discount + '%</span>' +
+                '<div class="product-image"><i class="fas ' + p.image + '"></i></div>' +
+                '<h4>' + p.name + '</h4>' +
+                '<div class="rating">' + stars + ' ' + p.rating + '</div>' +
+                '<div class="price">$' + p.price.toFixed(2) + ' <span class="old-price">$' + p.oldPrice.toFixed(2) + '</span></div>' +
+                '</a>';
+        }).join('');
+    }
+
+    renderDeals();
+    updateCartCount();
+</script>
+<script>
+// ============================================================
+// MODERN TOAST NOTIFICATION SYSTEM
+// ============================================================
+class ToastManager {
+    constructor() {
+        this.container = null;
+        this.init();
+    }
+
+    init() {
+        if (!document.querySelector('.toast-container')) {
+            this.container = document.createElement('div');
+            this.container.className = 'toast-container';
+            document.body.appendChild(this.container);
+        } else {
+            this.container = document.querySelector('.toast-container');
+        }
+    }
+
+    show(message, options) {
+        options = options || {};
+        var type = options.type || 'info';
+        var title = options.title || '';
+        var duration = options.duration || 4000;
+        var icon = options.icon || null;
+
+        var toast = document.createElement('div');
+        toast.className = 'toast toast-' + type;
+
+        var icons = {
+            success: 'fa-check-circle',
+            error: 'fa-times-circle',
+            warning: 'fa-exclamation-circle',
+            info: 'fa-info-circle'
+        };
+
+        var iconClass = icon || icons[type] || icons.info;
+
+        var defaultTitles = {
+            success: '✅ Success!',
+            error: '❌ Error!',
+            warning: '⚠️ Warning!',
+            info: 'ℹ️ Info'
+        };
+        var displayTitle = title || defaultTitles[type] || defaultTitles.info;
+
+        toast.innerHTML = 
+            '<div class="toast-icon"><i class="fas ' + iconClass + '"></i></div>' +
+            '<div class="toast-content">' +
+                '<div class="toast-title">' + displayTitle + '</div>' +
+                '<div class="toast-message">' + message + '</div>' +
+            '</div>' +
+            '<button class="toast-close" onclick="this.closest('.toast').remove()">&times;</button>' +
+            '<div class="toast-progress"></div>';
+
+        this.container.appendChild(toast);
+
+        setTimeout(function() { toast.classList.add('show'); }, 10);
+
+        var timeout = setTimeout(function() { 
+            if (toast.parentNode) {
+                toast.classList.remove('show');
+                toast.classList.add('hide');
+                setTimeout(function() { if (toast.parentNode) toast.remove(); }, 500);
+            }
+        }, duration);
+
+        toast.addEventListener('click', function(e) {
+            if (e.target.closest('.toast-close')) return;
+            if (toast.parentNode) {
+                toast.classList.remove('show');
+                toast.classList.add('hide');
+                setTimeout(function() { if (toast.parentNode) toast.remove(); }, 500);
+            }
+            clearTimeout(timeout);
+        });
+
+        return toast;
+    }
+
+    success(message, title) { return this.show(message, { type: 'success', title: title || '' }); }
+    error(message, title) { return this.show(message, { type: 'error', title: title || '' }); }
+    warning(message, title) { return this.show(message, { type: 'warning', title: title || '' }); }
+    info(message, title) { return this.show(message, { type: 'info', title: title || '' }); }
+}
+
+window.toast = new ToastManager();
+
+// Show welcome notification
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        toast.success('Welcome to MarketStall Investments! 🏪', '🎉 Welcome!');
+    }, 800);
+});
+</script>
+</body>
+</html>
