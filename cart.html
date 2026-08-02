@@ -2,17 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cart - MarketStall</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="supabase.js"></script>
     <style>
-        /* Same styles as index */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }
         body { background: #f5f7fa; color: #0b1b2b; padding-bottom: 70px; }
         a { text-decoration: none; color: inherit; }
         .container { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
 
+        /* Toast notifications */
         .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 380px; width: 90%; pointer-events: none; }
         .toast { background: #ffffff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); border-left: 4px solid #2a7de1; display: flex; align-items: center; gap: 12px; transform: translateX(120%); opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); pointer-events: auto; position: relative; overflow: hidden; }
         .toast.show { transform: translateX(0); opacity: 1; }
@@ -37,6 +37,7 @@
         .toast-info .toast-progress { background: #17a2b8; }
         @keyframes toastProgress { 0% { width: 100%; } 100% { width: 0%; } }
 
+        /* Header */
         .header { position: sticky; top: 0; z-index: 100; background: #ffffff; padding: 12px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border-bottom: 1px solid #eef2f6; }
         .header-top { display: flex; align-items: center; gap: 12px; max-width: 1280px; margin: 0 auto; }
         .logo { font-size: 1.3rem; font-weight: 700; color: #0b1b2b; flex-shrink: 0; }
@@ -57,6 +58,7 @@
         .user-greeting { font-size: 0.75rem; font-weight: 500; color: #1f3a4b; display: flex; align-items: center; gap: 4px; }
         .user-greeting i { color: #f8b400; }
 
+        /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; display: flex; justify-content: space-around; align-items: center; padding: 6px 0 10px; box-shadow: 0 -2px 16px rgba(0,0,0,0.06); border-top: 1px solid #eef2f6; z-index: 999; height: 64px; }
         .bottom-nav a { display: flex; flex-direction: column; align-items: center; color: #868e96; font-size: 0.6rem; font-weight: 500; transition: 0.2s; padding: 2px 8px; position: relative; min-width: 50px; }
         .bottom-nav a i { font-size: 1.2rem; margin-bottom: 2px; }
@@ -64,11 +66,13 @@
         .bottom-nav a.active { color: #f8b400; }
         .bottom-nav a .nav-badge { position: absolute; top: -4px; right: 2px; background: #dc3545; color: #fff; border-radius: 50%; font-size: 0.5rem; font-weight: 700; padding: 1px 5px; min-width: 16px; text-align: center; }
 
+        /* Page */
         .page-header { display: flex; justify-content: space-between; align-items: center; margin: 16px 0 12px; flex-wrap: wrap; gap: 8px; }
         .page-header h1 { font-size: 1.2rem; font-weight: 700; }
         .page-header h1 i { color: #f8b400; margin-right: 6px; }
         .page-header .item-count { font-size: 0.8rem; color: #5b768b; background: #f1f4f8; padding: 4px 14px; border-radius: 30px; }
 
+        /* Cart Grid */
         .cart-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
         .cart-items { background: #ffffff; border-radius: 12px; border: 1px solid #eef2f6; padding: 16px; min-height: 150px; }
         .cart-item { display: grid; grid-template-columns: 60px 1fr auto; gap: 12px; padding: 12px 0; border-bottom: 1px solid #eef2f6; align-items: center; }
@@ -76,6 +80,7 @@
         .cart-item-image { background: #f1f4f8; border-radius: 10px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #2a7de1; }
         .cart-item-details h4 { font-size: 0.85rem; font-weight: 600; }
         .cart-item-details .price { font-weight: 700; color: #2a7de1; font-size: 0.9rem; }
+        .cart-item-details .stock-warning { font-size: 0.65rem; color: #dc3545; display: block; margin-top: 2px; }
         .cart-item-actions { display: flex; align-items: center; gap: 6px; }
         .qty-btn { width: 28px; height: 28px; border-radius: 8px; border: 1px solid #eef2f6; background: #f8f9fa; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .qty-btn:hover { background: #f1f4f8; }
@@ -83,6 +88,7 @@
         .remove-btn { background: none; border: none; color: #dc3545; cursor: pointer; font-size: 0.9rem; padding: 4px; transition: 0.2s; }
         .remove-btn:hover { background: #fde8e8; border-radius: 6px; }
 
+        /* Empty */
         .empty-cart { text-align: center; padding: 30px 16px; }
         .empty-cart i { font-size: 3rem; color: #dce5ed; margin-bottom: 12px; display: block; }
         .empty-cart h3 { font-size: 1rem; margin-bottom: 4px; }
@@ -90,6 +96,7 @@
         .btn-shop { display: inline-block; padding: 8px 24px; border-radius: 30px; font-weight: 600; font-size: 0.85rem; background: #2a7de1; color: #fff; transition: 0.2s; }
         .btn-shop:hover { background: #1a5fb0; transform: translateY(-2px); }
 
+        /* Summary */
         .cart-summary { background: #ffffff; border-radius: 12px; border: 1px solid #eef2f6; padding: 16px; }
         .cart-summary h3 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; }
         .summary-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.85rem; color: #1f3a4b; }
@@ -101,6 +108,7 @@
         .clear-cart-btn { width: 100%; padding: 8px 0; border: 1px solid #dc3545; border-radius: 30px; background: transparent; color: #dc3545; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.2s; margin-top: 6px; }
         .clear-cart-btn:hover { background: #dc3545; color: #fff; transform: translateY(-2px); }
 
+        /* Footer */
         .footer { background: #ffffff; border-radius: 12px; padding: 16px; margin: 8px 0 10px; border: 1px solid #eef2f6; text-align: center; }
         .footer .logo { font-size: 1rem; }
         .footer p { font-size: 0.65rem; color: #5b768b; margin-top: 4px; }
@@ -233,33 +241,44 @@
         }
         window.toast = new ToastManager();
 
-        let supabase = null;
-        let supabaseReady = false;
-
+        // ============================================================
+        // SUPABASE HELPERS
+        // ============================================================
+        function getSupabaseClient() { return window.supabaseClient || null; }
         function waitForSupabase() {
-            return new Promise((resolve) => {
+            return new Promise(function(resolve) {
                 if (window.supabaseClient) { resolve(window.supabaseClient); return; }
-                document.addEventListener('supabaseReady', function() { resolve(window.supabaseClient); });
-                setTimeout(() => { resolve(window.supabaseClient || null); }, 5000);
+                var checkInterval = setInterval(function() {
+                    if (window.supabaseClient) { clearInterval(checkInterval); resolve(window.supabaseClient); }
+                }, 200);
+                setTimeout(function() { clearInterval(checkInterval); resolve(window.supabaseClient || null); }, 8000);
             });
         }
 
-        // ===== AUTH =====
+        // ============================================================
+        // AUTH
+        // ============================================================
         async function updateAuthButtons() {
             var authContainer = document.getElementById('authButtons');
             try {
-                const client = await waitForSupabase();
-                if (!client) { authContainer.innerHTML = '<a href="signup.html" class="btn-signup"><i class="fas fa-user-plus"></i> Sign Up</a>'; return; }
-                const { data: { session } } = await client.auth.getSession();
-                if (session) {
-                    const email = session.user.email || 'User';
-                    authContainer.innerHTML =
-                        '<span class="user-greeting"><i class="fas fa-user-circle"></i> ' + email.split('@')[0] + '</span>' +
-                        '<button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>';
-                } else {
-                    authContainer.innerHTML = '<a href="signup.html" class="btn-signup"><i class="fas fa-user-plus"></i> Sign Up</a>';
+                var client = getSupabaseClient();
+                if (client) {
+                    var { data: { session } } = await client.auth.getSession();
+                    if (session) {
+                        var email = session.user.email || 'User';
+                        authContainer.innerHTML =
+                            '<span class="user-greeting"><i class="fas fa-user-circle"></i> ' + email.split('@')[0] + '</span>' +
+                            '<button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>';
+                        return;
+                    }
                 }
-            } catch (e) {
+            } catch (e) {}
+            var currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (currentUser) {
+                authContainer.innerHTML =
+                    '<span class="user-greeting"><i class="fas fa-user-circle"></i> ' + (currentUser.name || 'User') + '</span>' +
+                    '<button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>';
+            } else {
                 authContainer.innerHTML = '<a href="signup.html" class="btn-signup"><i class="fas fa-user-plus"></i> Sign Up</a>';
             }
         }
@@ -267,111 +286,126 @@
         window.logout = async function() {
             if (!confirm('Logout?')) return;
             try {
-                const client = await waitForSupabase();
-                if (client) await client.auth.signOut();
+                var client = getSupabaseClient();
+                if (client) { await client.auth.signOut(); }
                 localStorage.removeItem('currentUser');
                 updateAuthButtons();
                 toast.success('Logged out.', 'Goodbye');
-                setTimeout(() => location.reload(), 500);
+                setTimeout(function() { location.reload(); }, 500);
             } catch (e) { toast.error('Error logging out.', 'Error'); }
         };
 
-        // ===== CART FUNCTIONS =====
+        // ============================================================
+        // CART FUNCTIONS
+        // ============================================================
         let cartItems = [];
         let cartId = null;
 
+        function updateBadges(count) {
+            var badge = document.getElementById('cartCount');
+            if (badge) badge.textContent = count;
+            var bottomBadge = document.getElementById('bottomCartBadge');
+            if (bottomBadge) bottomBadge.textContent = count;
+        }
+
+        function updateItemCount(count) {
+            var itemCount = document.getElementById('itemCount');
+            if (itemCount) itemCount.textContent = count + ' items';
+        }
+
+        // ============================================================
+        // LOAD CART FROM SUPABASE
+        // ============================================================
         async function loadCart() {
             var container = document.getElementById('cartItems');
-            var summary = document.getElementById('summaryContent');
-            var checkoutBtn = document.getElementById('checkoutBtn');
-
             try {
-                const client = await waitForSupabase();
-                if (!client) {
-                    // Fallback to local storage
-                    loadLocalCart();
-                    return;
+                var client = getSupabaseClient();
+                var items = [];
+
+                if (client) {
+                    var { data: { session } } = await client.auth.getSession();
+                    if (session) {
+                        // Get or create cart
+                        var { data: cartData } = await client
+                            .from('carts')
+                            .select('*')
+                            .eq('user_id', session.user.id)
+                            .single();
+
+                        if (!cartData) {
+                            var { data: newCart } = await client
+                                .from('carts')
+                                .insert({ user_id: session.user.id })
+                                .select()
+                                .single();
+                            cartData = newCart;
+                        }
+
+                        if (cartData) {
+                            cartId = cartData.id;
+                            // Get cart items with product details
+                            var { data: cartItemsData, error } = await client
+                                .from('cart_items')
+                                .select(`
+                                    *,
+                                    products!inner(
+                                        id, name, price, image, stock
+                                    )
+                                `)
+                                .eq('cart_id', cartId);
+
+                            if (!error && cartItemsData) {
+                                items = cartItemsData;
+                                // Save to localStorage for offline
+                                localStorage.setItem('cart', JSON.stringify(items));
+                                renderCartItems(items);
+                                return;
+                            }
+                        }
+                    }
                 }
 
-                const { data: { session } } = await client.auth.getSession();
-
-                if (!session) {
-                    loadLocalCart();
-                    return;
+                // Fallback to localStorage
+                var stored = JSON.parse(localStorage.getItem('cart')) || [];
+                if (stored.length > 0) {
+                    // Convert stored items to match the format
+                    var converted = stored.map(function(item) {
+                        return {
+                            id: item.cart_item_id || Date.now(),
+                            product_id: item.id,
+                            quantity: item.quantity || 1,
+                            products: {
+                                id: item.id,
+                                name: item.name,
+                                price: item.price,
+                                image: item.image || 'fa-box',
+                                stock: item.stock || 999
+                            }
+                        };
+                    });
+                    items = converted;
+                    renderCartItems(items);
+                } else {
+                    renderCartItems([]);
                 }
-
-                // Get or create cart
-                let { data: cartData } = await client
-                    .from('carts')
-                    .select('*')
-                    .eq('user_id', session.user.id)
-                    .single();
-
-                if (!cartData) {
-                    const { data: newCart } = await client
-                        .from('carts')
-                        .insert({ user_id: session.user.id })
-                        .select()
-                        .single();
-                    cartData = newCart;
-                }
-
-                if (!cartData) {
-                    loadLocalCart();
-                    return;
-                }
-
-                cartId = cartData.id;
-
-                // Get cart items with product details
-                const { data: items, error } = await client
-                    .from('cart_items')
-                    .select(`
-                        *,
-                        products!inner(
-                            id, name, price, image, stock
-                        )
-                    `)
-                    .eq('cart_id', cartId);
-
-                if (error) throw error;
-
-                cartItems = items || [];
-                renderCartItems(cartItems);
 
             } catch (e) {
-                console.warn('Error loading cart from Supabase:', e);
-                loadLocalCart();
+                console.warn('Error loading cart:', e);
+                renderCartItems([]);
             }
         }
 
-        function loadLocalCart() {
-            var cart = JSON.parse(localStorage.getItem('cart')) || [];
-            cartItems = cart.map(function(item) {
-                return {
-                    id: item.id,
-                    product_id: item.id,
-                    quantity: item.quantity || 1,
-                    products: {
-                        id: item.id,
-                        name: item.name,
-                        price: item.price,
-                        image: item.image || 'fa-box',
-                        stock: 999
-                    }
-                };
-            });
-            renderCartItems(cartItems);
-        }
-
+        // ============================================================
+        // RENDER CART ITEMS
+        // ============================================================
         function renderCartItems(items) {
             var container = document.getElementById('cartItems');
             var summary = document.getElementById('summaryContent');
             var checkoutBtn = document.getElementById('checkoutBtn');
 
-            var itemCount = document.getElementById('itemCount');
+            cartItems = items || [];
 
-            if (!items || items.length === 0) {
+            if (!cartItems || cartItems.length === 0) {
                 container.innerHTML = '<div class="empty-cart"><i class="fas fa-shopping-cart"></i><h3>Your cart is empty</h3><p>Start shopping to add items!</p><a href="products.html" class="btn-shop"><i class="fas fa-shopping-bag"></i> Start Shopping</a></div>';
                 summary.innerHTML =
                     '<div class="summary-row"><span class="label">Subtotal</span><span>$0.00</span></div>' +
@@ -379,8 +413,8 @@
                     '<div class="summary-row total"><span>Total</span><span id="totalAmount">$0.00</span></div>' +
                     '<button class="checkout-btn" onclick="proceedToCheckout()" disabled><i class="fas fa-lock"></i> Proceed to Checkout</button>' +
                     '<button class="clear-cart-btn" onclick="clearCart()" disabled><i class="fas fa-trash"></i> Clear Cart</button>';
-                itemCount.textContent = '0 items';
                 updateBadges(0);
+                updateItemCount(0);
                 return;
             }
 
@@ -388,8 +422,8 @@
             var totalItems = 0;
             var html = '';
 
-            for (var i = 0; i < items.length; i++) {
-                var item = items[i];
+            for (var i = 0; i < cartItems.length; i++) {
+                var item = cartItems[i];
                 var product = item.products || {};
                 var price = parseFloat(product.price || 0);
                 var quantity = item.quantity || 1;
@@ -399,17 +433,17 @@
 
                 var stockWarning = '';
                 if (product.stock !== undefined && quantity > product.stock) {
-                    stockWarning = '<span style="color:#dc3545; font-size:0.7rem; display:block;">⚠️ Only ' + product.stock + ' left</span>';
+                    stockWarning = '<span class="stock-warning"><i class="fas fa-exclamation-triangle"></i> Only ' + product.stock + ' left</span>';
                 }
 
                 html += '<div class="cart-item" data-id="' + item.id + '">' +
                     '<div class="cart-item-image"><i class="fas ' + (product.image || 'fa-box') + '"></i></div>' +
                     '<div class="cart-item-details"><h4>' + (product.name || 'Product') + '</h4><span class="price">$' + price.toFixed(2) + '</span>' + stockWarning + '</div>' +
                     '<div class="cart-item-actions">' +
-                    '<button class="qty-btn" onclick="updateQuantity(\'' + item.id + '\', ' + (item.product_id || item.id) + ', -1)">−</button>' +
+                    '<button class="qty-btn" onclick="updateQuantity(\'' + item.id + '\', ' + (item.product_id || product.id) + ', -1)">−</button>' +
                     '<span class="qty-display">' + quantity + '</span>' +
-                    '<button class="qty-btn" onclick="updateQuantity(\'' + item.id + '\', ' + (item.product_id || item.id) + ', 1)">+</button>' +
-                    '<button class="remove-btn" onclick="removeItem(\'' + item.id + '\', ' + (item.product_id || item.id) + ')"><i class="fas fa-trash"></i></button>' +
+                    '<button class="qty-btn" onclick="updateQuantity(\'' + item.id + '\', ' + (item.product_id || product.id) + ', 1)">+</button>' +
+                    '<button class="remove-btn" onclick="removeItem(\'' + item.id + '\', ' + (item.product_id || product.id) + ')"><i class="fas fa-trash"></i></button>' +
                     '</div></div>';
             }
 
@@ -422,169 +456,212 @@
                 '<button class="checkout-btn" onclick="proceedToCheckout()"><i class="fas fa-lock"></i> Proceed to Checkout</button>' +
                 '<button class="clear-cart-btn" onclick="clearCart()"><i class="fas fa-trash"></i> Clear Cart</button>';
 
-            itemCount.textContent = totalItems + ' items';
             updateBadges(totalItems);
+            updateItemCount(totalItems);
         }
 
-        // ===== CART ACTIONS =====
+        // ============================================================
+        // CART ACTIONS WITH SUPABASE
+        // ============================================================
         window.updateQuantity = async function(cartItemId, productId, change) {
             try {
-                const client = await waitForSupabase();
-                if (!client) {
-                    // Local storage fallback
-                    var cart = JSON.parse(localStorage.getItem('cart')) || [];
-                    for (var i = 0; i < cart.length; i++) {
-                        if (cart[i].id === productId) {
-                            var newQty = (cart[i].quantity || 1) + change;
-                            if (newQty <= 0) {
-                                cart.splice(i, 1);
-                                toast.success('Item removed.', 'Removed');
-                            } else {
-                                cart[i].quantity = newQty;
-                            }
-                            localStorage.setItem('cart', JSON.stringify(cart));
-                            loadCart();
-                            return;
-                        }
+                var client = getSupabaseClient();
+                var currentQty = 0;
+
+                // Find current item
+                var itemFound = null;
+                for (var i = 0; i < cartItems.length; i++) {
+                    if (cartItems[i].id === cartItemId || cartItems[i].product_id === productId) {
+                        itemFound = cartItems[i];
+                        currentQty = cartItems[i].quantity || 1;
+                        break;
                     }
-                    return;
                 }
 
-                const { data: { session } } = await client.auth.getSession();
-                if (!session) {
-                    var cart = JSON.parse(localStorage.getItem('cart')) || [];
-                    for (var j = 0; j < cart.length; j++) {
-                        if (cart[j].id === productId) {
-                            var newQty = (cart[j].quantity || 1) + change;
-                            if (newQty <= 0) {
-                                cart.splice(j, 1);
-                                toast.success('Item removed.', 'Removed');
-                            } else {
-                                cart[j].quantity = newQty;
-                            }
-                            localStorage.setItem('cart', JSON.stringify(cart));
-                            loadCart();
-                            return;
+                if (!itemFound) {
+                    // Try to find in localStorage
+                    var stored = JSON.parse(localStorage.getItem('cart')) || [];
+                    for (var j = 0; j < stored.length; j++) {
+                        if (stored[j].id === productId) {
+                            currentQty = stored[j].quantity || 1;
+                            itemFound = stored[j];
+                            break;
                         }
                     }
-                    return;
+                    if (!itemFound) {
+                        toast.error('Item not found.', 'Error');
+                        return;
+                    }
                 }
 
-                // Get product to check stock
-                const { data: product } = await client
-                    .from('products')
-                    .select('stock')
-                    .eq('id', productId)
-                    .single();
-
-                // Get current cart item
-                const { data: currentItem } = await client
-                    .from('cart_items')
-                    .select('quantity')
-                    .eq('id', cartItemId)
-                    .single();
-
-                var currentQty = currentItem ? currentItem.quantity : 0;
                 var newQty = currentQty + change;
 
                 if (newQty <= 0) {
-                    await client
-                        .from('cart_items')
-                        .delete()
-                        .eq('id', cartItemId);
-                    toast.success('Item removed.', 'Removed');
-                } else if (product && newQty > product.stock) {
-                    toast.warning('Not enough stock! Only ' + product.stock + ' available.', 'Stock Limit');
+                    await removeItemFromCart(cartItemId, productId);
                     return;
-                } else {
-                    await client
-                        .from('cart_items')
-                        .update({ quantity: newQty })
-                        .eq('id', cartItemId);
                 }
 
-                loadCart();
+                // Check stock
+                var stockAvailable = 999;
+                if (itemFound.products) {
+                    stockAvailable = itemFound.products.stock || 999;
+                } else {
+                    // Get product from localStorage
+                    var products = JSON.parse(localStorage.getItem('products')) || [];
+                    for (var k = 0; k < products.length; k++) {
+                        if (products[k].id === productId) {
+                            stockAvailable = products[k].stock || 999;
+                            break;
+                        }
+                    }
+                }
+
+                if (newQty > stockAvailable) {
+                    toast.warning('Not enough stock! Only ' + stockAvailable + ' available.', 'Stock Limit');
+                    return;
+                }
+
+                if (client) {
+                    var { data: { session } } = await client.auth.getSession();
+                    if (session && cartId) {
+                        // Update in Supabase
+                        var { error } = await client
+                            .from('cart_items')
+                            .update({ quantity: newQty })
+                            .eq('id', cartItemId);
+
+                        if (!error) {
+                            // Update local
+                            for (var l = 0; l < cartItems.length; l++) {
+                                if (cartItems[l].id === cartItemId) {
+                                    cartItems[l].quantity = newQty;
+                                    break;
+                                }
+                            }
+                            renderCartItems(cartItems);
+                            return;
+                        }
+                    }
+                }
+
+                // Fallback: update localStorage
+                var storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+                for (var m = 0; m < storedCart.length; m++) {
+                    if (storedCart[m].id === productId) {
+                        storedCart[m].quantity = newQty;
+                        localStorage.setItem('cart', JSON.stringify(storedCart));
+                        break;
+                    }
+                }
+                // Update local items
+                for (var n = 0; n < cartItems.length; n++) {
+                    if (cartItems[n].product_id === productId || cartItems[n].id === cartItemId) {
+                        cartItems[n].quantity = newQty;
+                        break;
+                    }
+                }
+                renderCartItems(cartItems);
 
             } catch (e) {
                 toast.error('Error updating cart.', 'Error');
+                console.warn('Update error:', e);
             }
         };
 
         window.removeItem = async function(cartItemId, productId) {
             if (!confirm('Remove this item?')) return;
+            await removeItemFromCart(cartItemId, productId);
+        };
 
+        async function removeItemFromCart(cartItemId, productId) {
             try {
-                const client = await waitForSupabase();
-                if (!client) {
-                    var cart = JSON.parse(localStorage.getItem('cart')) || [];
-                    for (var i = 0; i < cart.length; i++) {
-                        if (cart[i].id === productId) {
-                            var removed = cart[i];
-                            cart.splice(i, 1);
-                            localStorage.setItem('cart', JSON.stringify(cart));
-                            loadCart();
-                            toast.success(removed.name + ' removed.', 'Removed');
+                var client = getSupabaseClient();
+                var removedName = 'Item';
+
+                // Find item name
+                for (var i = 0; i < cartItems.length; i++) {
+                    if (cartItems[i].id === cartItemId || cartItems[i].product_id === productId) {
+                        if (cartItems[i].products) {
+                            removedName = cartItems[i].products.name || 'Item';
+                        }
+                        break;
+                    }
+                }
+
+                if (client) {
+                    var { data: { session } } = await client.auth.getSession();
+                    if (session && cartId) {
+                        var { error } = await client
+                            .from('cart_items')
+                            .delete()
+                            .eq('id', cartItemId);
+
+                        if (!error) {
+                            // Remove from local
+                            for (var j = 0; j < cartItems.length; j++) {
+                                if (cartItems[j].id === cartItemId) {
+                                    cartItems.splice(j, 1);
+                                    break;
+                                }
+                            }
+                            renderCartItems(cartItems);
+                            toast.success(removedName + ' removed.', 'Removed');
                             return;
                         }
                     }
-                    return;
                 }
 
-                const { data: { session } } = await client.auth.getSession();
-                if (!session) {
-                    var cart = JSON.parse(localStorage.getItem('cart')) || [];
-                    for (var j = 0; j < cart.length; j++) {
-                        if (cart[j].id === productId) {
-                            var removed = cart[j];
-                            cart.splice(j, 1);
-                            localStorage.setItem('cart', JSON.stringify(cart));
-                            loadCart();
-                            toast.success(removed.name + ' removed.', 'Removed');
-                            return;
-                        }
+                // Fallback: remove from localStorage
+                var storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+                for (var k = 0; k < storedCart.length; k++) {
+                    if (storedCart[k].id === productId) {
+                        removedName = storedCart[k].name || 'Item';
+                        storedCart.splice(k, 1);
+                        localStorage.setItem('cart', JSON.stringify(storedCart));
+                        break;
                     }
-                    return;
                 }
-
-                await client
-                    .from('cart_items')
-                    .delete()
-                    .eq('id', cartItemId);
-
-                loadCart();
-                toast.success('Item removed.', 'Removed');
+                // Remove from local items
+                for (var l = 0; l < cartItems.length; l++) {
+                    if (cartItems[l].product_id === productId || cartItems[l].id === cartItemId) {
+                        cartItems.splice(l, 1);
+                        break;
+                    }
+                }
+                renderCartItems(cartItems);
+                toast.success(removedName + ' removed.', 'Removed');
 
             } catch (e) {
                 toast.error('Error removing item.', 'Error');
             }
-        };
+        }
 
         window.clearCart = async function() {
             if (!confirm('Clear all items?')) return;
 
             try {
-                const client = await waitForSupabase();
-                if (!client) {
-                    localStorage.setItem('cart', JSON.stringify([]));
-                    loadCart();
-                    toast.success('Cart cleared.', 'Cleared');
-                    return;
+                var client = getSupabaseClient();
+                if (client) {
+                    var { data: { session } } = await client.auth.getSession();
+                    if (session && cartId) {
+                        var { error } = await client
+                            .from('cart_items')
+                            .delete()
+                            .eq('cart_id', cartId);
+
+                        if (!error) {
+                            cartItems = [];
+                            renderCartItems(cartItems);
+                            toast.success('Cart cleared.', 'Cleared');
+                            return;
+                        }
+                    }
                 }
 
-                const { data: { session } } = await client.auth.getSession();
-                if (!session) {
-                    localStorage.setItem('cart', JSON.stringify([]));
-                    loadCart();
-                    toast.success('Cart cleared.', 'Cleared');
-                    return;
-                }
-
-                await client
-                    .from('cart_items')
-                    .delete()
-                    .eq('cart_id', cartId);
-
-                loadCart();
+                // Fallback: clear localStorage
+                localStorage.setItem('cart', JSON.stringify([]));
+                cartItems = [];
+                renderCartItems(cartItems);
                 toast.success('Cart cleared.', 'Cleared');
 
             } catch (e) {
@@ -597,17 +674,23 @@
                 toast.error('Your cart is empty.', 'Error');
                 return;
             }
+            // Save cart items to localStorage before checkout
+            var cartData = cartItems.map(function(item) {
+                return {
+                    id: item.product_id || item.products?.id,
+                    name: item.products?.name || 'Product',
+                    price: item.products?.price || 0,
+                    image: item.products?.image || 'fa-box',
+                    quantity: item.quantity || 1
+                };
+            });
+            localStorage.setItem('cart', JSON.stringify(cartData));
             window.location.href = 'checkout.html';
         };
 
-        function updateBadges(count) {
-            var badge = document.getElementById('cartCount');
-            if (badge) badge.textContent = count;
-            var bottomBadge = document.getElementById('bottomCartBadge');
-            if (bottomBadge) bottomBadge.textContent = count;
-        }
-
-        // ===== SEARCH =====
+        // ============================================================
+        // SEARCH
+        // ============================================================
         window.searchProducts = function() {
             var query = document.getElementById('searchInput').value.trim();
             if (query === '') { toast.info('Enter a search term.', 'Search'); return; }
@@ -617,10 +700,12 @@
             if (e.key === 'Enter') searchProducts();
         });
 
-        // ===== INIT =====
+        // ============================================================
+        // INIT
+        // ============================================================
         async function init() {
-            const client = await waitForSupabase();
-            if (client) { console.log('✅ Supabase connected'); }
+            var client = await waitForSupabase();
+            if (client) { console.log('✅ Supabase connected'); } else { console.log('⚠️ Using fallback data'); }
 
             await updateAuthButtons();
             await loadCart();
