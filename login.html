@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Login - MarketStall</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="supabase.js"></script>
@@ -140,10 +140,12 @@
         window.toast = new ToastManager();
 
         function waitForSupabase() {
-            return new Promise((resolve) => {
+            return new Promise(function(resolve) {
                 if (window.supabaseClient) { resolve(window.supabaseClient); return; }
-                document.addEventListener('supabaseReady', function() { resolve(window.supabaseClient); });
-                setTimeout(() => { resolve(window.supabaseClient || null); }, 5000);
+                var checkInterval = setInterval(function() {
+                    if (window.supabaseClient) { clearInterval(checkInterval); resolve(window.supabaseClient); }
+                }, 200);
+                setTimeout(function() { clearInterval(checkInterval); resolve(window.supabaseClient || null); }, 8000);
             });
         }
 
@@ -168,7 +170,7 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Logging in...';
 
             try {
-                const client = await waitForSupabase();
+                var client = await waitForSupabase();
 
                 if (!client) {
                     // Fallback to local storage
@@ -190,7 +192,7 @@
                             if (users[j].email === email) { userExists = true; break; }
                         }
                         if (userExists) {
-                            toast.error('Incorrect password.', 'Login Failed');
+                            toast.error('Incorrect password. Please try again.', 'Login Failed');
                             document.getElementById('loginPassword').classList.add('error');
                         } else {
                             toast.error('Account not found. Please sign up.', 'Login Failed');
@@ -203,26 +205,34 @@
                 }
 
                 // Login with Supabase
-                const { data, error } = await client.auth.signInWithPassword({
+                var { data, error } = await client.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
 
                 if (error) {
-                    toast.error(error.message, 'Login Failed');
+                    if (error.message && error.message.toLowerCase().includes('invalid credentials')) {
+                        toast.error('Invalid email or password.', 'Login Failed');
+                    } else {
+                        toast.error(error.message, 'Login Failed');
+                    }
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
                     return;
                 }
 
                 if (data && data.user) {
-                    const name = data.user.user_metadata?.full_name || email.split('@')[0];
+                    // Store in localStorage for fallback
+                    var name = data.user.user_metadata?.full_name || email.split('@')[0];
+                    localStorage.setItem('currentUser', JSON.stringify({ name: name, email: email }));
+
                     toast.success('Welcome back, ' + name + '!', 'Login Successful');
                     setTimeout(function() { window.location.href = 'index.html'; }, 1200);
                 }
 
             } catch (e) {
-                toast.error('Error logging in.', 'Error');
+                console.error('Login error:', e);
+                toast.error('Error logging in. Please try again.', 'Error');
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
             }
