@@ -70,46 +70,102 @@
         .search-bar input { flex: 1; border: none; background: transparent; padding: 0 16px; font-size: 0.85rem; outline: none; }
         .search-bar button { border: none; background: #f8b400; color: #0b1b2b; padding: 0 18px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
         .search-bar button:hover { background: #e0a000; }
-        .header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-        .header-actions a { color: #1f3a4b; font-size: 1.1rem; position: relative; padding: 4px 6px; transition: 0.2s; }
-        .header-actions a:hover { color: #f8b400; }
-        .cart-badge {
+
+        /* ===== PROFILE DROPDOWN ===== */
+        .profile-menu {
+            position: relative;
+            display: inline-block;
+        }
+        .profile-btn {
+            background: #f1f4f8;
+            border: none;
+            border-radius: 30px;
+            padding: 6px 14px 6px 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #1f3a4b;
+        }
+        .profile-btn:hover { background: #e3eaf2; }
+        .profile-btn i { font-size: 1rem; color: #2a7de1; }
+        .profile-btn .avatar-small {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #2a7de1;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .profile-btn .chevron { font-size: 0.6rem; color: #868e96; margin-left: 2px; }
+
+        .profile-dropdown {
+            display: none;
             position: absolute;
-            top: -4px;
-            right: -4px;
+            right: 0;
+            top: 44px;
+            background: #ffffff;
+            min-width: 200px;
+            border-radius: 12px;
+            border: 1px solid #eef2f6;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            z-index: 200;
+            padding: 6px 0;
+            overflow: hidden;
+        }
+        .profile-dropdown.show { display: block; }
+        .profile-dropdown .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            color: #1f3a4b;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+        .profile-dropdown .dropdown-item:hover { background: #f1f4f8; }
+        .profile-dropdown .dropdown-item i { width: 20px; color: #5b768b; font-size: 0.95rem; }
+        .profile-dropdown .dropdown-divider {
+            height: 1px;
+            background: #eef2f6;
+            margin: 4px 12px;
+        }
+        .profile-dropdown .dropdown-item.logout { color: #dc3545; }
+        .profile-dropdown .dropdown-item.logout i { color: #dc3545; }
+        .profile-dropdown .dropdown-item .badge {
             background: #dc3545;
             color: #fff;
             border-radius: 50%;
-            font-size: 0.55rem;
-            font-weight: 700;
-            padding: 1px 5px;
-            min-width: 16px;
-            text-align: center;
+            font-size: 0.6rem;
+            padding: 1px 6px;
+            margin-left: auto;
         }
-        .btn-signup {
-            background: #f8b400;
-            color: #0b1b2b;
-            padding: 4px 14px;
-            border-radius: 30px;
-            font-size: 0.75rem;
+        .profile-dropdown .user-info {
+            padding: 12px 16px 8px;
+            border-bottom: 1px solid #eef2f6;
+        }
+        .profile-dropdown .user-info .name {
             font-weight: 600;
-            transition: 0.2s;
+            font-size: 0.9rem;
         }
-        .btn-signup:hover { background: #e0a000; transform: translateY(-2px); }
-        .btn-logout {
-            background: #dc3545;
-            color: #fff;
-            padding: 4px 14px;
-            border-radius: 30px;
-            border: none;
+        .profile-dropdown .user-info .email {
             font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
+            color: #5b768b;
         }
-        .btn-logout:hover { background: #c82333; transform: translateY(-2px); }
-        .user-greeting { font-size: 0.75rem; font-weight: 500; color: #1f3a4b; display: flex; align-items: center; gap: 4px; }
-        .user-greeting i { color: #f8b400; }
 
         /* ===== BOTTOM NAV ===== */
         .bottom-nav {
@@ -424,10 +480,27 @@
                 <input type="text" id="searchInput" placeholder="Search products...">
                 <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
             </div>
-            <div class="header-actions">
-                <a href="wishlist.html"><i class="fas fa-heart"></i></a>
-                <a href="cart.html"><i class="fas fa-shopping-cart"></i> <span class="cart-badge" id="cartCount">0</span></a>
-                <span id="authButtons"></span>
+            <!-- Profile Menu -->
+            <div class="profile-menu">
+                <button class="profile-btn" onclick="toggleProfileMenu()">
+                    <span class="avatar-small" id="avatarLetter">U</span>
+                    <span id="profileName">Account</span>
+                    <i class="fas fa-chevron-down chevron"></i>
+                </button>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="user-info">
+                        <div class="name" id="dropdownName">User</div>
+                        <div class="email" id="dropdownEmail">user@example.com</div>
+                    </div>
+                    <a href="profile.html" class="dropdown-item"><i class="fas fa-user"></i> My Profile</a>
+                    <a href="wishlist.html" class="dropdown-item"><i class="fas fa-heart"></i> Wishlist</a>
+                    <a href="cart.html" class="dropdown-item"><i class="fas fa-shopping-cart"></i> Cart <span class="badge" id="dropdownCartBadge">0</span></a>
+                    <a href="transactions.html" class="dropdown-item"><i class="fas fa-receipt"></i> Orders</a>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    <a href="signup.html" class="dropdown-item" id="signupLink"><i class="fas fa-user-plus"></i> Sign Up</a>
+                    <a href="login.html" class="dropdown-item" id="loginLink"><i class="fas fa-sign-in-alt"></i> Login</a>
+                </div>
             </div>
         </div>
     </header>
@@ -558,59 +631,70 @@
         window.toast = new ToastManager();
 
         // ============================================================
-        // SUPABASE HELPERS
+        // PROFILE DROPDOWN
         // ============================================================
-        function getSupabaseClient() {
-            return window.supabaseClient || null;
+        function toggleProfileMenu() {
+            var dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
         }
 
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            var menu = document.querySelector('.profile-menu');
+            if (menu && !menu.contains(e.target)) {
+                document.getElementById('profileDropdown').classList.remove('show');
+            }
+        });
+
+        // ============================================================
+        // SUPABASE HELPERS
+        // ============================================================
+        function getSupabaseClient() { return window.supabaseClient || null; }
         function waitForSupabase() {
             return new Promise(function(resolve) {
-                if (window.supabaseClient) {
-                    resolve(window.supabaseClient);
-                    return;
-                }
+                if (window.supabaseClient) { resolve(window.supabaseClient); return; }
                 var checkInterval = setInterval(function() {
-                    if (window.supabaseClient) {
-                        clearInterval(checkInterval);
-                        resolve(window.supabaseClient);
-                    }
+                    if (window.supabaseClient) { clearInterval(checkInterval); resolve(window.supabaseClient); }
                 }, 200);
-                setTimeout(function() {
-                    clearInterval(checkInterval);
-                    resolve(window.supabaseClient || null);
-                }, 8000);
+                setTimeout(function() { clearInterval(checkInterval); resolve(window.supabaseClient || null); }, 8000);
             });
         }
 
         // ============================================================
-        // AUTH
+        // AUTH & PROFILE
         // ============================================================
-        async function updateAuthButtons() {
-            var authContainer = document.getElementById('authButtons');
-            try {
-                var client = getSupabaseClient();
-                if (client) {
-                    var { data: { session } } = await client.auth.getSession();
-                    if (session) {
-                        var email = session.user.email || 'User';
-                        authContainer.innerHTML =
-                            '<span class="user-greeting"><i class="fas fa-user-circle"></i> ' + email.split('@')[0] + '</span>' +
-                            '<button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>';
-                        return;
-                    }
-                }
-            } catch (e) {
-                console.warn('Auth error:', e);
-            }
-            // Fallback - check localStorage
+        function updateProfileUI() {
             var currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            var dropdown = document.getElementById('profileDropdown');
+            var signupLink = document.getElementById('signupLink');
+            var loginLink = document.getElementById('loginLink');
+
             if (currentUser) {
-                authContainer.innerHTML =
-                    '<span class="user-greeting"><i class="fas fa-user-circle"></i> ' + (currentUser.name || 'User') + '</span>' +
-                    '<button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>';
+                var name = currentUser.name || 'User';
+                var email = currentUser.email || 'user@example.com';
+                var initial = name.charAt(0).toUpperCase();
+
+                document.getElementById('avatarLetter').textContent = initial;
+                document.getElementById('profileName').textContent = name.split(' ')[0];
+                document.getElementById('dropdownName').textContent = name;
+                document.getElementById('dropdownEmail').textContent = email;
+
+                // Hide signup/login, show logout
+                signupLink.style.display = 'none';
+                loginLink.style.display = 'none';
+                // Show logout
+                var logoutBtn = dropdown.querySelector('.dropdown-item.logout');
+                if (logoutBtn) logoutBtn.style.display = 'flex';
             } else {
-                authContainer.innerHTML = '<a href="signup.html" class="btn-signup"><i class="fas fa-user-plus"></i> Sign Up</a>';
+                document.getElementById('avatarLetter').textContent = 'U';
+                document.getElementById('profileName').textContent = 'Account';
+                document.getElementById('dropdownName').textContent = 'Not Logged In';
+                document.getElementById('dropdownEmail').textContent = 'Please sign in';
+
+                signupLink.style.display = 'flex';
+                loginLink.style.display = 'flex';
+                var logoutBtn = dropdown.querySelector('.dropdown-item.logout');
+                if (logoutBtn) logoutBtn.style.display = 'none';
             }
         }
 
@@ -618,16 +702,13 @@
             if (!confirm('Logout?')) return;
             try {
                 var client = getSupabaseClient();
-                if (client) {
-                    await client.auth.signOut();
-                }
+                if (client) { await client.auth.signOut(); }
                 localStorage.removeItem('currentUser');
-                updateAuthButtons();
+                updateProfileUI();
+                updateCartCount();
                 toast.success('Logged out.', 'Goodbye');
                 setTimeout(function() { location.reload(); }, 500);
-            } catch (e) {
-                toast.error('Error logging out.', 'Error');
-            }
+            } catch (e) { toast.error('Error logging out.', 'Error'); }
         };
 
         // ============================================================
@@ -637,8 +718,10 @@
             var cart = JSON.parse(localStorage.getItem('cart')) || [];
             var count = 0;
             for (var i = 0; i < cart.length; i++) { count += cart[i].quantity || 0; }
-            var badge = document.getElementById('cartCount');
+            
+            var badge = document.getElementById('dropdownCartBadge');
             if (badge) badge.textContent = count;
+            
             var bottomBadge = document.getElementById('bottomCartBadge');
             if (bottomBadge) bottomBadge.textContent = count;
         }
@@ -676,47 +759,21 @@
         };
 
         // ============================================================
-        // LOAD CATEGORIES FROM SUPABASE
+        // LOAD CATEGORIES
         // ============================================================
         async function loadCategories() {
             var grid = document.getElementById('categoriesGrid');
             try {
-                var client = getSupabaseClient();
-                if (client) {
-                    console.log('🔍 Loading categories from Supabase...');
-                    var { data, error } = await client
-                        .from('categories')
-                        .select('*')
-                        .eq('is_active', true)
-                        .order('name');
-
-                    if (!error && data && data.length > 0) {
-                        console.log('✅ Categories loaded from Supabase:', data.length);
-                        localStorage.setItem('categories', JSON.stringify(data));
-                        grid.innerHTML = data.map(function(c) {
-                            return '<a href="products.html?category=' + c.slug + '" class="category-card"><i class="fas ' + (c.icon || 'fa-tag') + '"></i><span>' + c.name + '</span></a>';
-                        }).join('');
-                        return;
-                    } else if (error) {
-                        console.warn('⚠️ Supabase categories error:', error.message);
-                    }
-                }
-
-                // Fallback to localStorage
                 var storedCategories = localStorage.getItem('categories');
                 if (storedCategories) {
                     var cats = JSON.parse(storedCategories);
                     if (cats && cats.length > 0) {
-                        console.log('📦 Categories from localStorage:', cats.length);
                         grid.innerHTML = cats.map(function(c) {
                             return '<a href="products.html?category=' + c.slug + '" class="category-card"><i class="fas ' + (c.icon || 'fa-tag') + '"></i><span>' + c.name + '</span></a>';
                         }).join('');
                         return;
                     }
                 }
-
-                // Final fallback - default categories
-                console.log('📦 Using default categories');
                 var defaultCategories = [
                     { name: 'Electronics', slug: 'electronics', icon: 'fa-laptop' },
                     { name: 'Fashion', slug: 'fashion', icon: 'fa-tshirt' },
@@ -725,79 +782,36 @@
                     { name: 'Sports', slug: 'sports', icon: 'fa-running' },
                     { name: 'Books', slug: 'books', icon: 'fa-book' }
                 ];
-                localStorage.setItem('categories', JSON.stringify(defaultCategories));
                 grid.innerHTML = defaultCategories.map(function(c) {
                     return '<a href="products.html?category=' + c.slug + '" class="category-card"><i class="fas ' + c.icon + '"></i><span>' + c.name + '</span></a>';
                 }).join('');
-
             } catch (e) {
                 console.warn('Error loading categories:', e);
-                grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">Could not load categories.</p>';
             }
         }
 
         // ============================================================
-        // LOAD PRODUCTS FROM SUPABASE
+        // LOAD PRODUCTS
         // ============================================================
         async function loadProducts(containerId, filter, limit) {
             var container = document.getElementById(containerId);
             try {
-                var client = getSupabaseClient();
-                if (client) {
-                    console.log('🔍 Loading products from Supabase...');
-                    var query = client.from('products').select('*').eq('is_active', true);
-                    if (filter === 'featured') query = query.eq('is_featured', true);
-                    else if (filter === 'bestseller') query = query.eq('is_bestseller', true);
-                    if (limit) query = query.limit(limit);
-
-                    var { data, error } = await query;
-                    if (!error && data && data.length > 0) {
-                        console.log('✅ Products loaded from Supabase:', data.length);
-                        // Store in localStorage for offline use
-                        var all = JSON.parse(localStorage.getItem('products')) || [];
-                        for (var j = 0; j < data.length; j++) {
-                            var exists = false;
-                            for (var k = 0; k < all.length; k++) {
-                                if (all[k].id === data[j].id) { exists = true; break; }
-                            }
-                            if (!exists) all.push(data[j]);
-                        }
-                        localStorage.setItem('products', JSON.stringify(all));
-
-                        var filtered = [];
-                        for (var l = 0; l < data.length; l++) {
-                            var p2 = data[l];
-                            if (filter === 'featured' && !p2.is_featured) continue;
-                            if (filter === 'bestseller' && !p2.is_bestseller) continue;
-                            filtered.push(p2);
-                        }
-                        renderProducts(container, filtered);
-                        return;
-                    } else if (error) {
-                        console.warn('⚠️ Supabase products error:', error.message);
-                    }
-                }
-
-                // Fallback to localStorage
                 var allProducts = JSON.parse(localStorage.getItem('products')) || [];
-                if (allProducts.length > 0) {
-                    var filteredProducts = [];
-                    for (var m = 0; m < allProducts.length; m++) {
-                        var p3 = allProducts[m];
-                        if (filter === 'featured' && !p3.featured) continue;
-                        if (filter === 'bestseller' && !p3.bestseller) continue;
-                        filteredProducts.push(p3);
-                    }
-                    if (limit) filteredProducts = filteredProducts.slice(0, limit);
-                    if (filteredProducts.length > 0) {
-                        console.log('📦 Products from localStorage:', filteredProducts.length);
-                        renderProducts(container, filteredProducts);
-                        return;
-                    }
+                var filteredProducts = [];
+                for (var i = 0; i < allProducts.length; i++) {
+                    var p = allProducts[i];
+                    if (filter === 'featured' && !p.featured) continue;
+                    if (filter === 'bestseller' && !p.bestseller) continue;
+                    filteredProducts.push(p);
+                }
+                if (limit) filteredProducts = filteredProducts.slice(0, limit);
+
+                if (filteredProducts.length > 0) {
+                    renderProducts(container, filteredProducts);
+                    return;
                 }
 
-                // Final fallback - default products
-                console.log('📦 Using default products');
+                // Default products
                 var defaultProducts = [
                     { id: 1, name: 'Wireless Headphones', price: 149.99, old_price: 199.99, rating: 4.8, stock: 15, image: 'fa-headphones', featured: true, bestseller: true },
                     { id: 2, name: 'Smart Watch Pro', price: 199.00, old_price: 279.00, rating: 4.6, stock: 8, image: 'fa-watch', featured: true, bestseller: true },
@@ -810,15 +824,14 @@
                 ];
                 localStorage.setItem('products', JSON.stringify(defaultProducts));
                 var filteredDefault = [];
-                for (var n = 0; n < defaultProducts.length; n++) {
-                    var p4 = defaultProducts[n];
-                    if (filter === 'featured' && !p4.featured) continue;
-                    if (filter === 'bestseller' && !p4.bestseller) continue;
-                    filteredDefault.push(p4);
+                for (var j = 0; j < defaultProducts.length; j++) {
+                    var p2 = defaultProducts[j];
+                    if (filter === 'featured' && !p2.featured) continue;
+                    if (filter === 'bestseller' && !p2.bestseller) continue;
+                    filteredDefault.push(p2);
                 }
                 if (limit) filteredDefault = filteredDefault.slice(0, limit);
                 renderProducts(container, filteredDefault);
-
             } catch (e) {
                 console.warn('Error loading products:', e);
                 container.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">Error loading products.</p>';
@@ -830,7 +843,6 @@
                 container.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">No products found.</p>';
                 return;
             }
-
             var html = '';
             for (var i = 0; i < products.length; i++) {
                 var p = products[i];
@@ -891,23 +903,11 @@
         // ============================================================
         // INIT
         // ============================================================
-        async function init() {
-            // Wait for Supabase
+        document.addEventListener('DOMContentLoaded', async function() {
             var client = await waitForSupabase();
-            if (client) {
-                console.log('✅ Supabase connected');
-                // Try to get session for auth
-                try {
-                    var { data: { session } } = await client.auth.getSession();
-                    if (session) {
-                        console.log('✅ User logged in:', session.user.email);
-                    }
-                } catch(e) {}
-            } else {
-                console.log('⚠️ Using fallback data (Supabase not available)');
-            }
+            if (client) { console.log('✅ Supabase connected'); } else { console.log('⚠️ Using fallback data'); }
 
-            updateAuthButtons();
+            updateProfileUI();
             await loadCategories();
             await loadProducts('featuredGrid', 'featured', 4);
             await loadProducts('bestsellerGrid', 'bestseller', 4);
@@ -915,21 +915,10 @@
             updateCartCount();
 
             console.log('✅ MarketStall loaded!');
-        }
-
-        // Listen for DOM ready
-        document.addEventListener('DOMContentLoaded', init);
-
-        // Also listen for supabaseReady event
-        document.addEventListener('supabaseReady', function() {
-            console.log('✅ Supabase ready event received');
-            // Re-init to load data from Supabase
-            init();
         });
 
-        // Listen for supabaseError event
-        document.addEventListener('supabaseError', function() {
-            console.log('⚠️ Supabase error event - using fallback data');
+        document.addEventListener('supabaseReady', function() {
+            console.log('✅ Supabase ready event received');
         });
     </script>
 </body>
