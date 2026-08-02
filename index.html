@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>MarketStall · Home</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarketStall Investments - Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* ============================================================
-           TOAST NOTIFICATIONS
-           ============================================================ */
+        /* ===== RESET & BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #f5f7fa; color: #0b1b2b; padding-bottom: 70px; }
+        a { text-decoration: none; color: inherit; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 16px; }
+
+        /* ===== TOAST NOTIFICATIONS ===== */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -17,16 +21,15 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            max-width: 360px;
+            max-width: 380px;
             width: 90%;
             pointer-events: none;
         }
-
         .toast {
             background: #ffffff;
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 14px 18px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
             border-left: 4px solid #2a7de1;
             display: flex;
             align-items: center;
@@ -38,44 +41,30 @@
             position: relative;
             overflow: hidden;
         }
-
         .toast.show { transform: translateX(0); opacity: 1; }
         .toast.hide { transform: translateX(120%); opacity: 0; }
-
         .toast-icon {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.9rem;
+            font-size: 1rem;
             flex-shrink: 0;
         }
         .toast-success .toast-icon { background: #d4edda; color: #155724; }
         .toast-error .toast-icon { background: #f8d7da; color: #721c24; }
         .toast-warning .toast-icon { background: #fff3cd; color: #856404; }
         .toast-info .toast-icon { background: #d1ecf1; color: #0c5460; }
-
         .toast-success { border-left-color: #28a745; }
         .toast-error { border-left-color: #dc3545; }
         .toast-warning { border-left-color: #ffc107; }
         .toast-info { border-left-color: #17a2b8; }
-
         .toast-content { flex: 1; }
         .toast-content .toast-title { font-weight: 600; font-size: 0.9rem; color: #0b1b2b; }
         .toast-content .toast-message { font-size: 0.82rem; color: #5b768b; }
-
-        .toast-close {
-            background: none;
-            border: none;
-            color: #999;
-            cursor: pointer;
-            font-size: 1.1rem;
-            padding: 0 4px;
-            flex-shrink: 0;
-        }
-
+        .toast-close { background: none; border: none; color: #999; cursor: pointer; font-size: 1.1rem; padding: 0 4px; }
         .toast-progress {
             position: absolute;
             bottom: 0;
@@ -87,146 +76,84 @@
         .toast-error .toast-progress { background: #dc3545; }
         .toast-warning .toast-progress { background: #ffc107; }
         .toast-info .toast-progress { background: #17a2b8; }
-
         @keyframes toastProgress {
             0% { width: 100%; }
             100% { width: 0%; }
         }
 
-        /* ============================================================
-           RESET & BASE
-           ============================================================ */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: #f5f7fa;
-            color: #0b1b2b;
-            padding-bottom: 70px;
-            font-size: 16px;
-        }
-
-        /* ============================================================
-           HEADER
-           ============================================================ */
+        /* ===== HEADER ===== */
         .header {
             position: sticky;
             top: 0;
             z-index: 100;
             background: #ffffff;
-            padding: 12px 20px;
-            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+            padding: 12px 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
             border-bottom: 1px solid #eef2f6;
         }
-
         .header-top {
             display: flex;
             align-items: center;
-            gap: 16px;
-            max-width: 1240px;
+            gap: 12px;
+            max-width: 1280px;
             margin: 0 auto;
         }
-
-        .header-logo {
-            font-size: 1.4rem;
+        .logo {
+            font-size: 1.3rem;
             font-weight: 700;
-            text-decoration: none;
             color: #0b1b2b;
             flex-shrink: 0;
-            white-space: nowrap;
         }
-        .header-logo i { color: #f8b400; }
-        .header-logo span { color: #2a7de1; }
-
-        .header-search {
+        .logo i { color: #f8b400; }
+        .logo span { color: #2a7de1; }
+        .search-bar {
             flex: 1;
             display: flex;
             background: #f1f4f8;
-            border-radius: 8px;
+            border-radius: 30px;
             overflow: hidden;
-            height: 48px;
-            min-width: 0;
-            max-width: 600px;
-            border: 2px solid transparent;
-            transition: 0.3s;
+            height: 40px;
+            max-width: 500px;
         }
-
-        .header-search:focus-within {
-            border-color: #f8b400;
-            background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(248, 180, 0, 0.1);
-        }
-
-        .header-search input {
+        .search-bar input {
             flex: 1;
             border: none;
             background: transparent;
-            padding: 0 18px;
-            font-size: 0.95rem;
+            padding: 0 16px;
+            font-size: 0.85rem;
             outline: none;
-            color: #0b1b2b;
-            min-width: 0;
         }
-
-        .header-search input::placeholder {
-            color: #868e96;
-            font-size: 0.9rem;
-        }
-
-        .header-search button {
+        .search-bar button {
             border: none;
             background: #f8b400;
             color: #0b1b2b;
-            padding: 0 24px;
+            padding: 0 18px;
             cursor: pointer;
-            font-size: 1rem;
-            font-weight: 700;
+            font-weight: 600;
+            font-size: 0.85rem;
             transition: 0.2s;
-            flex-shrink: 0;
-            height: 48px;
         }
-
-        .header-search button:hover { background: #e0a000; }
-
+        .search-bar button:hover { background: #e0a000; }
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 8px;
             flex-shrink: 0;
         }
-
         .header-actions a {
             color: #1f3a4b;
             font-size: 1.1rem;
-            text-decoration: none;
             position: relative;
+            padding: 4px 6px;
             transition: 0.2s;
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            background: #f8f9fa;
         }
-
-        .header-actions a:hover {
-            background: #f1f4f8;
-            color: #f8b400;
-            transform: translateY(-2px);
-        }
-
+        .header-actions a:hover { color: #f8b400; }
         .cart-badge {
             position: absolute;
-            top: 2px;
-            right: 2px;
+            top: -4px;
+            right: -4px;
             background: #dc3545;
-            color: #ffffff;
+            color: #fff;
             border-radius: 50%;
             font-size: 0.55rem;
             font-weight: 700;
@@ -234,66 +161,39 @@
             min-width: 16px;
             text-align: center;
         }
-
         .btn-signup {
             background: #f8b400;
             color: #0b1b2b;
-            padding: 0 20px;
-            height: 44px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
             transition: 0.2s;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
-
-        .btn-signup:hover {
-            background: #e0a000;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(248, 180, 0, 0.3);
-        }
-
+        .btn-signup:hover { background: #e0a000; }
         .btn-logout {
             background: #dc3545;
-            color: #ffffff;
-            padding: 0 20px;
-            height: 44px;
-            border-radius: 8px;
+            color: #fff;
+            padding: 4px 14px;
+            border-radius: 30px;
             border: none;
-            font-size: 0.85rem;
-            font-weight: 700;
+            font-size: 0.75rem;
+            font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
-
-        .btn-logout:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(220, 53, 69, 0.3);
-        }
-
+        .btn-logout:hover { background: #c82333; }
         .user-greeting {
-            color: #1f3a4b;
+            font-size: 0.75rem;
             font-weight: 500;
-            font-size: 0.85rem;
+            color: #1f3a4b;
             display: flex;
             align-items: center;
-            gap: 6px;
-            white-space: nowrap;
+            gap: 4px;
         }
         .user-greeting i { color: #f8b400; }
 
-        /* ============================================================
-           BOTTOM NAVIGATION
-           ============================================================ */
+        /* ===== BOTTOM NAV ===== */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -304,17 +204,15 @@
             justify-content: space-around;
             align-items: center;
             padding: 6px 0 10px;
-            box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 -2px 16px rgba(0,0,0,0.06);
             border-top: 1px solid #eef2f6;
             z-index: 999;
             height: 64px;
         }
-
         .bottom-nav a {
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-decoration: none;
             color: #868e96;
             font-size: 0.6rem;
             font-weight: 500;
@@ -323,22 +221,15 @@
             position: relative;
             min-width: 50px;
         }
-
-        .bottom-nav a i {
-            font-size: 1.3rem;
-            margin-bottom: 2px;
-            transition: 0.2s;
-        }
-        .bottom-nav a span { font-size: 0.55rem; }
+        .bottom-nav a i { font-size: 1.2rem; margin-bottom: 2px; }
         .bottom-nav a:hover { color: #f8b400; }
         .bottom-nav a.active { color: #f8b400; }
-
         .bottom-nav a .nav-badge {
             position: absolute;
             top: -4px;
             right: 2px;
             background: #dc3545;
-            color: #ffffff;
+            color: #fff;
             border-radius: 50%;
             font-size: 0.5rem;
             font-weight: 700;
@@ -347,699 +238,358 @@
             text-align: center;
         }
 
-        /* ============================================================
-           HERO SECTION (No Shop Now button)
-           ============================================================ */
+        /* ===== HERO ===== */
         .hero {
             background: #ffffff;
             border-radius: 16px;
-            margin: 20px 20px 28px;
-            padding: 40px 48px;
+            margin: 12px 0 16px;
+            padding: 24px 20px;
             border: 1px solid #eef2f6;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
             display: flex;
             align-items: center;
-            gap: 40px;
-            max-width: 1240px;
-            margin-left: auto;
-            margin-right: auto;
+            gap: 20px;
         }
-
-        .hero-content {
-            flex: 1;
-        }
-
-        .hero-content h1 {
-            font-size: 2.6rem;
-            font-weight: 700;
-            line-height: 1.2;
-            margin-bottom: 12px;
-        }
+        .hero-content { flex: 1; }
+        .hero-content h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
         .hero-content h1 i { color: #f8b400; }
-
-        .hero-content p {
-            font-size: 1.1rem;
-            color: #2c4a5e;
-            margin-bottom: 0;
-            line-height: 1.5;
-            max-width: 460px;
+        .hero-content p { font-size: 0.85rem; color: #2c4a5e; margin-bottom: 12px; }
+        .btn-primary {
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            background: #2a7de1;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
         }
-
+        .btn-primary:hover { background: #1a5fb0; transform: translateY(-2px); }
         .hero-image {
             background: #f1f4f8;
-            border-radius: 16px;
-            width: 280px;
-            height: 280px;
+            border-radius: 12px;
+            width: 80px;
+            height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 6rem;
+            font-size: 2.5rem;
             color: #2a7de1;
             flex-shrink: 0;
         }
 
-        /* ============================================================
-           SECTION HEADERS
-           ============================================================ */
+        /* ===== CATEGORIES ===== */
         .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
-            margin: 36px 0 20px;
-            max-width: 1240px;
-            margin-left: auto;
-            margin-right: auto;
+            margin: 20px 0 12px;
         }
-
-        .section-header h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #0b1b2b;
-        }
-        .section-header h2 i { color: #f8b400; margin-right: 8px; }
-
-        .section-header a {
-            color: #2a7de1;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        .section-header a:hover { color: #1a5fb0; }
-
-        /* ============================================================
-           CATEGORIES
-           ============================================================ */
+        .section-header h2 { font-size: 1.1rem; font-weight: 600; }
+        .section-header h2 i { color: #f8b400; margin-right: 4px; }
+        .section-header a { font-size: 0.8rem; color: #2a7de1; font-weight: 500; }
         .categories-scroll {
             display: flex;
-            gap: 16px;
+            gap: 10px;
             overflow-x: auto;
-            padding: 4px 20px 16px;
+            padding: 4px 0 12px;
             scrollbar-width: none;
-            -webkit-overflow-scrolling: touch;
-            max-width: 1240px;
-            margin: 0 auto;
         }
         .categories-scroll::-webkit-scrollbar { display: none; }
-
         .category-card {
-            flex: 0 0 110px;
+            flex: 0 0 72px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-decoration: none;
-            color: #1f3a4b;
             background: #ffffff;
-            padding: 18px 12px;
-            border-radius: 16px;
+            padding: 10px 4px;
+            border-radius: 12px;
             border: 1px solid #eef2f6;
-            transition: 0.3s;
-            min-width: 90px;
+            transition: 0.2s;
+            min-width: 64px;
         }
+        .category-card:hover { transform: translateY(-2px); border-color: #f8b400; }
+        .category-card i { font-size: 1.4rem; color: #f8b400; margin-bottom: 2px; }
+        .category-card span { font-size: 0.6rem; font-weight: 500; text-align: center; }
 
-        .category-card:hover {
-            transform: translateY(-4px);
-            border-color: #f8b400;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-        }
-
-        .category-card i {
-            font-size: 2rem;
-            color: #f8b400;
-            margin-bottom: 6px;
-        }
-        .category-card span {
-            font-size: 0.75rem;
-            font-weight: 500;
-            text-align: center;
-            line-height: 1.2;
-        }
-
-        /* ============================================================
-           PRODUCT GRID
-           ============================================================ */
+        /* ===== PRODUCT GRID ===== */
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 28px;
-            padding: 0 20px 8px;
-            max-width: 1240px;
-            margin: 0 auto;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding-bottom: 8px;
         }
-
         .product-card {
             background: #ffffff;
-            border-radius: 16px;
+            border-radius: 12px;
             overflow: hidden;
             border: 1px solid #eef2f6;
-            transition: 0.3s;
+            transition: 0.2s;
             display: flex;
             flex-direction: column;
-            height: 440px;
         }
-
-        .product-card:hover {
-            transform: translateY(-6px);
-            border-color: #f8b400;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
-        }
-
+        .product-card:hover { transform: translateY(-2px); border-color: #f8b400; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
         .product-image {
             background: #f1f4f8;
-            padding: 24px;
+            padding: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 60%;
-            min-height: 200px;
-            font-size: 3.4rem;
+            height: 120px;
+            font-size: 2.2rem;
             color: #2a7de1;
         }
-
-        .product-body {
-            padding: 16px 18px 16px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .product-body .product-name {
-            font-size: 0.9rem;
-            font-weight: 600;
-            line-height: 1.3;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            color: #0b1b2b;
-            min-height: 40px;
-        }
-
-        .product-body .product-price {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #2a7de1;
-            margin: 4px 0 2px;
-        }
-
-        .product-body .product-price .old-price {
-            font-size: 0.8rem;
-            font-weight: 400;
-            text-decoration: line-through;
-            color: #868e96;
-            margin-left: 6px;
-        }
-
-        .product-body .product-rating {
-            font-size: 0.78rem;
-            color: #f8b400;
-            margin: 2px 0 4px;
-        }
-
-        .product-body .product-rating .count {
-            color: #868e96;
-            font-weight: 400;
-            margin-left: 4px;
-        }
-
-        .product-body .product-stock {
-            font-size: 0.72rem;
-            color: #28a745;
-            margin-bottom: 8px;
-        }
-        .product-body .product-stock.out { color: #dc3545; }
-
-        .product-body .btn-add {
+        .product-body { padding: 10px 12px 12px; flex: 1; display: flex; flex-direction: column; }
+        .product-body .name { font-size: 0.78rem; font-weight: 500; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 32px; }
+        .product-body .price { font-size: 0.9rem; font-weight: 700; color: #2a7de1; margin: 2px 0; }
+        .product-body .price .old { font-size: 0.65rem; font-weight: 400; text-decoration: line-through; color: #868e96; margin-left: 4px; }
+        .product-body .rating { font-size: 0.65rem; color: #f8b400; margin-bottom: 4px; }
+        .product-body .rating .count { color: #868e96; margin-left: 2px; }
+        .product-body .stock { font-size: 0.6rem; color: #28a745; margin-bottom: 4px; }
+        .product-body .stock.out { color: #dc3545; }
+        .btn-add {
             width: 100%;
-            padding: 0;
-            height: 48px;
+            padding: 6px 0;
             border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 0.9rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.7rem;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: 0.2s;
             background: #f1f4f8;
             color: #1f3a4b;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
             margin-top: auto;
         }
+        .btn-add:hover { background: #f8b400; color: #0b1b2b; }
+        .btn-add i { margin-right: 4px; }
 
-        .product-body .btn-add:hover {
-            background: #f8b400;
-            color: #0b1b2b;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(248, 180, 0, 0.25);
-        }
-
-        .product-body .btn-add i { font-size: 0.9rem; }
-
-        /* ============================================================
-           PROMO BANNER (No Shop Now button)
-           ============================================================ */
+        /* ===== PROMO BANNER ===== */
         .promo-banner {
             background: #ffffff;
-            border-radius: 16px;
-            margin: 28px 20px;
-            padding: 32px 40px;
+            border-radius: 12px;
+            margin: 16px 0;
+            padding: 16px 18px;
             border: 1px solid #eef2f6;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
             display: flex;
             align-items: center;
-            gap: 32px;
-            max-width: 1240px;
-            margin-left: auto;
-            margin-right: auto;
+            gap: 14px;
         }
-
-        .promo-banner .promo-content {
-            flex: 1;
-        }
-
-        .promo-banner .promo-content h3 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #0b1b2b;
-            margin-bottom: 6px;
-        }
+        .promo-banner .promo-content { flex: 1; }
+        .promo-banner .promo-content h3 { font-size: 1rem; font-weight: 700; }
         .promo-banner .promo-content h3 i { color: #f8b400; }
-
-        .promo-banner .promo-content p {
-            font-size: 0.95rem;
-            color: #2c4a5e;
-            margin-bottom: 0;
+        .promo-banner .promo-content p { font-size: 0.75rem; color: #2c4a5e; margin-bottom: 8px; }
+        .btn-secondary {
+            display: inline-block;
+            padding: 6px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.72rem;
+            background: #f8b400;
+            color: #0b1b2b;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
         }
-
+        .btn-secondary:hover { background: #e0a000; transform: translateY(-2px); }
         .promo-banner .promo-image {
             background: #f1f4f8;
-            border-radius: 16px;
-            width: 180px;
-            height: 180px;
+            border-radius: 12px;
+            width: 70px;
+            height: 70px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4rem;
+            font-size: 2rem;
             color: #2a7de1;
             flex-shrink: 0;
         }
 
-        /* ============================================================
-           TESTIMONIALS
-           ============================================================ */
+        /* ===== TESTIMONIALS ===== */
         .testimonials-scroll {
             display: flex;
-            gap: 20px;
+            gap: 10px;
             overflow-x: auto;
-            padding: 4px 20px 16px;
+            padding: 4px 0 12px;
             scrollbar-width: none;
-            -webkit-overflow-scrolling: touch;
-            max-width: 1240px;
-            margin: 0 auto;
         }
         .testimonials-scroll::-webkit-scrollbar { display: none; }
-
         .testimonial-card {
-            flex: 0 0 280px;
+            flex: 0 0 200px;
             background: #ffffff;
-            border-radius: 16px;
-            padding: 24px 20px;
+            border-radius: 12px;
+            padding: 14px;
             border: 1px solid #eef2f6;
             text-align: center;
-            transition: 0.3s;
-            min-height: 220px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
         }
-
-        .testimonial-card:hover {
-            border-color: #f8b400;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-        }
-
         .testimonial-card .avatar {
-            width: 56px;
-            height: 56px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: #f1f4f8;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.6rem;
-            margin: 0 auto 10px;
+            font-size: 1rem;
+            margin: 0 auto 6px;
             color: #2a7de1;
         }
+        .testimonial-card .name { font-weight: 600; font-size: 0.78rem; }
+        .testimonial-card .rating { color: #f8b400; font-size: 0.65rem; margin: 2px 0 4px; }
+        .testimonial-card .review { font-size: 0.72rem; color: #2c4a5e; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
-        .testimonial-card .name {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #0b1b2b;
-        }
-
-        .testimonial-card .rating {
-            color: #f8b400;
-            font-size: 0.8rem;
-            margin: 4px 0 8px;
-        }
-
-        .testimonial-card .review {
-            font-size: 0.85rem;
-            color: #2c4a5e;
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        /* ============================================================
-           FOOTER (Minimal - No social links)
-           ============================================================ */
+        /* ===== FOOTER ===== */
         .footer {
             background: #ffffff;
-            border-radius: 16px;
-            padding: 24px 20px;
-            margin: 0 20px 16px;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 8px 0 10px;
             border: 1px solid #eef2f6;
-            max-width: 1240px;
-            margin-left: auto;
-            margin-right: auto;
             text-align: center;
         }
+        .footer .logo { font-size: 1rem; }
+        .footer p { font-size: 0.65rem; color: #5b768b; margin-top: 4px; }
+        .footer .links { display: flex; justify-content: center; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
+        .footer .links a { color: #2a7de1; font-size: 0.65rem; }
 
-        .footer .logo {
-            font-size: 1.2rem;
-            font-weight: 700;
-            text-decoration: none;
-            color: #0b1b2b;
+        /* ===== RESPONSIVE ===== */
+        @media (min-width: 640px) {
+            body { padding-bottom: 0; }
+            .bottom-nav { display: none; }
+            .product-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+            .hero { padding: 28px 32px; }
+            .hero-content h1 { font-size: 1.8rem; }
+            .hero-image { width: 120px; height: 120px; font-size: 3.5rem; }
+            .header { padding: 12px 24px; }
+            .logo { font-size: 1.5rem; }
+            .search-bar { height: 44px; }
+            .search-bar input { font-size: 0.95rem; padding: 0 20px; }
+            .search-bar button { padding: 0 24px; font-size: 0.95rem; }
+            .category-card { flex: 0 0 90px; padding: 14px 8px; }
+            .category-card i { font-size: 1.8rem; }
+            .category-card span { font-size: 0.7rem; }
+            .product-image { height: 160px; font-size: 2.8rem; }
+            .section-header h2 { font-size: 1.3rem; }
+            .promo-banner { padding: 20px 28px; }
+            .promo-banner .promo-image { width: 100px; height: 100px; font-size: 3rem; }
+            .testimonial-card { flex: 0 0 240px; padding: 18px; }
         }
-        .footer .logo i { color: #f8b400; }
-        .footer .logo span { color: #2a7de1; }
-
-        .footer p {
-            font-size: 0.8rem;
-            color: #5b768b;
-            margin-top: 6px;
-        }
-
-        .footer .brand { color: #f8b400; font-weight: 700; }
-
-        /* ============================================================
-           RESPONSIVE
-           ============================================================ */
-        @media (max-width: 1024px) {
-            .product-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        }
-
-        @media (max-width: 860px) {
-            .header { padding: 10px 16px; }
-            .header-top { gap: 12px; }
-            .header-logo { font-size: 1.1rem; }
-            .header-search { height: 40px; max-width: 100%; }
-            .header-search input { font-size: 0.82rem; padding: 0 14px; }
-            .header-search button { padding: 0 16px; font-size: 0.82rem; height: 40px; }
-            .header-actions a { width: 38px; height: 38px; font-size: 0.95rem; }
-            .btn-signup, .btn-logout { height: 36px; font-size: 0.72rem; padding: 0 14px; }
-            .user-greeting { font-size: 0.72rem; }
-
-            .hero {
-                flex-direction: column;
-                text-align: center;
-                padding: 24px 20px;
-                margin: 12px 12px 20px;
-                gap: 20px;
-            }
-            .hero-content h1 { font-size: 1.6rem; }
-            .hero-content p { font-size: 0.9rem; max-width: 100%; }
-            .hero-image { width: 140px; height: 140px; font-size: 3rem; }
-
-            .product-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; padding: 0 12px; }
-            .product-card { height: 380px; }
-            .product-image { font-size: 2.4rem; min-height: 140px; }
-
-            .section-header { padding: 0 12px; margin: 24px 0 14px; }
-            .section-header h2 { font-size: 1.1rem; }
-
-            .promo-banner {
-                flex-direction: column;
-                text-align: center;
-                padding: 24px 20px;
-                margin: 16px 12px 20px;
-                gap: 20px;
-            }
-            .promo-banner .promo-image { width: 120px; height: 120px; font-size: 3rem; }
-
-            .categories-scroll { padding: 4px 12px 12px; gap: 12px; }
-            .category-card { flex: 0 0 80px; padding: 14px 8px; }
-            .category-card i { font-size: 1.6rem; }
-
-            .testimonials-scroll { padding: 4px 12px 12px; gap: 14px; }
-            .testimonial-card { flex: 0 0 220px; padding: 18px 14px; min-height: 180px; }
-            .testimonial-card .avatar { width: 44px; height: 44px; font-size: 1.2rem; }
-
-            .footer { padding: 16px; margin: 0 12px 12px; }
-        }
-
-        @media (max-width: 480px) {
-            .product-grid { grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 10px; }
-            .product-card { height: 330px; }
-            .product-image { font-size: 2rem; min-height: 120px; padding: 16px; }
-            .product-body { padding: 10px 12px 12px; }
-            .product-body .product-name { font-size: 0.78rem; min-height: 32px; }
-            .product-body .product-price { font-size: 0.9rem; }
-            .product-body .btn-add { height: 40px; font-size: 0.75rem; border-radius: 8px; }
-
-            .bottom-nav { height: 56px; padding: 4px 0 8px; }
-            .bottom-nav a i { font-size: 1.1rem; }
-            .bottom-nav a span { font-size: 0.5rem; }
-
-            .hero { padding: 16px 14px; }
-            .hero-content h1 { font-size: 1.2rem; }
-            .hero-image { width: 100px; height: 100px; font-size: 2.2rem; }
-
-            .promo-banner .promo-image { width: 80px; height: 80px; font-size: 2.2rem; }
-        }
-
-        @media (max-width: 400px) {
-            .product-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-            .product-card { height: 300px; }
-            .product-image { font-size: 1.6rem; min-height: 100px; padding: 12px; }
-            .product-body { padding: 8px 10px 10px; }
-            .product-body .product-name { font-size: 0.7rem; min-height: 28px; }
-            .product-body .product-price { font-size: 0.8rem; }
-            .product-body .product-rating { font-size: 0.6rem; }
-            .product-body .btn-add { height: 34px; font-size: 0.65rem; border-radius: 6px; }
+        @media (min-width: 1024px) {
+            .product-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+            .hero { padding: 40px 48px; }
+            .hero-content h1 { font-size: 2.4rem; }
+            .hero-image { width: 160px; height: 160px; font-size: 4.5rem; }
+            .product-image { height: 200px; font-size: 3.2rem; }
+            .container { padding: 0 24px; }
+            .category-card { flex: 0 0 110px; padding: 18px 12px; }
+            .category-card i { font-size: 2rem; }
+            .promo-banner .promo-image { width: 140px; height: 140px; font-size: 3.8rem; }
+            .testimonial-card { flex: 0 0 280px; padding: 20px; }
         }
     </style>
 </head>
 <body>
-    <!-- ============================================================
-    HEADER
-    ============================================================ -->
+    <!-- ===== HEADER ===== -->
     <header class="header">
         <div class="header-top">
-            <a href="index.html" class="header-logo">
-                <i class="fas fa-store-alt"></i> Market<span>Stall</span>
-            </a>
-
-            <div class="header-search">
-                <input type="text" id="searchInput" placeholder="Search products, brands, categories..." aria-label="Search">
-                <button type="button" onclick="searchProducts()" aria-label="Search">
-                    <i class="fas fa-search"></i> Search
-                </button>
+            <a href="index.html" class="logo"><i class="fas fa-store-alt"></i> Market<span>Stall</span></a>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search products...">
+                <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
             </div>
-
             <div class="header-actions">
-                <a href="wishlist.html" aria-label="Wishlist">
-                    <i class="fas fa-heart"></i>
-                </a>
-                <a href="cart.html" aria-label="Cart">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-badge" id="cartCount">0</span>
-                </a>
+                <a href="wishlist.html"><i class="fas fa-heart"></i></a>
+                <a href="cart.html"><i class="fas fa-shopping-cart"></i> <span class="cart-badge" id="cartCount">0</span></a>
                 <span id="authButtons"></span>
             </div>
         </div>
     </header>
 
-    <!-- ============================================================
-    HERO SECTION (No Shop Now button)
-    ============================================================ -->
-    <section class="hero">
-        <div class="hero-content">
-            <h1><i class="fas fa-gem"></i> Smart Investments</h1>
-            <p>Quality products at the best prices. Start building your portfolio today.</p>
-        </div>
-        <div class="hero-image">
-            <i class="fas fa-gem"></i>
-        </div>
-    </section>
-
-    <!-- ============================================================
-    CATEGORIES
-    ============================================================ -->
-    <div class="section-header">
-        <h2><i class="fas fa-th-large"></i> Categories</h2>
-        <a href="products.html">View All <i class="fas fa-arrow-right"></i></a>
-    </div>
-    <div class="categories-scroll">
-        <a href="products.html?category=Electronics" class="category-card">
-            <i class="fas fa-laptop"></i>
-            <span>Electronics</span>
-        </a>
-        <a href="products.html?category=Fashion" class="category-card">
-            <i class="fas fa-tshirt"></i>
-            <span>Fashion</span>
-        </a>
-        <a href="products.html?category=Home" class="category-card">
-            <i class="fas fa-couch"></i>
-            <span>Home</span>
-        </a>
-        <a href="products.html?category=Beauty" class="category-card">
-            <i class="fas fa-spa"></i>
-            <span>Beauty</span>
-        </a>
-        <a href="products.html?category=Sports" class="category-card">
-            <i class="fas fa-running"></i>
-            <span>Sports</span>
-        </a>
-        <a href="products.html?category=Books" class="category-card">
-            <i class="fas fa-book"></i>
-            <span>Books</span>
-        </a>
-    </div>
-
-    <!-- ============================================================
-    FEATURED PRODUCTS
-    ============================================================ -->
-    <div class="section-header">
-        <h2><i class="fas fa-star"></i> Featured Products</h2>
-        <a href="products.html">View All <i class="fas fa-arrow-right"></i></a>
-    </div>
-    <div class="product-grid" id="featuredGrid">
-        <!-- Injected by JavaScript -->
-    </div>
-
-    <!-- ============================================================
-    PROMO BANNER (No button)
-    ============================================================ -->
-    <section class="promo-banner">
-        <div class="promo-content">
-            <h3><i class="fas fa-tags"></i> Summer Sale</h3>
-            <p>Get exclusive discounts on selected items. Limited time offer!</p>
-        </div>
-        <div class="promo-image">
-            <i class="fas fa-tags"></i>
-        </div>
-    </section>
-
-    <!-- ============================================================
-    BEST SELLERS
-    ============================================================ -->
-    <div class="section-header">
-        <h2><i class="fas fa-fire"></i> Best Sellers</h2>
-        <a href="products.html">View All <i class="fas fa-arrow-right"></i></a>
-    </div>
-    <div class="product-grid" id="bestsellerGrid">
-        <!-- Injected by JavaScript -->
-    </div>
-
-    <!-- ============================================================
-    TESTIMONIALS
-    ============================================================ -->
-    <div class="section-header">
-        <h2><i class="fas fa-quote-right"></i> Customer Reviews</h2>
-    </div>
-    <div class="testimonials-scroll">
-        <div class="testimonial-card">
-            <div class="avatar"><i class="fas fa-user"></i></div>
-            <div class="name">Sarah J.</div>
-            <div class="rating">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+    <div class="container">
+        <!-- ===== HERO ===== -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1><i class="fas fa-gem"></i> Smart Investments</h1>
+                <p>Quality products at the best prices.</p>
+                <a href="products.html" class="btn-primary">Shop Now</a>
             </div>
-            <p class="review">"Great quality and fast delivery!"</p>
+            <div class="hero-image"><i class="fas fa-gem"></i></div>
+        </section>
+
+        <!-- ===== CATEGORIES ===== -->
+        <div class="section-header">
+            <h2><i class="fas fa-th-large"></i> Categories</h2>
+            <a href="products.html">View All</a>
         </div>
-        <div class="testimonial-card">
-            <div class="avatar"><i class="fas fa-user"></i></div>
-            <div class="name">Michael C.</div>
-            <div class="rating">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+        <div class="categories-scroll" id="categoriesGrid">
+            <!-- Injected by JS -->
+        </div>
+
+        <!-- ===== FEATURED ===== -->
+        <div class="section-header">
+            <h2><i class="fas fa-star"></i> Featured</h2>
+            <a href="products.html">View All</a>
+        </div>
+        <div class="product-grid" id="featuredGrid">
+            <!-- Injected by JS -->
+        </div>
+
+        <!-- ===== PROMO BANNER ===== -->
+        <section class="promo-banner">
+            <div class="promo-content">
+                <h3><i class="fas fa-tags"></i> Summer Sale</h3>
+                <p>Exclusive discounts on selected items.</p>
+                <a href="deals.html" class="btn-secondary">Shop Sale</a>
             </div>
-            <p class="review">"Excellent service and competitive prices."</p>
+            <div class="promo-image"><i class="fas fa-tags"></i></div>
+        </section>
+
+        <!-- ===== BEST SELLERS ===== -->
+        <div class="section-header">
+            <h2><i class="fas fa-fire"></i> Best Sellers</h2>
+            <a href="products.html">View All</a>
         </div>
-        <div class="testimonial-card">
-            <div class="avatar"><i class="fas fa-user"></i></div>
-            <div class="name">Emily R.</div>
-            <div class="rating">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+        <div class="product-grid" id="bestsellerGrid">
+            <!-- Injected by JS -->
+        </div>
+
+        <!-- ===== TESTIMONIALS ===== -->
+        <div class="section-header">
+            <h2><i class="fas fa-quote-right"></i> Reviews</h2>
+        </div>
+        <div class="testimonials-scroll" id="testimonialsGrid">
+            <!-- Injected by JS -->
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="footer">
+            <a href="index.html" class="logo"><i class="fas fa-store-alt"></i> Market<span>Stall</span></a>
+            <p>&copy; 2026 MarketStall Investments. All rights reserved.</p>
+            <div class="links">
+                <a href="index.html">Home</a>
+                <a href="products.html">Products</a>
+                <a href="cart.html">Cart</a>
+                <a href="transactions.html">Orders</a>
             </div>
-            <p class="review">"Love the variety and quality!"</p>
-        </div>
-        <div class="testimonial-card">
-            <div class="avatar"><i class="fas fa-user"></i></div>
-            <div class="name">David K.</div>
-            <div class="rating">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-            </div>
-            <p class="review">"Best shopping experience!"</p>
-        </div>
+        </footer>
     </div>
 
-    <!-- ============================================================
-    FOOTER (Minimal - No social links)
-    ============================================================ -->
-    <footer class="footer">
-        <a href="index.html" class="logo">
-            <i class="fas fa-store-alt"></i> Market<span>Stall</span>
-        </a>
-        <p>&copy; 2026 <span class="brand">MarketStall</span> Investments. All rights reserved.</p>
-    </footer>
-
-    <!-- ============================================================
-    BOTTOM NAVIGATION (Full 5 buttons)
-    ============================================================ -->
+    <!-- ===== BOTTOM NAV ===== -->
     <nav class="bottom-nav">
-        <a href="index.html" class="active">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a>
-        <a href="products.html">
-            <i class="fas fa-th-list"></i>
-            <span>Products</span>
-        </a>
-        <a href="cart.html">
-            <i class="fas fa-shopping-cart"></i>
-            <span>Cart</span>
-            <span class="nav-badge" id="bottomCartBadge">0</span>
-        </a>
-        <a href="transactions.html">
-            <i class="fas fa-receipt"></i>
-            <span>Orders</span>
-        </a>
-        <a href="profile.html">
-            <i class="fas fa-user"></i>
-            <span>Profile</span>
-        </a>
+        <a href="index.html" class="active"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="products.html"><i class="fas fa-th-list"></i><span>Products</span></a>
+        <a href="cart.html"><i class="fas fa-shopping-cart"></i><span>Cart</span><span class="nav-badge" id="bottomCartBadge">0</span></a>
+        <a href="transactions.html"><i class="fas fa-receipt"></i><span>Orders</span></a>
+        <a href="profile.html"><i class="fas fa-user"></i><span>Profile</span></a>
     </nav>
 
-    <!-- ============================================================
-    JAVASCRIPT
-    ============================================================ -->
     <script>
-        // ============================================================
-        // TOAST NOTIFICATION SYSTEM
-        // ============================================================
+        // ===== TOAST SYSTEM =====
         class ToastManager {
             constructor() {
                 this.container = null;
                 this.init();
             }
-
             init() {
                 if (!document.querySelector('.toast-container')) {
                     this.container = document.createElement('div');
@@ -1049,43 +599,23 @@
                     this.container = document.querySelector('.toast-container');
                 }
             }
-
             show(message, options) {
                 options = options || {};
                 var type = options.type || 'info';
                 var title = options.title || '';
                 var duration = options.duration || 3000;
-
                 var toast = document.createElement('div');
                 toast.className = 'toast toast-' + type;
-
-                var icons = {
-                    success: 'fa-check-circle',
-                    error: 'fa-times-circle',
-                    warning: 'fa-exclamation-circle',
-                    info: 'fa-info-circle'
-                };
-
-                var defaultTitles = {
-                    success: 'Success',
-                    error: 'Error',
-                    warning: 'Warning',
-                    info: 'Info'
-                };
+                var icons = { success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-circle', info: 'fa-info-circle' };
+                var defaultTitles = { success: 'Success', error: 'Error', warning: 'Warning', info: 'Info' };
                 var displayTitle = title || defaultTitles[type] || defaultTitles.info;
-
                 toast.innerHTML =
                     '<div class="toast-icon"><i class="fas ' + icons[type] + '"></i></div>' +
-                    '<div class="toast-content">' +
-                    '<div class="toast-title">' + displayTitle + '</div>' +
-                    '<div class="toast-message">' + message + '</div>' +
-                    '</div>' +
+                    '<div class="toast-content"><div class="toast-title">' + displayTitle + '</div><div class="toast-message">' + message + '</div></div>' +
                     '<button class="toast-close" onclick="this.closest(\'.toast\').remove()">&times;</button>' +
                     '<div class="toast-progress"></div>';
-
                 this.container.appendChild(toast);
                 setTimeout(function() { toast.classList.add('show'); }, 10);
-
                 var timeout = setTimeout(function() {
                     if (toast.parentNode) {
                         toast.classList.remove('show');
@@ -1093,7 +623,6 @@
                         setTimeout(function() { if (toast.parentNode) toast.remove(); }, 400);
                     }
                 }, duration);
-
                 toast.addEventListener('click', function(e) {
                     if (e.target.closest('.toast-close')) return;
                     if (toast.parentNode) {
@@ -1103,35 +632,27 @@
                     }
                     clearTimeout(timeout);
                 });
-
                 return toast;
             }
-
             success(message, title) { return this.show(message, { type: 'success', title: title || '' }); }
             error(message, title) { return this.show(message, { type: 'error', title: title || '' }); }
             warning(message, title) { return this.show(message, { type: 'warning', title: title || '' }); }
             info(message, title) { return this.show(message, { type: 'info', title: title || '' }); }
         }
-
         window.toast = new ToastManager();
 
-        // ============================================================
-        // AUTHENTICATION
-        // ============================================================
+        // ===== AUTH =====
         function updateAuthButtons() {
             var authContainer = document.getElementById('authButtons');
             var currentUser = JSON.parse(localStorage.getItem('currentUser'));
-
             if (currentUser) {
                 authContainer.innerHTML =
                     '<span class="user-greeting"><i class="fas fa-user-circle"></i></span>' +
                     '<button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>';
             } else {
-                authContainer.innerHTML =
-                    '<a href="signup.html" class="btn-signup"><i class="fas fa-user-plus"></i> Sign Up</a>';
+                authContainer.innerHTML = '<a href="signup.html" class="btn-signup"><i class="fas fa-user-plus"></i> Sign Up</a>';
             }
         }
-
         window.logout = function() {
             if (confirm('Logout?')) {
                 localStorage.removeItem('currentUser');
@@ -1141,92 +662,99 @@
             }
         };
 
-        // ============================================================
-        // PRODUCT DATA
-        // ============================================================
-        var products = [
-            { id: 1, name: 'Wireless Noise-Canceling Headphones', price: 149.99, oldPrice: 199.99, rating: 4.8,
-                stock: 15, image: 'fa-headphones', featured: true, bestseller: true },
-            { id: 2, name: 'Smart Fitness Watch Pro', price: 199.00, oldPrice: 279.00, rating: 4.6, stock: 8,
-                image: 'fa-watch', featured: true, bestseller: true },
-            { id: 3, name: 'Premium Leather Jacket', price: 89.99, oldPrice: null, rating: 4.7, stock: 20,
-                image: 'fa-tshirt', featured: true, bestseller: false },
-            { id: 4, name: 'Organic Skincare Set', price: 59.99, oldPrice: 79.99, rating: 4.9, stock: 25,
-                image: 'fa-spa', featured: true, bestseller: true },
-            { id: 5, name: 'Smart LED TV 55" 4K', price: 499.00, oldPrice: 699.00, rating: 4.5, stock: 5,
-                image: 'fa-tv', featured: false, bestseller: true },
-            { id: 6, name: 'Designer Handbag Classic', price: 129.00, oldPrice: 159.00, rating: 4.4, stock: 12,
-                image: 'fa-bag-shopping', featured: true, bestseller: false },
-            { id: 7, name: 'Premium Yoga Mat', price: 34.99, oldPrice: null, rating: 4.3, stock: 30,
-                image: 'fa-person-walking', featured: false, bestseller: true },
-            { id: 8, name: 'Coffee Maker Pro Deluxe', price: 79.99, oldPrice: 99.99, rating: 4.6, stock: 18,
-                image: 'fa-mug-saucer', featured: true, bestseller: true }
-        ];
-
-        if (!localStorage.getItem('products')) {
-            localStorage.setItem('products', JSON.stringify(products));
+        // ===== CART =====
+        function getCart() { return JSON.parse(localStorage.getItem('cart')) || []; }
+        function updateCartCount() {
+            var cart = getCart();
+            var count = 0;
+            for (var i = 0; i < cart.length; i++) { count += cart[i].quantity; }
+            var badge = document.getElementById('cartCount');
+            if (badge) badge.textContent = count;
+            var bottomBadge = document.getElementById('bottomCartBadge');
+            if (bottomBadge) bottomBadge.textContent = count;
         }
 
-        // ============================================================
-        // RENDER PRODUCTS
-        // ============================================================
+        // ===== PRODUCT DATA =====
+        var products = [
+            { id: 1, name: 'Wireless Headphones', price: 149.99, oldPrice: 199.99, rating: 4.8, stock: 15, image: 'fa-headphones', category: 'Electronics', featured: true, bestseller: true },
+            { id: 2, name: 'Smart Watch Pro', price: 199.00, oldPrice: 279.00, rating: 4.6, stock: 8, image: 'fa-watch', category: 'Electronics', featured: true, bestseller: true },
+            { id: 3, name: 'Leather Jacket', price: 89.99, oldPrice: null, rating: 4.7, stock: 20, image: 'fa-tshirt', category: 'Fashion', featured: true, bestseller: false },
+            { id: 4, name: 'Skincare Set', price: 59.99, oldPrice: 79.99, rating: 4.9, stock: 25, image: 'fa-spa', category: 'Beauty', featured: true, bestseller: true },
+            { id: 5, name: 'LED TV 55"', price: 499.00, oldPrice: 699.00, rating: 4.5, stock: 5, image: 'fa-tv', category: 'Electronics', featured: false, bestseller: true },
+            { id: 6, name: 'Handbag', price: 129.00, oldPrice: 159.00, rating: 4.4, stock: 12, image: 'fa-bag-shopping', category: 'Fashion', featured: true, bestseller: false },
+            { id: 7, name: 'Yoga Mat', price: 34.99, oldPrice: null, rating: 4.3, stock: 30, image: 'fa-person-walking', category: 'Sports', featured: false, bestseller: true },
+            { id: 8, name: 'Coffee Maker', price: 79.99, oldPrice: 99.99, rating: 4.6, stock: 18, image: 'fa-mug-saucer', category: 'Home', featured: true, bestseller: true }
+        ];
+
+        if (!localStorage.getItem('products')) { localStorage.setItem('products', JSON.stringify(products)); }
+
+        // ===== CATEGORIES =====
+        var categories = [
+            { name: 'Electronics', icon: 'fa-laptop' },
+            { name: 'Fashion', icon: 'fa-tshirt' },
+            { name: 'Home', icon: 'fa-couch' },
+            { name: 'Beauty', icon: 'fa-spa' },
+            { name: 'Sports', icon: 'fa-running' },
+            { name: 'Books', icon: 'fa-book' }
+        ];
+
+        function renderCategories() {
+            var grid = document.getElementById('categoriesGrid');
+            grid.innerHTML = categories.map(function(c) {
+                return '<a href="products.html?category=' + c.name + '" class="category-card"><i class="fas ' + c.icon + '"></i><span>' + c.name + '</span></a>';
+            }).join('');
+        }
+
+        // ===== RENDER PRODUCTS =====
         function renderProducts(containerId, productList, limit) {
             var container = document.getElementById(containerId);
             if (!container) return;
-
             var items = productList;
             if (limit) items = items.slice(0, limit);
-
+            if (items.length === 0) {
+                container.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">No products found.</p>';
+                return;
+            }
             var html = '';
             for (var i = 0; i < items.length; i++) {
                 var p = items[i];
-                var oldPrice = p.oldPrice ? '<span class="old-price">$' + p.oldPrice.toFixed(2) + '</span>' : '';
-                var stockText = p.stock > 0 ? '<i class="fas fa-check-circle"></i> In Stock' :
-                    '<i class="fas fa-times-circle"></i> Out of Stock';
+                var oldPrice = p.oldPrice ? '<span class="old">$' + p.oldPrice.toFixed(2) + '</span>' : '';
+                var stockText = p.stock > 0 ? 'In Stock' : 'Out of Stock';
                 var stockClass = p.stock > 0 ? '' : 'out';
                 var stars = '';
-                var fullStars = Math.floor(p.rating);
-                var halfStar = (p.rating - fullStars) >= 0.5;
-                for (var s = 0; s < fullStars; s++) stars += '<i class="fas fa-star"></i>';
-                if (halfStar) stars += '<i class="fas fa-star-half-alt"></i>';
-                var emptyStars = 5 - Math.ceil(p.rating);
-                for (var e = 0; e < emptyStars; e++) stars += '<i class="far fa-star"></i>';
+                for (var s = 0; s < Math.floor(p.rating); s++) stars += '<i class="fas fa-star"></i>';
+                if (p.rating - Math.floor(p.rating) >= 0.5) stars += '<i class="fas fa-star-half-alt"></i>';
+                for (var e = 0; e < 5 - Math.ceil(p.rating); e++) stars += '<i class="far fa-star"></i>';
 
                 html += '<div class="product-card">' +
                     '<div class="product-image"><i class="fas ' + p.image + '"></i></div>' +
                     '<div class="product-body">' +
-                    '<div class="product-name">' + p.name + '</div>' +
-                    '<div class="product-price">$' + p.price.toFixed(2) + ' ' + oldPrice + '</div>' +
-                    '<div class="product-rating">' + stars + ' <span class="count">(' + p.rating + ')</span></div>' +
-                    '<div class="product-stock ' + stockClass + '">' + stockText + '</div>' +
-                    '<button class="btn-add" onclick="addToCart(' + p.id + ')"><i class="fas fa-cart-plus"></i> Add to Cart</button>' +
-                    '</div>' +
-                    '</div>';
+                    '<div class="name">' + p.name + '</div>' +
+                    '<div class="price">$' + p.price.toFixed(2) + ' ' + oldPrice + '</div>' +
+                    '<div class="rating">' + stars + ' <span class="count">(' + p.rating + ')</span></div>' +
+                    '<div class="stock ' + stockClass + '"><i class="fas ' + (p.stock > 0 ? 'fa-check-circle' : 'fa-times-circle') + '"></i> ' + stockText + '</div>' +
+                    '<button class="btn-add" onclick="addToCart(' + p.id + ')"><i class="fas fa-cart-plus"></i> Add</button>' +
+                    '</div></div>';
             }
             container.innerHTML = html;
         }
 
-        // ============================================================
-        // ADD TO CART
-        // ============================================================
+        // ===== ADD TO CART =====
         window.addToCart = function(productId) {
             var allProducts = JSON.parse(localStorage.getItem('products')) || products;
             var product = null;
             for (var i = 0; i < allProducts.length; i++) {
                 if (allProducts[i].id === productId) { product = allProducts[i]; break; }
             }
-
             if (!product || product.stock <= 0) {
                 toast.error('Out of stock.', 'Error');
                 return;
             }
-
-            var cart = JSON.parse(localStorage.getItem('cart')) || [];
+            var cart = getCart();
             var existing = null;
             for (var j = 0; j < cart.length; j++) {
                 if (cart[j].id === productId) { existing = cart[j]; break; }
             }
-
             if (existing) {
                 if (existing.quantity >= product.stock) {
                     toast.warning('Stock limit reached.', 'Warning');
@@ -1234,62 +762,56 @@
                 }
                 existing.quantity += 1;
             } else {
-                cart.push({ id: product.id, name: product.name, price: product.price, image: product.image,
-                    quantity: 1 });
+                cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, quantity: 1 });
             }
-
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartCount();
             toast.success('Added to cart!', 'Added');
         };
 
-        // ============================================================
-        // CART FUNCTIONS
-        // ============================================================
-        function getCart() { return JSON.parse(localStorage.getItem('cart')) || []; }
-
-        function updateCartCount() {
-            var cart = getCart();
-            var count = 0;
-            for (var i = 0; i < cart.length; i++) {
-                count += cart[i].quantity;
-            }
-            var badge = document.getElementById('cartCount');
-            if (badge) badge.textContent = count;
-            var bottomBadge = document.getElementById('bottomCartBadge');
-            if (bottomBadge) bottomBadge.textContent = count;
-        }
-
-        // ============================================================
-        // SEARCH
-        // ============================================================
+        // ===== SEARCH =====
         window.searchProducts = function() {
             var query = document.getElementById('searchInput').value.trim();
-            if (query === '') {
-                toast.info('Enter a search term.', 'Search');
-                return;
-            }
+            if (query === '') { toast.info('Enter a search term.', 'Search'); return; }
             window.location.href = 'products.html?search=' + encodeURIComponent(query);
         };
-
         document.getElementById('searchInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') searchProducts();
         });
 
-        // ============================================================
-        // INITIALIZE
-        // ============================================================
+        // ===== TESTIMONIALS =====
+        var testimonials = [
+            { name: 'Sarah J.', review: 'Great quality and fast delivery!', rating: 5 },
+            { name: 'Michael C.', review: 'Excellent service and prices.', rating: 5 },
+            { name: 'Emily R.', review: 'Love the variety and quality!', rating: 4.5 },
+            { name: 'David K.', review: 'Best shopping experience!', rating: 5 }
+        ];
+
+        function renderTestimonials() {
+            var grid = document.getElementById('testimonialsGrid');
+            grid.innerHTML = testimonials.map(function(t) {
+                var stars = '';
+                for (var s = 0; s < Math.floor(t.rating); s++) stars += '<i class="fas fa-star"></i>';
+                if (t.rating - Math.floor(t.rating) >= 0.5) stars += '<i class="fas fa-star-half-alt"></i>';
+                for (var e = 0; e < 5 - Math.ceil(t.rating); e++) stars += '<i class="far fa-star"></i>';
+                return '<div class="testimonial-card"><div class="avatar"><i class="fas fa-user"></i></div><div class="name">' + t.name + '</div><div class="rating">' + stars + '</div><p class="review">"' + t.review + '"</p></div>';
+            }).join('');
+        }
+
+        // ===== INIT =====
         document.addEventListener('DOMContentLoaded', function() {
             var allProducts = JSON.parse(localStorage.getItem('products')) || products;
             var featured = allProducts.filter(function(p) { return p.featured; });
             var bestsellers = allProducts.filter(function(p) { return p.bestseller; });
 
+            renderCategories();
             renderProducts('featuredGrid', featured, 4);
             renderProducts('bestsellerGrid', bestsellers, 4);
+            renderTestimonials();
             updateCartCount();
             updateAuthButtons();
 
-            console.log('MarketStall loaded successfully!');
+            console.log('MarketStall loaded!');
         });
     </script>
 </body>
