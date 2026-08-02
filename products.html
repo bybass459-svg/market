@@ -12,7 +12,7 @@
         a { text-decoration: none; color: inherit; }
         .container { max-width: 1280px; margin: 0 auto; padding: 0 16px; }
 
-        /* Toast notifications */
+        /* Toast and header styles (same as index) */
         .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 380px; width: 90%; pointer-events: none; }
         .toast { background: #ffffff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); border-left: 4px solid #2a7de1; display: flex; align-items: center; gap: 12px; transform: translateX(120%); opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); pointer-events: auto; position: relative; overflow: hidden; }
         .toast.show { transform: translateX(0); opacity: 1; }
@@ -37,23 +37,8 @@
         .toast-info .toast-progress { background: #17a2b8; }
         @keyframes toastProgress { 0% { width: 100%; } 100% { width: 0%; } }
 
-        /* ===== HEADER ===== */
-        .header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: #ffffff;
-            padding: 12px 16px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            border-bottom: 1px solid #eef2f6;
-        }
-        .header-top {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            max-width: 1280px;
-            margin: 0 auto;
-        }
+        .header { position: sticky; top: 0; z-index: 100; background: #ffffff; padding: 12px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border-bottom: 1px solid #eef2f6; }
+        .header-top { display: flex; align-items: center; gap: 12px; max-width: 1280px; margin: 0 auto; }
         .logo { font-size: 1.3rem; font-weight: 700; color: #0b1b2b; flex-shrink: 0; }
         .logo i { color: #f8b400; }
         .logo span { color: #2a7de1; }
@@ -62,7 +47,6 @@
         .search-bar button { border: none; background: #f8b400; color: #0b1b2b; padding: 0 18px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
         .search-bar button:hover { background: #e0a000; }
 
-        /* ===== PROFILE DROPDOWN ===== */
         .profile-menu { position: relative; display: inline-block; }
         .profile-btn { background: #f1f4f8; border: none; border-radius: 30px; padding: 6px 14px 6px 10px; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s; font-size: 0.85rem; font-weight: 500; color: #1f3a4b; }
         .profile-btn:hover { background: #e3eaf2; }
@@ -83,7 +67,6 @@
         .profile-dropdown .user-info .name { font-weight: 600; font-size: 0.9rem; }
         .profile-dropdown .user-info .email { font-size: 0.75rem; color: #5b768b; }
 
-        /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; display: flex; justify-content: space-around; align-items: center; padding: 6px 0 10px; box-shadow: 0 -2px 16px rgba(0,0,0,0.06); border-top: 1px solid #eef2f6; z-index: 999; height: 64px; }
         .bottom-nav a { display: flex; flex-direction: column; align-items: center; color: #868e96; font-size: 0.6rem; font-weight: 500; transition: 0.2s; padding: 2px 8px; position: relative; min-width: 50px; }
         .bottom-nav a i { font-size: 1.2rem; margin-bottom: 2px; }
@@ -91,7 +74,6 @@
         .bottom-nav a.active { color: #f8b400; }
         .bottom-nav a .nav-badge { position: absolute; top: -4px; right: 2px; background: #dc3545; color: #fff; border-radius: 50%; font-size: 0.5rem; font-weight: 700; padding: 1px 5px; min-width: 16px; text-align: center; }
 
-        /* Page */
         .page-header { display: flex; justify-content: space-between; align-items: center; margin: 16px 0 12px; flex-wrap: wrap; gap: 8px; }
         .page-header h1 { font-size: 1.2rem; font-weight: 700; }
         .page-header h1 i { color: #f8b400; margin-right: 6px; }
@@ -103,9 +85,26 @@
         .filter-section .btn-reset:hover { background: #f1f4f8; }
 
         .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 8px; }
-        .product-card { background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #eef2f6; transition: 0.2s; display: flex; flex-direction: column; }
+        .product-card { background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #eef2f6; transition: 0.2s; display: flex; flex-direction: column; position: relative; }
         .product-card:hover { transform: translateY(-2px); border-color: #f8b400; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
-        .product-card .badge { position: absolute; top: 8px; right: 8px; background: #dc3545; color: #fff; padding: 2px 10px; border-radius: 30px; font-size: 0.6rem; font-weight: 600; }
+        .product-card .badge { position: absolute; top: 8px; right: 8px; background: #dc3545; color: #fff; padding: 2px 10px; border-radius: 30px; font-size: 0.6rem; font-weight: 600; z-index: 1; }
+        .product-card .out-of-stock-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #dc3545;
+            z-index: 2;
+            border-radius: 12px;
+        }
+        .product-card .out-of-stock-overlay i { font-size: 1.5rem; display: block; margin-bottom: 4px; }
         .product-card .position-relative { position: relative; }
         .product-image { background: #f1f4f8; padding: 16px; display: flex; align-items: center; justify-content: center; height: 120px; font-size: 2.2rem; color: #2a7de1; }
         .product-body { padding: 10px 12px 12px; flex: 1; display: flex; flex-direction: column; }
@@ -119,6 +118,7 @@
         .btn-add { width: 100%; padding: 6px 0; border: none; border-radius: 30px; font-weight: 600; font-size: 0.7rem; cursor: pointer; transition: 0.2s; background: #f1f4f8; color: #1f3a4b; margin-top: auto; }
         .btn-add:hover { background: #f8b400; color: #0b1b2b; }
         .btn-add i { margin-right: 4px; }
+        .btn-add:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .empty-state { text-align: center; padding: 40px 20px; background: #ffffff; border-radius: 12px; border: 1px solid #eef2f6; grid-column: 1/-1; }
         .empty-state i { font-size: 3rem; color: #dce5ed; margin-bottom: 12px; display: block; }
@@ -153,7 +153,6 @@
     </style>
 </head>
 <body>
-    <!-- HEADER -->
     <header class="header">
         <div class="header-top">
             <a href="index.html" class="logo"><i class="fas fa-store-alt"></i> Market<span>Stall</span></a>
@@ -168,10 +167,7 @@
                     <i class="fas fa-chevron-down chevron"></i>
                 </button>
                 <div class="profile-dropdown" id="profileDropdown">
-                    <div class="user-info">
-                        <div class="name" id="dropdownName">User</div>
-                        <div class="email" id="dropdownEmail">user@example.com</div>
-                    </div>
+                    <div class="user-info"><div class="name" id="dropdownName">User</div><div class="email" id="dropdownEmail">user@example.com</div></div>
                     <a href="profile.html" class="dropdown-item"><i class="fas fa-user"></i> My Profile</a>
                     <a href="wishlist.html" class="dropdown-item"><i class="fas fa-heart"></i> Wishlist</a>
                     <a href="cart.html" class="dropdown-item"><i class="fas fa-shopping-cart"></i> Cart <span class="badge" id="dropdownCartBadge">0</span></a>
@@ -213,7 +209,6 @@
         </footer>
     </div>
 
-    <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
         <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
         <a href="products.html" class="active"><i class="fas fa-th-list"></i><span>Products</span></a>
@@ -223,9 +218,7 @@
     </nav>
 
     <script>
-        // ============================================================
-        // TOAST SYSTEM
-        // ============================================================
+        // Toast system
         class ToastManager {
             constructor() { this.container = null; this.init(); }
             init() {
@@ -277,14 +270,10 @@
         }
         window.toast = new ToastManager();
 
-        // ============================================================
-        // PROFILE DROPDOWN
-        // ============================================================
+        // ===== PROFILE =====
         function toggleProfileMenu() {
-            var dropdown = document.getElementById('profileDropdown');
-            dropdown.classList.toggle('show');
+            document.getElementById('profileDropdown').classList.toggle('show');
         }
-
         document.addEventListener('click', function(e) {
             var menu = document.querySelector('.profile-menu');
             if (menu && !menu.contains(e.target)) {
@@ -292,23 +281,6 @@
             }
         });
 
-        // ============================================================
-        // SUPABASE HELPERS
-        // ============================================================
-        function getSupabaseClient() { return window.supabaseClient || null; }
-        function waitForSupabase() {
-            return new Promise(function(resolve) {
-                if (window.supabaseClient) { resolve(window.supabaseClient); return; }
-                var checkInterval = setInterval(function() {
-                    if (window.supabaseClient) { clearInterval(checkInterval); resolve(window.supabaseClient); }
-                }, 200);
-                setTimeout(function() { clearInterval(checkInterval); resolve(window.supabaseClient || null); }, 8000);
-            });
-        }
-
-        // ============================================================
-        // AUTH & PROFILE
-        // ============================================================
         function updateProfileUI() {
             var currentUser = JSON.parse(localStorage.getItem('currentUser'));
             var dropdown = document.getElementById('profileDropdown');
@@ -355,9 +327,20 @@
             } catch (e) { toast.error('Error logging out.', 'Error'); }
         };
 
-        // ============================================================
-        // CART
-        // ============================================================
+        // ===== SUPABASE HELPERS =====
+        function getSupabaseClient() { return window.supabaseClient || null; }
+
+        function waitForSupabase() {
+            return new Promise(function(resolve) {
+                if (window.supabaseClient) { resolve(window.supabaseClient); return; }
+                var checkInterval = setInterval(function() {
+                    if (window.supabaseClient) { clearInterval(checkInterval); resolve(window.supabaseClient); }
+                }, 200);
+                setTimeout(function() { clearInterval(checkInterval); resolve(window.supabaseClient || null); }, 8000);
+            });
+        }
+
+        // ===== CART =====
         function updateCartCount() {
             var cart = JSON.parse(localStorage.getItem('cart')) || [];
             var count = 0;
@@ -374,8 +357,12 @@
             for (var i = 0; i < products.length; i++) {
                 if (products[i].id === productId) { product = products[i]; break; }
             }
-            if (!product || product.stock <= 0) {
-                toast.error('Out of stock.', 'Error');
+            if (!product) {
+                toast.error('Product not found.', 'Error');
+                return;
+            }
+            if (product.stock <= 0) {
+                toast.error('Out of stock!', 'Error');
                 return;
             }
             var cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -385,23 +372,36 @@
             }
             if (existing) {
                 if (existing.quantity >= product.stock) {
-                    toast.warning('Stock limit reached.', 'Warning');
+                    toast.warning('Not enough stock! Only ' + product.stock + ' left.', 'Stock Limit');
                     return;
                 }
                 existing.quantity += 1;
             } else {
-                cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, quantity: 1 });
+                cart.push({ id: product.id, name: product.name, price: product.price, image: product.image || 'fa-box', quantity: 1 });
             }
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartCount();
             toast.success('Added to cart!', 'Added');
         };
 
-        // ============================================================
-        // LOAD CATEGORIES
-        // ============================================================
+        // ===== LOAD CATEGORIES =====
         async function loadCategoryFilter() {
             try {
+                var client = getSupabaseClient();
+                if (client) {
+                    var { data, error } = await client
+                        .from('categories')
+                        .select('*')
+                        .eq('is_active', true)
+                        .order('name');
+
+                    if (!error && data && data.length > 0) {
+                        localStorage.setItem('categories', JSON.stringify(data));
+                        populateCategorySelect(data);
+                        return;
+                    }
+                }
+
                 var stored = localStorage.getItem('categories');
                 if (stored) {
                     var cats = JSON.parse(stored);
@@ -410,7 +410,8 @@
                         return;
                     }
                 }
-                var defaultCategories = [
+
+                var defaults = [
                     { name: 'Electronics', slug: 'electronics' },
                     { name: 'Fashion', slug: 'fashion' },
                     { name: 'Home', slug: 'home' },
@@ -418,7 +419,8 @@
                     { name: 'Sports', slug: 'sports' },
                     { name: 'Books', slug: 'books' }
                 ];
-                populateCategorySelect(defaultCategories);
+                populateCategorySelect(defaults);
+
             } catch (e) { console.warn('Error loading categories:', e); }
         }
 
@@ -430,42 +432,69 @@
             }
         }
 
-        // ============================================================
-        // LOAD PRODUCTS
-        // ============================================================
+        // ===== LOAD PRODUCTS =====
         async function loadProducts() {
             var grid = document.getElementById('productGrid');
             try {
                 var categorySlug = document.getElementById('categoryFilter').value;
                 var sort = document.getElementById('sortFilter').value;
 
-                var allProducts = JSON.parse(localStorage.getItem('products')) || [];
-                if (allProducts.length === 0) {
-                    var defaultProducts = [
-                        { id: 1, name: 'Wireless Headphones', price: 149.99, old_price: 199.99, rating: 4.8, stock: 15, image: 'fa-headphones', category_id: null, is_featured: true, is_bestseller: true },
-                        { id: 2, name: 'Smart Watch Pro', price: 199.00, old_price: 279.00, rating: 4.6, stock: 8, image: 'fa-watch', category_id: null, is_featured: true, is_bestseller: true },
-                        { id: 3, name: 'Leather Jacket', price: 89.99, old_price: null, rating: 4.7, stock: 20, image: 'fa-tshirt', category_id: null, is_featured: true, is_bestseller: false },
-                        { id: 4, name: 'Skincare Set', price: 59.99, old_price: 79.99, rating: 4.9, stock: 25, image: 'fa-spa', category_id: null, is_featured: true, is_bestseller: true },
-                        { id: 5, name: 'LED TV 55"', price: 499.00, old_price: 699.00, rating: 4.5, stock: 5, image: 'fa-tv', category_id: null, is_featured: false, is_bestseller: true },
-                        { id: 6, name: 'Handbag', price: 129.00, old_price: 159.00, rating: 4.4, stock: 12, image: 'fa-bag-shopping', category_id: null, is_featured: true, is_bestseller: false },
-                        { id: 7, name: 'Yoga Mat', price: 34.99, old_price: null, rating: 4.3, stock: 30, image: 'fa-person-walking', category_id: null, is_featured: false, is_bestseller: true },
-                        { id: 8, name: 'Coffee Maker', price: 79.99, old_price: 99.99, rating: 4.6, stock: 18, image: 'fa-mug-saucer', category_id: null, is_featured: true, is_bestseller: true }
-                    ];
-                    localStorage.setItem('products', JSON.stringify(defaultProducts));
-                    allProducts = defaultProducts;
+                var client = getSupabaseClient();
+                var allProducts = [];
+
+                if (client) {
+                    var query = client.from('products').select('*').eq('is_active', true);
+
+                    if (categorySlug !== 'all') {
+                        var categories = JSON.parse(localStorage.getItem('categories')) || [];
+                        var cat = null;
+                        for (var m = 0; m < categories.length; m++) {
+                            if (categories[m].slug === categorySlug) { cat = categories[m]; break; }
+                        }
+                        if (cat) { query = query.eq('category_id', cat.id); }
+                    }
+
+                    var { data, error } = await query;
+
+                    if (!error && data && data.length > 0) {
+                        allProducts = data;
+                        localStorage.setItem('products', JSON.stringify(data));
+                    }
                 }
 
+                // Fallback to localStorage
+                if (allProducts.length === 0) {
+                    allProducts = JSON.parse(localStorage.getItem('products')) || [];
+                }
+
+                if (allProducts.length === 0) {
+                    // Create default products
+                    var defaults = [
+                        { id: '1', name: 'Wireless Headphones', price: 149.99, old_price: 199.99, rating: 4.8, stock: 15, image: 'fa-headphones', category_id: null, is_featured: true, is_bestseller: true },
+                        { id: '2', name: 'Smart Watch Pro', price: 199.00, old_price: 279.00, rating: 4.6, stock: 8, image: 'fa-watch', category_id: null, is_featured: true, is_bestseller: true },
+                        { id: '3', name: 'Leather Jacket', price: 89.99, old_price: null, rating: 4.7, stock: 20, image: 'fa-tshirt', category_id: null, is_featured: true, is_bestseller: false },
+                        { id: '4', name: 'Skincare Set', price: 59.99, old_price: 79.99, rating: 4.9, stock: 25, image: 'fa-spa', category_id: null, is_featured: true, is_bestseller: true },
+                        { id: '5', name: 'LED TV 55"', price: 499.00, old_price: 699.00, rating: 4.5, stock: 5, image: 'fa-tv', category_id: null, is_featured: false, is_bestseller: true },
+                        { id: '6', name: 'Handbag', price: 129.00, old_price: 159.00, rating: 4.4, stock: 12, image: 'fa-bag-shopping', category_id: null, is_featured: true, is_bestseller: false },
+                        { id: '7', name: 'Yoga Mat', price: 34.99, old_price: null, rating: 4.3, stock: 30, image: 'fa-person-walking', category_id: null, is_featured: false, is_bestseller: true },
+                        { id: '8', name: 'Coffee Maker', price: 79.99, old_price: 99.99, rating: 4.6, stock: 18, image: 'fa-mug-saucer', category_id: null, is_featured: true, is_bestseller: true }
+                    ];
+                    localStorage.setItem('products', JSON.stringify(defaults));
+                    allProducts = defaults;
+                }
+
+                // Filter by category if needed
                 var filtered = allProducts;
                 if (categorySlug !== 'all') {
                     var categories = JSON.parse(localStorage.getItem('categories')) || [];
                     var cat = null;
-                    for (var m = 0; m < categories.length; m++) {
-                        if (categories[m].slug === categorySlug) { cat = categories[m]; break; }
+                    for (var n = 0; n < categories.length; n++) {
+                        if (categories[n].slug === categorySlug) { cat = categories[n]; break; }
                     }
                     if (cat) {
                         filtered = [];
-                        for (var n = 0; n < allProducts.length; n++) {
-                            if (allProducts[n].category_id === cat.id) { filtered.push(allProducts[n]); }
+                        for (var o = 0; o < allProducts.length; o++) {
+                            if (allProducts[o].category_id === cat.id) { filtered.push(allProducts[o]); }
                         }
                     }
                 }
@@ -482,6 +511,7 @@
                 renderProducts(filtered);
 
             } catch (e) {
+                console.error('Error loading products:', e);
                 grid.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h3>Error</h3><p>Could not load products.</p></div>';
             }
         }
@@ -516,19 +546,29 @@
                     discountBadge = '<span class="badge">-' + discount + '%</span>';
                 }
 
-                html += '<div class="product-card"><div class="position-relative"><div class="product-image"><i class="fas ' + (p.image || 'fa-box') + '"></i></div>' + discountBadge + '</div>' +
+                var isOutOfStock = p.stock <= 0;
+                var outOfStockOverlay = '';
+                var btnDisabled = '';
+                if (isOutOfStock) {
+                    outOfStockOverlay = '<div class="out-of-stock-overlay"><i class="fas fa-times-circle"></i> Out of Stock</div>';
+                    btnDisabled = 'disabled';
+                }
+
+                html += '<div class="product-card"><div class="position-relative">' +
+                    '<div class="product-image"><i class="fas ' + (p.image || 'fa-box') + '"></i></div>' +
+                    discountBadge +
+                    outOfStockOverlay +
+                    '</div>' +
                     '<div class="product-body"><div class="name">' + p.name + '</div>' +
                     '<div class="price">$' + parseFloat(p.price).toFixed(2) + ' ' + oldPrice + '</div>' +
                     '<div class="rating">' + stars + ' <span class="count">(' + rating.toFixed(1) + ')</span></div>' +
                     '<div class="stock ' + stockClass + '"><i class="fas ' + (p.stock > 0 ? 'fa-check-circle' : 'fa-times-circle') + '"></i> ' + stockText + '</div>' +
-                    '<button class="btn-add" onclick="addToCart(\'' + p.id + '\')"><i class="fas fa-cart-plus"></i> Add</button></div></div>';
+                    '<button class="btn-add" onclick="addToCart(\'' + p.id + '\')" ' + btnDisabled + '><i class="fas fa-cart-plus"></i> Add</button></div></div>';
             }
             grid.innerHTML = html;
         }
 
-        // ============================================================
-        // FILTERS
-        // ============================================================
+        // ===== FILTERS =====
         window.applyFilters = function() { loadProducts(); };
         window.resetFilters = function() {
             document.getElementById('categoryFilter').value = 'all';
@@ -536,9 +576,7 @@
             loadProducts();
         };
 
-        // ============================================================
-        // SEARCH
-        // ============================================================
+        // ===== SEARCH =====
         window.searchProducts = function() {
             var query = document.getElementById('searchInput').value.trim();
             if (query === '') { toast.info('Enter a search term.', 'Search'); return; }
@@ -548,12 +586,24 @@
             if (e.key === 'Enter') searchProducts();
         });
 
-        // ============================================================
-        // INIT
-        // ============================================================
+        // ===== INIT =====
         async function init() {
             var client = await waitForSupabase();
-            if (client) { console.log('✅ Supabase connected'); } else { console.log('⚠️ Using fallback data'); }
+            if (client) {
+                console.log('✅ Supabase connected');
+                // Force refresh products
+                var { data, error } = await client
+                    .from('products')
+                    .select('*')
+                    .eq('is_active', true);
+
+                if (!error && data && data.length > 0) {
+                    localStorage.setItem('products', JSON.stringify(data));
+                    console.log('✅ Loaded ' + data.length + ' products from Supabase');
+                }
+            } else {
+                console.log('⚠️ Using fallback data');
+            }
 
             var urlParams = new URLSearchParams(window.location.search);
             var categoryParam = urlParams.get('category');
@@ -571,7 +621,10 @@
         }
 
         document.addEventListener('DOMContentLoaded', init);
-        document.addEventListener('supabaseReady', init);
+        document.addEventListener('supabaseReady', function() {
+            console.log('✅ Supabase ready - refreshing products');
+            init();
+        });
     </script>
 </body>
 </html>
