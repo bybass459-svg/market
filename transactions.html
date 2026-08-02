@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="supabase.js"></script>
     <style>
-        /* Same styles as before */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }
         body { background: #f5f7fa; color: #0b1b2b; padding-bottom: 70px; }
         a { text-decoration: none; color: inherit; }
@@ -85,8 +84,13 @@
         .filter-tabs button:hover { background: #f1f4f8; }
         .filter-tabs button.active { background: #f8b400; color: #0b1b2b; border-color: #f8b400; }
 
-        .order-card { background: #ffffff; border-radius: 12px; border: 1px solid #eef2f6; padding: 16px; margin-bottom: 12px; transition: 0.2s; }
-        .order-card:hover { border-color: #f8b400; }
+        /* Live Tracking Badge */
+        .live-badge { background: #dc3545; color: #fff; font-size: 0.55rem; font-weight: 700; padding: 2px 8px; border-radius: 30px; animation: pulse 1.5s infinite; display: inline-block; margin-left: 6px; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        .order-card { background: #ffffff; border-radius: 12px; border: 1px solid #eef2f6; padding: 16px; margin-bottom: 12px; transition: 0.3s; }
+        .order-card:hover { border-color: #f8b400; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+        .order-card.updating { border-color: #f8b400; background: #fffdf5; }
         .order-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid #eef2f6; }
         .order-header .order-id { font-weight: 700; font-size: 0.9rem; }
         .order-header .order-id i { color: #f8b400; margin-right: 4px; }
@@ -122,11 +126,13 @@
         .btn-shop { display: inline-block; padding: 8px 24px; border-radius: 30px; font-weight: 600; font-size: 0.85rem; background: #2a7de1; color: #fff; transition: 0.2s; }
         .btn-shop:hover { background: #1a5fb0; transform: translateY(-2px); }
 
+        /* Tracking Modal */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: #ffffff; border-radius: 16px; padding: 24px; max-width: 480px; width: 100%; max-height: 80vh; overflow-y: auto; position: relative; }
         .modal-content .close-modal { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #5b768b; }
         .modal-content h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; }
+
         .tracking-step { display: flex; gap: 12px; padding: 8px 0; padding-left: 24px; position: relative; }
         .tracking-step::before { content: ''; position: absolute; left: 8px; top: 24px; bottom: 0; width: 2px; background: #eef2f6; }
         .tracking-step:last-child::before { display: none; }
@@ -135,13 +141,20 @@
         .tracking-step .step-dot.current { border-color: #f8b400; background: #f8b400; box-shadow: 0 0 0 4px rgba(248,180,0,0.2); }
         .tracking-step .step-content h4 { font-size: 0.85rem; font-weight: 600; }
         .tracking-step .step-content p { font-size: 0.75rem; color: #5b768b; }
+        .tracking-step .step-time { font-size: 0.65rem; color: #999; margin-top: 2px; }
+
+        /* Real-time update indicator */
+        .update-indicator { display: none; align-items: center; gap: 6px; font-size: 0.7rem; color: #28a745; margin-top: 4px; }
+        .update-indicator.show { display: flex; }
+        .update-indicator i { animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .footer { background: #ffffff; border-radius: 12px; padding: 16px; margin: 8px 0 10px; border: 1px solid #eef2f6; text-align: center; }
         .footer .logo { font-size: 1rem; }
         .footer p { font-size: 0.65rem; color: #5b768b; margin-top: 4px; }
+
         .loading-spinner { display: flex; justify-content: center; align-items: center; padding: 40px 0; }
         .loading-spinner i { font-size: 2rem; color: #f8b400; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         @media (min-width: 640px) {
             body { padding-bottom: 0; }
@@ -196,6 +209,7 @@
 
         <div class="filter-tabs" id="filterTabs">
             <button class="active" data-filter="all" onclick="filterOrders('all')">All</button>
+            <button data-filter="Pending" onclick="filterOrders('Pending')">Pending</button>
             <button data-filter="Processing" onclick="filterOrders('Processing')">Processing</button>
             <button data-filter="Shipped" onclick="filterOrders('Shipped')">Shipped</button>
             <button data-filter="Delivered" onclick="filterOrders('Delivered')">Delivered</button>
@@ -224,7 +238,7 @@
     <div class="modal-overlay" id="trackingModal">
         <div class="modal-content">
             <button class="close-modal" onclick="closeTracking()">&times;</button>
-            <h2><i class="fas fa-truck"></i> Order Tracking</h2>
+            <h2><i class="fas fa-truck"></i> Order Tracking <span class="live-badge">LIVE</span></h2>
             <div id="trackingDetails"></div>
         </div>
     </div>
@@ -340,6 +354,7 @@
         };
 
         function getSupabaseClient() { return window.supabaseClient || null; }
+
         function waitForSupabase() {
             return new Promise(function(resolve) {
                 if (window.supabaseClient) { resolve(window.supabaseClient); return; }
@@ -361,17 +376,18 @@
             if (bottomBadge) bottomBadge.textContent = count;
         }
 
-        // ===== ORDERS =====
+        // ===== REAL-TIME ORDERS =====
         var currentFilter = 'all';
         var orders = [];
+        var supabaseChannel = null;
 
         async function loadOrders() {
             var container = document.getElementById('ordersContainer');
             try {
                 var client = getSupabaseClient();
-                orders = [];
 
                 if (client) {
+                    // Get current user
                     var { data: { session } } = await client.auth.getSession();
                     var query = client.from('orders').select('*');
 
@@ -388,9 +404,10 @@
 
                     if (!error && data && data.length > 0) {
                         orders = data;
-                        // Save to localStorage for offline
                         localStorage.setItem('orders', JSON.stringify(data));
                         renderOrders(orders);
+                        // Setup real-time subscription
+                        setupRealtimeSubscription();
                         return;
                     }
                 }
@@ -400,11 +417,15 @@
                 if (stored.length > 0) {
                     orders = stored;
                     renderOrders(orders);
+                    // Try to refresh from Supabase
+                    if (client) {
+                        refreshOrdersFromSupabase();
+                    }
                     return;
                 }
 
-                // If no orders, show empty state with sample
-                renderOrders([]);
+                // Create sample order if no orders exist
+                createSampleOrder();
 
             } catch (e) {
                 console.warn('Error loading orders:', e);
@@ -413,6 +434,153 @@
             }
         }
 
+        function createSampleOrder() {
+            var sampleOrders = [{
+                id: Date.now(),
+                order_number: 'ORD-' + Date.now().toString().slice(-8),
+                date: new Date().toLocaleDateString(),
+                items: [
+                    { name: 'Wireless Headphones', price: 149.99, quantity: 1, image: 'fa-headphones' },
+                    { name: 'Yoga Mat', price: 34.99, quantity: 1, image: 'fa-person-walking' }
+                ],
+                total: 184.98,
+                status: 'Delivered',
+                created_at: new Date(Date.now() - 86400000 * 3).toISOString()
+            }];
+            localStorage.setItem('orders', JSON.stringify(sampleOrders));
+            orders = sampleOrders;
+            renderOrders(orders);
+        }
+
+        // ===== REAL-TIME SUBSCRIPTION =====
+        function setupRealtimeSubscription() {
+            var client = getSupabaseClient();
+            if (!client) return;
+
+            // Clean up existing subscription
+            if (supabaseChannel) {
+                supabaseChannel.unsubscribe();
+                supabaseChannel = null;
+            }
+
+            // Get current user
+            client.auth.getSession().then(function({ data: { session } }) {
+                if (!session) return;
+
+                // Subscribe to orders changes
+                supabaseChannel = client
+                    .channel('orders-changes')
+                    .on(
+                        'postgres_changes',
+                        {
+                            event: '*',
+                            schema: 'public',
+                            table: 'orders',
+                            filter: 'user_id=eq.' + session.user.id
+                        },
+                        function(payload) {
+                            console.log('🔔 Real-time order update:', payload);
+                            handleRealtimeUpdate(payload);
+                        }
+                    )
+                    .subscribe(function(status, err) {
+                        if (status === 'SUBSCRIBED') {
+                            console.log('✅ Subscribed to real-time orders');
+                        } else if (err) {
+                            console.warn('⚠️ Realtime subscription error:', err);
+                        }
+                    });
+            });
+        }
+
+        function handleRealtimeUpdate(payload) {
+            var eventType = payload.eventType;
+            var newOrder = payload.new;
+            var oldOrder = payload.old;
+
+            if (eventType === 'INSERT') {
+                // New order added
+                orders.unshift(newOrder);
+                localStorage.setItem('orders', JSON.stringify(orders));
+                renderOrders(orders);
+                toast.success('New order received! 🎉', 'Order Placed');
+            } else if (eventType === 'UPDATE') {
+                // Order updated - show live status change
+                for (var i = 0; i < orders.length; i++) {
+                    if (orders[i].id === newOrder.id) {
+                        var oldStatus = orders[i].status;
+                        orders[i] = newOrder;
+                        localStorage.setItem('orders', JSON.stringify(orders));
+
+                        // Show notification for status change
+                        if (oldStatus !== newOrder.status) {
+                            toast.info('Order #' + (newOrder.order_number || newOrder.id) + ' status updated to ' + newOrder.status, 'Status Update');
+                            // Highlight the updated order
+                            highlightOrder(newOrder.id);
+                        }
+                        renderOrders(orders);
+                        break;
+                    }
+                }
+            } else if (eventType === 'DELETE') {
+                // Order deleted
+                orders = orders.filter(function(o) { return o.id !== oldOrder.id; });
+                localStorage.setItem('orders', JSON.stringify(orders));
+                renderOrders(orders);
+                toast.warning('Order #' + (oldOrder.order_number || oldOrder.id) + ' was cancelled.', 'Order Cancelled');
+            }
+        }
+
+        function highlightOrder(orderId) {
+            var cards = document.querySelectorAll('.order-card');
+            for (var i = 0; i < cards.length; i++) {
+                var card = cards[i];
+                card.classList.remove('updating');
+                // Check if this card has the matching order ID
+                var orderIdAttr = card.getAttribute('data-order-id');
+                if (orderIdAttr && orderIdAttr == orderId) {
+                    card.classList.add('updating');
+                    setTimeout(function() {
+                        card.classList.remove('updating');
+                    }, 3000);
+                }
+            }
+        }
+
+        // ===== REFRESH ORDERS FROM SUPABASE =====
+        async function refreshOrdersFromSupabase() {
+            try {
+                var client = getSupabaseClient();
+                if (!client) return;
+
+                var { data: { session } } = await client.auth.getSession();
+                var query = client.from('orders').select('*');
+
+                if (session) {
+                    query = query.eq('user_id', session.user.id);
+                } else {
+                    var currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                    if (currentUser && currentUser.email) {
+                        query = query.eq('guest_email', currentUser.email);
+                    } else {
+                        return;
+                    }
+                }
+
+                var { data, error } = await query.order('created_at', { ascending: false });
+
+                if (!error && data && data.length > 0) {
+                    orders = data;
+                    localStorage.setItem('orders', JSON.stringify(data));
+                    renderOrders(orders);
+                    setupRealtimeSubscription();
+                }
+            } catch (e) {
+                console.warn('Refresh error:', e);
+            }
+        }
+
+        // ===== RENDER ORDERS =====
         function renderOrders(ordersList) {
             var container = document.getElementById('ordersContainer');
             var countDisplay = document.getElementById('orderCount');
@@ -453,13 +621,16 @@
                     }
                 }
 
-                var canCancel = order.status === 'Processing' || order.status === 'Shipped';
+                var canCancel = order.status === 'Pending' || order.status === 'Processing' || order.status === 'Shipped';
                 var orderTotal = order.total || 0;
 
-                html += '<div class="order-card">' +
+                // Check if order has tracking info
+                var hasTracking = order.tracking || order.status !== 'Pending';
+
+                html += '<div class="order-card" data-order-id="' + order.id + '">' +
                     '<div class="order-header">' +
                     '<div><span class="order-id"><i class="fas fa-hashtag"></i> #' + orderNumber + '</span><span class="order-date"> ' + orderDate + '</span></div>' +
-                    '<span class="order-status ' + statusClass + '">' + (order.status || 'Processing') + '</span></div>' +
+                    '<div><span class="order-status ' + statusClass + '">' + (order.status || 'Processing') + '</span></div></div>' +
                     '<div class="order-items">' + itemsHtml + '</div>' +
                     '<div class="order-footer">' +
                     '<div class="total">Total: <span>$' + parseFloat(orderTotal).toFixed(2) + '</span></div>' +
@@ -467,7 +638,8 @@
                     '<button class="track-btn" onclick="trackOrder(\'' + orderNumber + '\')"><i class="fas fa-truck"></i> Track</button>' +
                     '<button class="reorder-btn" onclick="reorder(\'' + orderNumber + '\')"><i class="fas fa-redo"></i> Reorder</button>' +
                     (canCancel ? '<button class="cancel-btn" onclick="cancelOrder(\'' + orderNumber + '\')"><i class="fas fa-times"></i> Cancel</button>' : '') +
-                    '</div></div></div>';
+                    '</div></div>' +
+                    '<div class="update-indicator" id="updateIndicator-' + order.id + '"><i class="fas fa-spinner"></i> Updating...</div></div>';
             }
             container.innerHTML = html;
         }
@@ -493,21 +665,29 @@
             }
             if (!order) { toast.error('Order not found.', 'Error'); return; }
 
-            var statuses = ['Processing', 'Shipped', 'Out for Delivery', 'Delivered'];
+            var statuses = ['Pending', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'];
             var currentIndex = statuses.indexOf(order.status);
             if (currentIndex === -1) currentIndex = 0;
 
             var steps = [
-                { status: 'Order Confirmed', description: 'Your order has been confirmed.', time: '1 hour ago' },
-                { status: 'Preparing for Shipment', description: 'We are preparing your items.', time: '2 hours ago' },
-                { status: 'Shipped', description: 'Your order has been shipped!', time: '1 day ago' },
-                { status: 'Out for Delivery', description: 'Your package is out for delivery.', time: '2 days ago' },
-                { status: 'Delivered', description: 'Your order has been delivered!', time: '3 days ago' }
+                { status: 'Order Confirmed', description: 'Your order has been confirmed and is being processed.', time: new Date(order.created_at || Date.now()).toLocaleString() },
+                { status: 'Processing', description: 'We are preparing your items for shipment.', time: 'Processing' },
+                { status: 'Shipped', description: 'Your order has been shipped and is on its way!', time: 'Shipped' },
+                { status: 'Out for Delivery', description: 'Your package is out for delivery.', time: 'Out for Delivery' },
+                { status: 'Delivered', description: 'Your order has been delivered successfully!', time: 'Delivered' }
             ];
 
             var showSteps = steps.slice(0, currentIndex + 2);
             var details = document.getElementById('trackingDetails');
             var stepHtml = '';
+
+            // Add order info
+            stepHtml += '<div style="margin-bottom:12px; padding:10px 14px; background:#f8f9fa; border-radius:8px;">' +
+                '<p><strong>Order #' + (order.order_number || order.id) + '</strong></p>' +
+                '<p style="color:#5b768b; font-size:0.85rem;">Status: <span class="order-status ' + (order.status === 'Delivered' ? 'status-delivered' : order.status === 'Shipped' ? 'status-shipped' : 'status-processing') + '" style="display:inline-block; padding:2px 10px; border-radius:30px; font-size:0.7rem; font-weight:600;">' + (order.status || 'Processing') + '</span></p>' +
+                '<p style="color:#5b768b; font-size:0.85rem;">Total: $' + (order.total || 0).toFixed(2) + '</p>' +
+                '<p style="color:#28a745; font-size:0.75rem;"><i class="fas fa-sync-alt fa-pulse"></i> Live tracking enabled</p></div>';
+
             for (var j = 0; j < showSteps.length; j++) {
                 var isActive = j <= currentIndex;
                 var isCurrent = j === currentIndex;
@@ -515,43 +695,130 @@
                 if (isCurrent) dotClass += ' current';
                 else if (isActive) dotClass += ' active';
 
-                stepHtml += '<div class="tracking-step"><span class="' + dotClass + '"></span><div class="step-content"><h4>' + showSteps[j].status + '</h4><p>' + showSteps[j].description + '</p></div></div>';
+                var timeDisplay = showSteps[j].time;
+                if (timeDisplay === 'Processing' || timeDisplay === 'Shipped' || timeDisplay === 'Out for Delivery' || timeDisplay === 'Delivered') {
+                    // If status matches, show the order's timestamp
+                    if (showSteps[j].status === order.status && order.updated_at) {
+                        timeDisplay = new Date(order.updated_at).toLocaleString();
+                    }
+                }
+
+                stepHtml += '<div class="tracking-step"><span class="' + dotClass + '"></span><div class="step-content"><h4>' + showSteps[j].status + '</h4><p>' + showSteps[j].description + '</p><div class="step-time">' + timeDisplay + '</div></div></div>';
             }
 
-            details.innerHTML = '<div style="margin-bottom:12px; padding:10px 14px; background:#f8f9fa; border-radius:8px;"><p><strong>Order #' + (order.order_number || order.id) + '</strong></p><p style="color:#5b768b; font-size:0.85rem;">Status: ' + (order.status || 'Processing') + '</p><p style="color:#5b768b; font-size:0.85rem;">Total: $' + (order.total || 0).toFixed(2) + '</p></div>' + stepHtml;
+            details.innerHTML = stepHtml;
 
+            // Show the modal
             document.getElementById('trackingModal').classList.add('active');
+
+            // Auto-refresh tracking every 10 seconds
+            if (window.trackingInterval) {
+                clearInterval(window.trackingInterval);
+            }
+            window.trackingInterval = setInterval(function() {
+                // Check for updates to this order
+                var updatedOrder = null;
+                for (var k = 0; k < orders.length; k++) {
+                    if (orders[k].order_number === orderId || orders[k].id == orderId) {
+                        updatedOrder = orders[k];
+                        break;
+                    }
+                }
+                if (updatedOrder && updatedOrder.status !== order.status) {
+                    // Update tracking modal with new status
+                    var newStatuses = ['Pending', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'];
+                    var newIndex = newStatuses.indexOf(updatedOrder.status);
+                    if (newIndex > currentIndex) {
+                        // Status progressed - show update
+                        var steps2 = [
+                            { status: 'Order Confirmed', description: 'Your order has been confirmed and is being processed.', time: new Date(updatedOrder.created_at || Date.now()).toLocaleString() },
+                            { status: 'Processing', description: 'We are preparing your items for shipment.', time: 'Processing' },
+                            { status: 'Shipped', description: 'Your order has been shipped and is on its way!', time: 'Shipped' },
+                            { status: 'Out for Delivery', description: 'Your package is out for delivery.', time: 'Out for Delivery' },
+                            { status: 'Delivered', description: 'Your order has been delivered successfully!', time: 'Delivered' }
+                        ];
+                        var showSteps2 = steps2.slice(0, newIndex + 2);
+                        var details2 = document.getElementById('trackingDetails');
+                        var stepHtml2 = '';
+
+                        stepHtml2 += '<div style="margin-bottom:12px; padding:10px 14px; background:#f8f9fa; border-radius:8px;">' +
+                            '<p><strong>Order #' + (updatedOrder.order_number || updatedOrder.id) + '</strong></p>' +
+                            '<p style="color:#5b768b; font-size:0.85rem;">Status: <span class="order-status ' + (updatedOrder.status === 'Delivered' ? 'status-delivered' : updatedOrder.status === 'Shipped' ? 'status-shipped' : 'status-processing') + '" style="display:inline-block; padding:2px 10px; border-radius:30px; font-size:0.7rem; font-weight:600;">' + (updatedOrder.status || 'Processing') + '</span></p>' +
+                            '<p style="color:#5b768b; font-size:0.85rem;">Total: $' + (updatedOrder.total || 0).toFixed(2) + '</p>' +
+                            '<p style="color:#28a745; font-size:0.75rem;"><i class="fas fa-sync-alt fa-pulse"></i> Live tracking updated</p></div>';
+
+                        for (var l = 0; l < showSteps2.length; l++) {
+                            var isActive2 = l <= newIndex;
+                            var isCurrent2 = l === newIndex;
+                            var dotClass2 = 'step-dot';
+                            if (isCurrent2) dotClass2 += ' current';
+                            else if (isActive2) dotClass2 += ' active';
+
+                            var timeDisplay2 = showSteps2[l].time;
+                            if (timeDisplay2 === 'Processing' || timeDisplay2 === 'Shipped' || timeDisplay2 === 'Out for Delivery' || timeDisplay2 === 'Delivered') {
+                                if (showSteps2[l].status === updatedOrder.status && updatedOrder.updated_at) {
+                                    timeDisplay2 = new Date(updatedOrder.updated_at).toLocaleString();
+                                }
+                            }
+
+                            stepHtml2 += '<div class="tracking-step"><span class="' + dotClass2 + '"></span><div class="step-content"><h4>' + showSteps2[l].status + '</h4><p>' + showSteps2[l].description + '</p><div class="step-time">' + timeDisplay2 + '</div></div></div>';
+                        }
+
+                        details2.innerHTML = stepHtml2;
+                        toast.info('Order #' + (updatedOrder.order_number || updatedOrder.id) + ' updated to ' + updatedOrder.status, 'Status Updated');
+                    }
+                }
+            }, 10000);
         };
 
         window.closeTracking = function() {
             document.getElementById('trackingModal').classList.remove('active');
+            if (window.trackingInterval) {
+                clearInterval(window.trackingInterval);
+                window.trackingInterval = null;
+            }
         };
+
         document.getElementById('trackingModal').addEventListener('click', function(e) {
             if (e.target === this) closeTracking();
         });
 
         window.cancelOrder = function(orderId) {
             if (!confirm('Cancel this order?')) return;
+
+            var orderToCancel = null;
             for (var i = 0; i < orders.length; i++) {
                 if (orders[i].order_number === orderId || orders[i].id == orderId) {
-                    orders[i].status = 'Cancelled';
-                    localStorage.setItem('orders', JSON.stringify(orders));
-                    toast.success('Order cancelled.', 'Cancelled');
-
-                    // Try to update in Supabase
-                    var client = getSupabaseClient();
-                    if (client && orders[i].id) {
-                        client.from('orders')
-                            .update({ status: 'Cancelled' })
-                            .eq('id', orders[i].id)
-                            .then(function(result) {
-                                if (result.error) console.warn('Supabase update error:', result.error);
-                            });
-                    }
-                    renderOrders(orders);
-                    return;
+                    orderToCancel = orders[i];
+                    break;
                 }
             }
+
+            if (!orderToCancel) { toast.error('Order not found.', 'Error'); return; }
+
+            // Update locally first
+            orderToCancel.status = 'Cancelled';
+            localStorage.setItem('orders', JSON.stringify(orders));
+
+            // Try to update in Supabase
+            var client = getSupabaseClient();
+            if (client && orderToCancel.id) {
+                client.from('orders')
+                    .update({ status: 'Cancelled' })
+                    .eq('id', orderToCancel.id)
+                    .then(function(result) {
+                        if (result.error) {
+                            console.warn('Supabase update error:', result.error);
+                            toast.warning('Order cancelled locally. Sync will happen when online.', 'Offline Mode');
+                        } else {
+                            toast.success('Order cancelled successfully.', 'Cancelled');
+                        }
+                    });
+            } else {
+                toast.success('Order cancelled successfully.', 'Cancelled');
+            }
+
+            renderOrders(orders);
         };
 
         window.reorder = function(orderId) {
@@ -599,19 +866,41 @@
             if (e.key === 'Enter') searchProducts();
         });
 
+        // ===== AUTO-REFRESH =====
+        function startAutoRefresh() {
+            setInterval(function() {
+                // Refresh orders from Supabase every 30 seconds
+                var client = getSupabaseClient();
+                if (client) {
+                    refreshOrdersFromSupabase();
+                }
+            }, 30000);
+        }
+
         // ===== INIT =====
         async function init() {
             var client = await waitForSupabase();
-            if (client) { console.log('✅ Supabase connected'); } else { console.log('⚠️ Using fallback data'); }
+            if (client) {
+                console.log('✅ Supabase connected');
+                // Setup real-time
+                setupRealtimeSubscription();
+            } else {
+                console.log('⚠️ Using fallback data');
+            }
 
             updateProfileUI();
             await loadOrders();
             updateCartCount();
-            console.log('✅ Orders page loaded!');
+            startAutoRefresh();
+            console.log('✅ Orders page loaded with real-time tracking!');
         }
 
         document.addEventListener('DOMContentLoaded', init);
-        document.addEventListener('supabaseReady', init);
+        document.addEventListener('supabaseReady', function() {
+            console.log('✅ Supabase ready - setting up real-time');
+            setupRealtimeSubscription();
+            refreshOrdersFromSupabase();
+        });
     </script>
 </body>
 </html>
