@@ -558,31 +558,28 @@
         window.toast = new ToastManager();
 
         // ============================================================
-        // SUPABASE FUNCTIONS
+        // SUPABASE HELPERS
         // ============================================================
-        let supabase = null;
-
-        function getSupabase() {
-            if (window.supabaseClient) {
-                return window.supabaseClient;
-            }
-            return null;
+        function getSupabaseClient() {
+            return window.supabaseClient || null;
         }
 
-        async function waitForSupabase() {
-            return new Promise((resolve) => {
+        function waitForSupabase() {
+            return new Promise(function(resolve) {
                 if (window.supabaseClient) {
                     resolve(window.supabaseClient);
                     return;
                 }
-                document.addEventListener('supabaseReady', function() {
-                    resolve(window.supabaseClient);
-                });
-                // Fallback timeout
-                setTimeout(() => {
-                    if (window.supabaseClient) resolve(window.supabaseClient);
-                    else resolve(null);
-                }, 5000);
+                var checkInterval = setInterval(function() {
+                    if (window.supabaseClient) {
+                        clearInterval(checkInterval);
+                        resolve(window.supabaseClient);
+                    }
+                }, 200);
+                setTimeout(function() {
+                    clearInterval(checkInterval);
+                    resolve(window.supabaseClient || null);
+                }, 8000);
             });
         }
 
@@ -592,21 +589,27 @@
         async function updateAuthButtons() {
             var authContainer = document.getElementById('authButtons');
             try {
-                const client = await waitForSupabase();
-                if (!client) {
-                    authContainer.innerHTML = '<a href="signup.html" class="btn-signup"><i class="fas fa-user-plus"></i> Sign Up</a>';
-                    return;
-                }
-                const { data: { session } } = await client.auth.getSession();
-                if (session) {
-                    const email = session.user.email || 'User';
-                    authContainer.innerHTML =
-                        '<span class="user-greeting"><i class="fas fa-user-circle"></i> ' + email.split('@')[0] + '</span>' +
-                        '<button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>';
-                } else {
-                    authContainer.innerHTML = '<a href="signup.html" class="btn-signup"><i class="fas fa-user-plus"></i> Sign Up</a>';
+                var client = getSupabaseClient();
+                if (client) {
+                    var { data: { session } } = await client.auth.getSession();
+                    if (session) {
+                        var email = session.user.email || 'User';
+                        authContainer.innerHTML =
+                            '<span class="user-greeting"><i class="fas fa-user-circle"></i> ' + email.split('@')[0] + '</span>' +
+                            '<button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>';
+                        return;
+                    }
                 }
             } catch (e) {
+                console.warn('Auth error:', e);
+            }
+            // Fallback - check localStorage
+            var currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (currentUser) {
+                authContainer.innerHTML =
+                    '<span class="user-greeting"><i class="fas fa-user-circle"></i> ' + (currentUser.name || 'User') + '</span>' +
+                    '<button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>';
+            } else {
                 authContainer.innerHTML = '<a href="signup.html" class="btn-signup"><i class="fas fa-user-plus"></i> Sign Up</a>';
             }
         }
@@ -614,7 +617,7 @@
         window.logout = async function() {
             if (!confirm('Logout?')) return;
             try {
-                const client = await waitForSupabase();
+                var client = getSupabaseClient();
                 if (client) {
                     await client.auth.signOut();
                 }
@@ -630,46 +633,10 @@
         // ============================================================
         // CART COUNT
         // ============================================================
-        async function updateCartCount() {
-            try {
-                const client = await waitForSupabase();
-                if (!client) return;
-                const { data: { session } } = await client.auth.getSession();
-                if (!session) {
-                    // Try local cart
-                    var cart = JSON.parse(localStorage.getItem('cart')) || [];
-                    var count = 0;
-                    for (var i = 0; i < cart.length; i++) { count += cart[i].quantity || 0; }
-                    updateBadges(count);
-                    return;
-                }
-                // Get cart from Supabase
-                const { data: cartData } = await client
-                    .from('carts')
-                    .select('*')
-                    .eq('user_id', session.user.id)
-                    .single();
-                if (cartData) {
-                    const { data: items } = await client
-                        .from('cart_items')
-                        .select('quantity')
-                        .eq('cart_id', cartData.id);
-                    var count = 0;
-                    for (var i = 0; i < (items || []).length; i++) { count += items[i].quantity || 0; }
-                    updateBadges(count);
-                } else {
-                    updateBadges(0);
-                }
-            } catch (e) {
-                // Fallback to local
-                var cart = JSON.parse(localStorage.getItem('cart')) || [];
-                var count = 0;
-                for (var i = 0; i < cart.length; i++) { count += cart[i].quantity || 0; }
-                updateBadges(count);
-            }
-        }
-
-        function updateBadges(count) {
+        function updateCartCount() {
+            var cart = JSON.parse(localStorage.getItem('cart')) || [];
+            var count = 0;
+            for (var i = 0; i < cart.length; i++) { count += cart[i].quantity || 0; }
             var badge = document.getElementById('cartCount');
             if (badge) badge.textContent = count;
             var bottomBadge = document.getElementById('bottomCartBadge');
@@ -679,201 +646,214 @@
         // ============================================================
         // ADD TO CART
         // ============================================================
-        window.addToCart = async function(productId) {
-            try {
-                const client = await waitForSupabase();
-                if (!client) {
-                    toast.error('Supabase not connected.', 'Error');
-                    return;
-                }
-
-                // Get product
-                const { data: product, error: productError } = await client
-                    .from('products')
-                    .select('*')
-                    .eq('id', productId)
-                    .single();
-
-                if (productError || !product || product.stock <= 0) {
-                    toast.error('Out of stock.', 'Error');
-                    return;
-                }
-
-                const { data: { session } } = await client.auth.getSession();
-
-                if (!session) {
-                    // Guest cart in localStorage
-                    var cart = JSON.parse(localStorage.getItem('cart')) || [];
-                    var existing = null;
-                    for (var i = 0; i < cart.length; i++) {
-                        if (cart[i].id === productId) { existing = cart[i]; break; }
-                    }
-                    if (existing) {
-                        if (existing.quantity >= product.stock) {
-                            toast.warning('Stock limit reached.', 'Warning');
-                            return;
-                        }
-                        existing.quantity += 1;
-                    } else {
-                        cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, quantity: 1 });
-                    }
-                    localStorage.setItem('cart', JSON.stringify(cart));
-                    updateCartCount();
-                    toast.success('Added to cart!', 'Added');
-                    return;
-                }
-
-                // Get or create cart
-                let { data: cartData } = await client
-                    .from('carts')
-                    .select('*')
-                    .eq('user_id', session.user.id)
-                    .single();
-
-                if (!cartData) {
-                    const { data: newCart } = await client
-                        .from('carts')
-                        .insert({ user_id: session.user.id })
-                        .select()
-                        .single();
-                    cartData = newCart;
-                }
-
-                if (!cartData) {
-                    toast.error('Could not create cart.', 'Error');
-                    return;
-                }
-
-                // Check if item exists in cart
-                const { data: existingItem } = await client
-                    .from('cart_items')
-                    .select('*')
-                    .eq('cart_id', cartData.id)
-                    .eq('product_id', productId)
-                    .single();
-
-                if (existingItem) {
-                    if (existingItem.quantity >= product.stock) {
-                        toast.warning('Stock limit reached.', 'Warning');
-                        return;
-                    }
-                    await client
-                        .from('cart_items')
-                        .update({ quantity: existingItem.quantity + 1 })
-                        .eq('id', existingItem.id);
-                } else {
-                    await client
-                        .from('cart_items')
-                        .insert({
-                            cart_id: cartData.id,
-                            product_id: productId,
-                            quantity: 1
-                        });
-                }
-
-                updateCartCount();
-                toast.success('Added to cart!', 'Added');
-
-            } catch (e) {
-                toast.error('Error adding to cart.', 'Error');
+        window.addToCart = function(productId) {
+            var products = JSON.parse(localStorage.getItem('products')) || [];
+            var product = null;
+            for (var i = 0; i < products.length; i++) {
+                if (products[i].id === productId) { product = products[i]; break; }
             }
+            if (!product || product.stock <= 0) {
+                toast.error('Out of stock.', 'Error');
+                return;
+            }
+            var cart = JSON.parse(localStorage.getItem('cart')) || [];
+            var existing = null;
+            for (var j = 0; j < cart.length; j++) {
+                if (cart[j].id === productId) { existing = cart[j]; break; }
+            }
+            if (existing) {
+                if (existing.quantity >= product.stock) {
+                    toast.warning('Stock limit reached.', 'Warning');
+                    return;
+                }
+                existing.quantity += 1;
+            } else {
+                cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, quantity: 1 });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            toast.success('Added to cart!', 'Added');
         };
 
         // ============================================================
-        // LOAD CATEGORIES
+        // LOAD CATEGORIES FROM SUPABASE
         // ============================================================
         async function loadCategories() {
             var grid = document.getElementById('categoriesGrid');
             try {
-                const client = await waitForSupabase();
-                if (!client) {
-                    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">Failed to load categories.</p>';
-                    return;
+                var client = getSupabaseClient();
+                if (client) {
+                    console.log('🔍 Loading categories from Supabase...');
+                    var { data, error } = await client
+                        .from('categories')
+                        .select('*')
+                        .eq('is_active', true)
+                        .order('name');
+
+                    if (!error && data && data.length > 0) {
+                        console.log('✅ Categories loaded from Supabase:', data.length);
+                        localStorage.setItem('categories', JSON.stringify(data));
+                        grid.innerHTML = data.map(function(c) {
+                            return '<a href="products.html?category=' + c.slug + '" class="category-card"><i class="fas ' + (c.icon || 'fa-tag') + '"></i><span>' + c.name + '</span></a>';
+                        }).join('');
+                        return;
+                    } else if (error) {
+                        console.warn('⚠️ Supabase categories error:', error.message);
+                    }
                 }
-                const { data, error } = await client
-                    .from('categories')
-                    .select('*')
-                    .eq('is_active', true)
-                    .order('name');
 
-                if (error) throw error;
-
-                if (!data || data.length === 0) {
-                    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">No categories found.</p>';
-                    return;
+                // Fallback to localStorage
+                var storedCategories = localStorage.getItem('categories');
+                if (storedCategories) {
+                    var cats = JSON.parse(storedCategories);
+                    if (cats && cats.length > 0) {
+                        console.log('📦 Categories from localStorage:', cats.length);
+                        grid.innerHTML = cats.map(function(c) {
+                            return '<a href="products.html?category=' + c.slug + '" class="category-card"><i class="fas ' + (c.icon || 'fa-tag') + '"></i><span>' + c.name + '</span></a>';
+                        }).join('');
+                        return;
+                    }
                 }
 
-                grid.innerHTML = data.map(function(c) {
-                    return '<a href="products.html?category=' + c.slug + '" class="category-card"><i class="fas ' + (c.icon || 'fa-tag') + '"></i><span>' + c.name + '</span></a>';
+                // Final fallback - default categories
+                console.log('📦 Using default categories');
+                var defaultCategories = [
+                    { name: 'Electronics', slug: 'electronics', icon: 'fa-laptop' },
+                    { name: 'Fashion', slug: 'fashion', icon: 'fa-tshirt' },
+                    { name: 'Home', slug: 'home', icon: 'fa-couch' },
+                    { name: 'Beauty', slug: 'beauty', icon: 'fa-spa' },
+                    { name: 'Sports', slug: 'sports', icon: 'fa-running' },
+                    { name: 'Books', slug: 'books', icon: 'fa-book' }
+                ];
+                localStorage.setItem('categories', JSON.stringify(defaultCategories));
+                grid.innerHTML = defaultCategories.map(function(c) {
+                    return '<a href="products.html?category=' + c.slug + '" class="category-card"><i class="fas ' + c.icon + '"></i><span>' + c.name + '</span></a>';
                 }).join('');
+
             } catch (e) {
-                grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">Error loading categories.</p>';
+                console.warn('Error loading categories:', e);
+                grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">Could not load categories.</p>';
             }
         }
 
         // ============================================================
-        // LOAD PRODUCTS
+        // LOAD PRODUCTS FROM SUPABASE
         // ============================================================
         async function loadProducts(containerId, filter, limit) {
             var container = document.getElementById(containerId);
             try {
-                const client = await waitForSupabase();
-                if (!client) {
-                    container.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">Failed to load products.</p>';
-                    return;
+                var client = getSupabaseClient();
+                if (client) {
+                    console.log('🔍 Loading products from Supabase...');
+                    var query = client.from('products').select('*').eq('is_active', true);
+                    if (filter === 'featured') query = query.eq('is_featured', true);
+                    else if (filter === 'bestseller') query = query.eq('is_bestseller', true);
+                    if (limit) query = query.limit(limit);
+
+                    var { data, error } = await query;
+                    if (!error && data && data.length > 0) {
+                        console.log('✅ Products loaded from Supabase:', data.length);
+                        // Store in localStorage for offline use
+                        var all = JSON.parse(localStorage.getItem('products')) || [];
+                        for (var j = 0; j < data.length; j++) {
+                            var exists = false;
+                            for (var k = 0; k < all.length; k++) {
+                                if (all[k].id === data[j].id) { exists = true; break; }
+                            }
+                            if (!exists) all.push(data[j]);
+                        }
+                        localStorage.setItem('products', JSON.stringify(all));
+
+                        var filtered = [];
+                        for (var l = 0; l < data.length; l++) {
+                            var p2 = data[l];
+                            if (filter === 'featured' && !p2.is_featured) continue;
+                            if (filter === 'bestseller' && !p2.is_bestseller) continue;
+                            filtered.push(p2);
+                        }
+                        renderProducts(container, filtered);
+                        return;
+                    } else if (error) {
+                        console.warn('⚠️ Supabase products error:', error.message);
+                    }
                 }
 
-                let query = client
-                    .from('products')
-                    .select(`
-                        *,
-                        categories!inner(name, slug)
-                    `)
-                    .eq('is_active', true);
-
-                if (filter === 'featured') {
-                    query = query.eq('is_featured', true);
-                } else if (filter === 'bestseller') {
-                    query = query.eq('is_bestseller', true);
+                // Fallback to localStorage
+                var allProducts = JSON.parse(localStorage.getItem('products')) || [];
+                if (allProducts.length > 0) {
+                    var filteredProducts = [];
+                    for (var m = 0; m < allProducts.length; m++) {
+                        var p3 = allProducts[m];
+                        if (filter === 'featured' && !p3.featured) continue;
+                        if (filter === 'bestseller' && !p3.bestseller) continue;
+                        filteredProducts.push(p3);
+                    }
+                    if (limit) filteredProducts = filteredProducts.slice(0, limit);
+                    if (filteredProducts.length > 0) {
+                        console.log('📦 Products from localStorage:', filteredProducts.length);
+                        renderProducts(container, filteredProducts);
+                        return;
+                    }
                 }
 
-                if (limit) query = query.limit(limit);
-
-                const { data, error } = await query;
-
-                if (error) throw error;
-
-                if (!data || data.length === 0) {
-                    container.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">No products found.</p>';
-                    return;
+                // Final fallback - default products
+                console.log('📦 Using default products');
+                var defaultProducts = [
+                    { id: 1, name: 'Wireless Headphones', price: 149.99, old_price: 199.99, rating: 4.8, stock: 15, image: 'fa-headphones', featured: true, bestseller: true },
+                    { id: 2, name: 'Smart Watch Pro', price: 199.00, old_price: 279.00, rating: 4.6, stock: 8, image: 'fa-watch', featured: true, bestseller: true },
+                    { id: 3, name: 'Leather Jacket', price: 89.99, old_price: null, rating: 4.7, stock: 20, image: 'fa-tshirt', featured: true, bestseller: false },
+                    { id: 4, name: 'Skincare Set', price: 59.99, old_price: 79.99, rating: 4.9, stock: 25, image: 'fa-spa', featured: true, bestseller: true },
+                    { id: 5, name: 'LED TV 55"', price: 499.00, old_price: 699.00, rating: 4.5, stock: 5, image: 'fa-tv', featured: false, bestseller: true },
+                    { id: 6, name: 'Handbag', price: 129.00, old_price: 159.00, rating: 4.4, stock: 12, image: 'fa-bag-shopping', featured: true, bestseller: false },
+                    { id: 7, name: 'Yoga Mat', price: 34.99, old_price: null, rating: 4.3, stock: 30, image: 'fa-person-walking', featured: false, bestseller: true },
+                    { id: 8, name: 'Coffee Maker', price: 79.99, old_price: 99.99, rating: 4.6, stock: 18, image: 'fa-mug-saucer', featured: true, bestseller: true }
+                ];
+                localStorage.setItem('products', JSON.stringify(defaultProducts));
+                var filteredDefault = [];
+                for (var n = 0; n < defaultProducts.length; n++) {
+                    var p4 = defaultProducts[n];
+                    if (filter === 'featured' && !p4.featured) continue;
+                    if (filter === 'bestseller' && !p4.bestseller) continue;
+                    filteredDefault.push(p4);
                 }
+                if (limit) filteredDefault = filteredDefault.slice(0, limit);
+                renderProducts(container, filteredDefault);
 
-                var html = '';
-                for (var i = 0; i < data.length; i++) {
-                    var p = data[i];
-                    var oldPrice = p.old_price ? '<span class="old">$' + parseFloat(p.old_price).toFixed(2) + '</span>' : '';
-                    var stockText = p.stock > 0 ? 'In Stock' : 'Out of Stock';
-                    var stockClass = p.stock > 0 ? '' : 'out';
-                    var stars = '';
-                    var rating = parseFloat(p.rating) || 0;
-                    for (var s = 0; s < Math.floor(rating); s++) stars += '<i class="fas fa-star"></i>';
-                    if (rating - Math.floor(rating) >= 0.5) stars += '<i class="fas fa-star-half-alt"></i>';
-                    for (var e = 0; e < 5 - Math.ceil(rating); e++) stars += '<i class="far fa-star"></i>';
-
-                    html += '<div class="product-card">' +
-                        '<div class="product-image"><i class="fas ' + (p.image || 'fa-box') + '"></i></div>' +
-                        '<div class="product-body">' +
-                        '<div class="name">' + p.name + '</div>' +
-                        '<div class="price">$' + parseFloat(p.price).toFixed(2) + ' ' + oldPrice + '</div>' +
-                        '<div class="rating">' + stars + ' <span class="count">(' + rating.toFixed(1) + ')</span></div>' +
-                        '<div class="stock ' + stockClass + '"><i class="fas ' + (p.stock > 0 ? 'fa-check-circle' : 'fa-times-circle') + '"></i> ' + stockText + '</div>' +
-                        '<button class="btn-add" onclick="addToCart(\'' + p.id + '\')"><i class="fas fa-cart-plus"></i> Add</button>' +
-                        '</div></div>';
-                }
-                container.innerHTML = html;
             } catch (e) {
+                console.warn('Error loading products:', e);
                 container.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">Error loading products.</p>';
             }
+        }
+
+        function renderProducts(container, products) {
+            if (!products || products.length === 0) {
+                container.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">No products found.</p>';
+                return;
+            }
+
+            var html = '';
+            for (var i = 0; i < products.length; i++) {
+                var p = products[i];
+                var oldPrice = p.old_price ? '<span class="old">$' + parseFloat(p.old_price).toFixed(2) + '</span>' : '';
+                var stockText = p.stock > 0 ? 'In Stock' : 'Out of Stock';
+                var stockClass = p.stock > 0 ? '' : 'out';
+                var stars = '';
+                var rating = parseFloat(p.rating) || 0;
+                for (var s = 0; s < Math.floor(rating); s++) stars += '<i class="fas fa-star"></i>';
+                if (rating - Math.floor(rating) >= 0.5) stars += '<i class="fas fa-star-half-alt"></i>';
+                for (var e = 0; e < 5 - Math.ceil(rating); e++) stars += '<i class="far fa-star"></i>';
+
+                html += '<div class="product-card">' +
+                    '<div class="product-image"><i class="fas ' + (p.image || 'fa-box') + '"></i></div>' +
+                    '<div class="product-body">' +
+                    '<div class="name">' + p.name + '</div>' +
+                    '<div class="price">$' + parseFloat(p.price).toFixed(2) + ' ' + oldPrice + '</div>' +
+                    '<div class="rating">' + stars + ' <span class="count">(' + rating.toFixed(1) + ')</span></div>' +
+                    '<div class="stock ' + stockClass + '"><i class="fas ' + (p.stock > 0 ? 'fa-check-circle' : 'fa-times-circle') + '"></i> ' + stockText + '</div>' +
+                    '<button class="btn-add" onclick="addToCart(\'' + p.id + '\')"><i class="fas fa-cart-plus"></i> Add</button>' +
+                    '</div></div>';
+            }
+            container.innerHTML = html;
         }
 
         // ============================================================
@@ -913,25 +893,44 @@
         // ============================================================
         async function init() {
             // Wait for Supabase
-            const client = await waitForSupabase();
+            var client = await waitForSupabase();
             if (client) {
                 console.log('✅ Supabase connected');
+                // Try to get session for auth
+                try {
+                    var { data: { session } } = await client.auth.getSession();
+                    if (session) {
+                        console.log('✅ User logged in:', session.user.email);
+                    }
+                } catch(e) {}
             } else {
-                console.warn('⚠️ Supabase not connected, using fallback data');
+                console.log('⚠️ Using fallback data (Supabase not available)');
             }
 
-            await updateAuthButtons();
+            updateAuthButtons();
             await loadCategories();
             await loadProducts('featuredGrid', 'featured', 4);
             await loadProducts('bestsellerGrid', 'bestseller', 4);
             loadTestimonials();
-            await updateCartCount();
+            updateCartCount();
 
             console.log('✅ MarketStall loaded!');
         }
 
+        // Listen for DOM ready
         document.addEventListener('DOMContentLoaded', init);
-        document.addEventListener('supabaseReady', init);
+
+        // Also listen for supabaseReady event
+        document.addEventListener('supabaseReady', function() {
+            console.log('✅ Supabase ready event received');
+            // Re-init to load data from Supabase
+            init();
+        });
+
+        // Listen for supabaseError event
+        document.addEventListener('supabaseError', function() {
+            console.log('⚠️ Supabase error event - using fallback data');
+        });
     </script>
 </body>
 </html>
