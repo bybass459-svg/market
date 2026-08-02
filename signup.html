@@ -108,7 +108,7 @@
                 options = options || {};
                 var type = options.type || 'info';
                 var title = options.title || '';
-                var duration = options.duration || 3000;
+                var duration = options.duration || 4000;
                 var toast = document.createElement('div');
                 toast.className = 'toast toast-' + type;
                 var icons = { success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-circle', info: 'fa-info-circle' };
@@ -215,19 +215,24 @@
                     options: {
                         data: {
                             full_name: name
-                        }
+                        },
+                        emailRedirectTo: window.location.origin + '/login.html'
                     }
                 });
 
                 if (error) {
-                    // Check if it's a rate limit error
+                    console.error('Signup error:', error);
+                    
+                    // Check error type
                     if (error.message && error.message.toLowerCase().includes('rate limit')) {
                         showError('Too many signup attempts. Please wait a few minutes and try again.');
                         toast.warning('Rate limit reached. Please wait a few minutes.', 'Slow Down');
                     } else if (error.message && error.message.toLowerCase().includes('already registered')) {
                         toast.error('Email already registered. Please login.', 'Exists');
+                    } else if (error.message && error.message.toLowerCase().includes('password')) {
+                        toast.error('Password must be at least 6 characters.', 'Password Error');
                     } else {
-                        toast.error(error.message, 'Signup Error');
+                        toast.error(error.message || 'Signup failed. Please try again.', 'Error');
                     }
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-user-plus"></i> Sign up';
@@ -237,12 +242,27 @@
                 if (data && data.user) {
                     // Store user info in localStorage for fallback
                     var users = JSON.parse(localStorage.getItem('users')) || [];
-                    users.push({ name: name, email: email, password: password });
-                    localStorage.setItem('users', JSON.stringify(users));
+                    // Check if user already exists
+                    var userExists = false;
+                    for (var j = 0; j < users.length; j++) {
+                        if (users[j].email === email) { userExists = true; break; }
+                    }
+                    if (!userExists) {
+                        users.push({ name: name, email: email, password: password });
+                        localStorage.setItem('users', JSON.stringify(users));
+                    }
                     localStorage.setItem('currentUser', JSON.stringify({ name: name, email: email }));
 
-                    toast.success('Account created successfully!', 'Welcome!');
-                    setTimeout(function() { window.location.href = 'login.html'; }, 1500);
+                    toast.success('Account created successfully! Please check your email to confirm.', 'Welcome!');
+                    
+                    // If email confirmation is required, show message
+                    if (data.user && data.user.confirmation_sent_at) {
+                        toast.info('Confirmation email sent! Please check your inbox.', 'Confirm Email');
+                        btn.innerHTML = '<i class="fas fa-check"></i> Check your email';
+                        setTimeout(function() { window.location.href = 'login.html'; }, 3000);
+                    } else {
+                        setTimeout(function() { window.location.href = 'login.html'; }, 1500);
+                    }
                 }
 
             } catch (e) {
