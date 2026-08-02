@@ -1,6 +1,4 @@
-// supabase.js - Supabase Client Configuration
-// Place this in your project root
-
+// supabase.js - Final Version
 (function() {
     // Check if already initialized
     if (window.supabaseClient) {
@@ -13,26 +11,24 @@
 
     console.log('📦 Initializing Supabase client...');
 
-    // Create the client directly using the CDN
     var script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
     script.async = true;
     
     script.onload = function() {
         try {
-            // The CDN loads 'supabase' as a global variable
             if (typeof supabase !== 'undefined' && supabase.createClient) {
                 window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
                     auth: {
                         persistSession: true,
                         autoRefreshToken: true,
-                        detectSessionInUrl: true
+                        detectSessionInUrl: false  // IMPORTANT: Disable auto-detection
                     }
                 });
                 console.log('✅ Supabase client initialized successfully');
                 
-                // Test the connection
-                window.supabaseClient.from('categories').select('count').then(function(result) {
+                // Test connection
+                window.supabaseClient.from('categories').select('count', { count: 'exact', head: true }).then(function(result) {
                     if (result.error) {
                         console.warn('⚠️ Supabase connection test failed:', result.error.message);
                     } else {
@@ -58,14 +54,12 @@
     
     document.head.appendChild(script);
 
-    // Store config for later use
     window.SUPABASE_URL = SUPABASE_URL;
     window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
 
-    // Set a timeout in case the script doesn't load
     setTimeout(function() {
         if (!window.supabaseClient) {
-            console.warn('⚠️ Supabase loading timeout - check your internet connection');
+            console.warn('⚠️ Supabase loading timeout');
             document.dispatchEvent(new Event('supabaseError'));
         }
     }, 10000);
