@@ -117,4 +117,120 @@
                 var timeout = setTimeout(function() {
                     if (toast.parentNode) {
                         toast.classList.remove('show');
-                        toast.classList.add
+                        toast.classList.add('hide');
+                        setTimeout(function() { if (toast.parentNode) toast.remove(); }, 400);
+                    }
+                }, duration);
+                toast.addEventListener('click', function(e) {
+                    if (e.target.closest('.toast-close')) return;
+                    if (toast.parentNode) {
+                        toast.classList.remove('show');
+                        toast.classList.add('hide');
+                        setTimeout(function() { if (toast.parentNode) toast.remove(); }, 400);
+                    }
+                    clearTimeout(timeout);
+                });
+                return toast;
+            }
+            success(message, title) { return this.show(message, { type: 'success', title: title || '' }); }
+            error(message, title) { return this.show(message, { type: 'error', title: title || '' }); }
+            warning(message, title) { return this.show(message, { type: 'warning', title: title || '' }); }
+            info(message, title) { return this.show(message, { type: 'info', title: title || '' }); }
+        }
+        window.toast = new ToastManager();
+
+        function waitForSupabase() {
+            return new Promise((resolve) => {
+                if (window.supabaseClient) { resolve(window.supabaseClient); return; }
+                document.addEventListener('supabaseReady', function() { resolve(window.supabaseClient); });
+                setTimeout(() => { resolve(window.supabaseClient || null); }, 5000);
+            });
+        }
+
+        // Login form
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            var email = document.getElementById('loginEmail').value.trim();
+            var password = document.getElementById('loginPassword').value;
+
+            var isValid = true;
+            if (!email || !email.includes('@')) { document.getElementById('loginEmail').classList.add('error'); isValid = false; }
+            if (!password) { document.getElementById('loginPassword').classList.add('error'); isValid = false; }
+
+            if (!isValid) {
+                toast.error('Please enter your email and password.', 'Error');
+                return;
+            }
+
+            var btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Logging in...';
+
+            try {
+                const client = await waitForSupabase();
+
+                if (!client) {
+                    // Fallback to local storage
+                    var users = JSON.parse(localStorage.getItem('users')) || [];
+                    var user = null;
+                    for (var i = 0; i < users.length; i++) {
+                        if (users[i].email === email && users[i].password === password) {
+                            user = users[i];
+                            break;
+                        }
+                    }
+                    if (user) {
+                        localStorage.setItem('currentUser', JSON.stringify({ name: user.name, email: user.email }));
+                        toast.success('Welcome back, ' + user.name + '!', 'Login Successful');
+                        setTimeout(function() { window.location.href = 'index.html'; }, 1200);
+                    } else {
+                        var userExists = false;
+                        for (var j = 0; j < users.length; j++) {
+                            if (users[j].email === email) { userExists = true; break; }
+                        }
+                        if (userExists) {
+                            toast.error('Incorrect password.', 'Login Failed');
+                            document.getElementById('loginPassword').classList.add('error');
+                        } else {
+                            toast.error('Account not found. Please sign up.', 'Login Failed');
+                            document.getElementById('loginEmail').classList.add('error');
+                        }
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+                    }
+                    return;
+                }
+
+                // Login with Supabase
+                const { data, error } = await client.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) {
+                    toast.error(error.message, 'Login Failed');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+                    return;
+                }
+
+                if (data && data.user) {
+                    const name = data.user.user_metadata?.full_name || email.split('@')[0];
+                    toast.success('Welcome back, ' + name + '!', 'Login Successful');
+                    setTimeout(function() { window.location.href = 'index.html'; }, 1200);
+                }
+
+            } catch (e) {
+                toast.error('Error logging in.', 'Error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+            }
+        });
+
+        document.querySelectorAll('.field input').forEach(function(el) {
+            el.addEventListener('input', function() { this.classList.remove('error'); });
+        });
+    </script>
+</body>
+</html>
