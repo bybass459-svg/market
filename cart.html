@@ -2,51 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cart · MarketStall</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart - MarketStall</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* ===== TOAST NOTIFICATIONS ===== */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-width: 360px;
-            width: 90%;
-            pointer-events: none;
-        }
-        .toast {
-            background: #ffffff;
-            border-radius: 8px;
-            padding: 14px 18px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-            border-left: 4px solid #2a7de1;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transform: translateX(120%);
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            pointer-events: auto;
-            position: relative;
-            overflow: hidden;
-        }
+        /* Same styles as index */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }
+        body { background: #f5f7fa; color: #0b1b2b; padding-bottom: 70px; }
+        a { text-decoration: none; color: inherit; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+
+        /* Toast notifications (same as index) */
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 380px; width: 90%; pointer-events: none; }
+        .toast { background: #ffffff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); border-left: 4px solid #2a7de1; display: flex; align-items: center; gap: 12px; transform: translateX(120%); opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); pointer-events: auto; position: relative; overflow: hidden; }
         .toast.show { transform: translateX(0); opacity: 1; }
         .toast.hide { transform: translateX(120%); opacity: 0; }
-        .toast-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            flex-shrink: 0;
-        }
+        .toast-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
         .toast-success .toast-icon { background: #d4edda; color: #155724; }
         .toast-error .toast-icon { background: #f8d7da; color: #721c24; }
         .toast-warning .toast-icon { background: #fff3cd; color: #856404; }
@@ -58,644 +29,161 @@
         .toast-content { flex: 1; }
         .toast-content .toast-title { font-weight: 600; font-size: 0.9rem; color: #0b1b2b; }
         .toast-content .toast-message { font-size: 0.82rem; color: #5b768b; }
-        .toast-close { background: none; border: none; color: #999; cursor: pointer; font-size: 1.1rem; padding: 0 4px; flex-shrink: 0; }
-        .toast-progress {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 3px;
-            animation: toastProgress 4s linear forwards;
-        }
+        .toast-close { background: none; border: none; color: #999; cursor: pointer; font-size: 1.1rem; padding: 0 4px; }
+        .toast-progress { position: absolute; bottom: 0; left: 0; height: 3px; animation: toastProgress 4s linear forwards; }
         .toast-success .toast-progress { background: #28a745; }
         .toast-error .toast-progress { background: #dc3545; }
         .toast-warning .toast-progress { background: #ffc107; }
         .toast-info .toast-progress { background: #17a2b8; }
-        @keyframes toastProgress {
-            0% { width: 100%; }
-            100% { width: 0%; }
-        }
+        @keyframes toastProgress { 0% { width: 100%; } 100% { width: 0%; } }
 
-        /* ===== RESET ===== */
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f7fa;
-            color: #0b1b2b;
-            padding-bottom: 70px;
-            font-size: 16px;
-        }
-
-        /* ===== HEADER ===== */
-        .header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: #ffffff;
-            padding: 12px 20px;
-            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
-            border-bottom: 1px solid #eef2f6;
-        }
-        .header-top {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            max-width: 1240px;
-            margin: 0 auto;
-        }
-        .header-logo {
-            font-size: 1.4rem;
-            font-weight: 700;
-            text-decoration: none;
-            color: #0b1b2b;
-            flex-shrink: 0;
-            white-space: nowrap;
-        }
-        .header-logo i { color: #f8b400; }
-        .header-logo span { color: #2a7de1; }
-        .header-search {
-            flex: 1;
-            display: flex;
-            background: #f1f4f8;
-            border-radius: 8px;
-            overflow: hidden;
-            height: 48px;
-            min-width: 0;
-            max-width: 600px;
-            border: 2px solid transparent;
-            transition: 0.3s;
-        }
-        .header-search:focus-within {
-            border-color: #f8b400;
-            background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(248, 180, 0, 0.1);
-        }
-        .header-search input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 0 18px;
-            font-size: 0.95rem;
-            outline: none;
-            color: #0b1b2b;
-            min-width: 0;
-        }
-        .header-search input::placeholder { color: #868e96; font-size: 0.9rem; }
-        .header-search button {
-            border: none;
-            background: #f8b400;
-            color: #0b1b2b;
-            padding: 0 24px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 700;
-            transition: 0.2s;
-            flex-shrink: 0;
-            height: 48px;
-        }
-        .header-search button:hover { background: #e0a000; }
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            flex-shrink: 0;
-        }
-        .header-actions a {
-            color: #1f3a4b;
-            font-size: 1.1rem;
-            text-decoration: none;
-            position: relative;
-            transition: 0.2s;
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            background: #f8f9fa;
-        }
-        .header-actions a:hover {
-            background: #f1f4f8;
-            color: #f8b400;
-            transform: translateY(-2px);
-        }
-        .cart-badge {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            background: #dc3545;
-            color: #ffffff;
-            border-radius: 50%;
-            font-size: 0.55rem;
-            font-weight: 700;
-            padding: 1px 5px;
-            min-width: 16px;
-            text-align: center;
-        }
-        .btn-signup {
-            background: #f8b400;
-            color: #0b1b2b;
-            padding: 0 20px;
-            height: 44px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 700;
-            transition: 0.2s;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .btn-signup:hover {
-            background: #e0a000;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(248, 180, 0, 0.3);
-        }
-        .btn-logout {
-            background: #dc3545;
-            color: #ffffff;
-            padding: 0 20px;
-            height: 44px;
-            border-radius: 8px;
-            border: none;
-            font-size: 0.85rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .btn-logout:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(220, 53, 69, 0.3);
-        }
-        .user-greeting {
-            color: #1f3a4b;
-            font-weight: 500;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-        }
+        /* Header */
+        .header { position: sticky; top: 0; z-index: 100; background: #ffffff; padding: 12px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border-bottom: 1px solid #eef2f6; }
+        .header-top { display: flex; align-items: center; gap: 12px; max-width: 1280px; margin: 0 auto; }
+        .logo { font-size: 1.3rem; font-weight: 700; color: #0b1b2b; flex-shrink: 0; }
+        .logo i { color: #f8b400; }
+        .logo span { color: #2a7de1; }
+        .search-bar { flex: 1; display: flex; background: #f1f4f8; border-radius: 30px; overflow: hidden; height: 40px; max-width: 500px; }
+        .search-bar input { flex: 1; border: none; background: transparent; padding: 0 16px; font-size: 0.85rem; outline: none; }
+        .search-bar button { border: none; background: #f8b400; color: #0b1b2b; padding: 0 18px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
+        .search-bar button:hover { background: #e0a000; }
+        .header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .header-actions a { color: #1f3a4b; font-size: 1.1rem; position: relative; padding: 4px 6px; transition: 0.2s; }
+        .header-actions a:hover { color: #f8b400; }
+        .cart-badge { position: absolute; top: -4px; right: -4px; background: #dc3545; color: #fff; border-radius: 50%; font-size: 0.55rem; font-weight: 700; padding: 1px 5px; min-width: 16px; text-align: center; }
+        .btn-signup { background: #f8b400; color: #0b1b2b; padding: 4px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; transition: 0.2s; }
+        .btn-signup:hover { background: #e0a000; }
+        .btn-logout { background: #dc3545; color: #fff; padding: 4px 14px; border-radius: 30px; border: none; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-logout:hover { background: #c82333; }
+        .user-greeting { font-size: 0.75rem; font-weight: 500; color: #1f3a4b; display: flex; align-items: center; gap: 4px; }
         .user-greeting i { color: #f8b400; }
 
-        /* ===== BOTTOM NAV ===== */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #ffffff;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 6px 0 10px;
-            box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.06);
-            border-top: 1px solid #eef2f6;
-            z-index: 999;
-            height: 64px;
-        }
-        .bottom-nav a {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: #868e96;
-            font-size: 0.6rem;
-            font-weight: 500;
-            transition: 0.2s;
-            padding: 2px 8px;
-            position: relative;
-            min-width: 50px;
-        }
-        .bottom-nav a i { font-size: 1.3rem; margin-bottom: 2px; }
-        .bottom-nav a span { font-size: 0.55rem; }
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; display: flex; justify-content: space-around; align-items: center; padding: 6px 0 10px; box-shadow: 0 -2px 16px rgba(0,0,0,0.06); border-top: 1px solid #eef2f6; z-index: 999; height: 64px; }
+        .bottom-nav a { display: flex; flex-direction: column; align-items: center; color: #868e96; font-size: 0.6rem; font-weight: 500; transition: 0.2s; padding: 2px 8px; position: relative; min-width: 50px; }
+        .bottom-nav a i { font-size: 1.2rem; margin-bottom: 2px; }
         .bottom-nav a:hover { color: #f8b400; }
         .bottom-nav a.active { color: #f8b400; }
-        .bottom-nav a .nav-badge {
-            position: absolute;
-            top: -4px;
-            right: 2px;
-            background: #dc3545;
-            color: #ffffff;
-            border-radius: 50%;
-            font-size: 0.5rem;
-            font-weight: 700;
-            padding: 1px 5px;
-            min-width: 16px;
-            text-align: center;
-        }
+        .bottom-nav a .nav-badge { position: absolute; top: -4px; right: 2px; background: #dc3545; color: #fff; border-radius: 50%; font-size: 0.5rem; font-weight: 700; padding: 1px 5px; min-width: 16px; text-align: center; }
 
-        /* ===== PAGE CONTENT ===== */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-            margin: 24px 0 16px;
-            max-width: 1240px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .page-header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        .page-header h1 i { color: #f8b400; margin-right: 8px; }
-        .page-header .item-count {
-            color: #5b768b;
-            font-size: 0.9rem;
-            background: #f1f4f8;
-            padding: 4px 16px;
-            border-radius: 30px;
-        }
+        /* Page Header */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin: 16px 0 12px; flex-wrap: wrap; gap: 8px; }
+        .page-header h1 { font-size: 1.2rem; font-weight: 700; }
+        .page-header h1 i { color: #f8b400; margin-right: 6px; }
+        .page-header .item-count { font-size: 0.8rem; color: #5b768b; background: #f1f4f8; padding: 4px 14px; border-radius: 30px; }
 
-        .cart-grid {
-            display: grid;
-            grid-template-columns: 1fr 340px;
-            gap: 24px;
-            padding: 0 20px;
-            max-width: 1240px;
-            margin: 0 auto;
-        }
-
-        /* ===== CART ITEMS ===== */
-        .cart-items {
-            background: #ffffff;
-            border-radius: 16px;
-            border: 1px solid #eef2f6;
-            padding: 20px;
-            min-height: 200px;
-        }
-        .cart-item {
-            display: grid;
-            grid-template-columns: 80px 1fr auto;
-            gap: 16px;
-            padding: 16px 0;
-            border-bottom: 1px solid #eef2f6;
-            align-items: center;
-        }
+        /* Cart Grid */
+        .cart-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        .cart-items { background: #ffffff; border-radius: 12px; border: 1px solid #eef2f6; padding: 16px; min-height: 150px; }
+        .cart-item { display: grid; grid-template-columns: 60px 1fr auto; gap: 12px; padding: 12px 0; border-bottom: 1px solid #eef2f6; align-items: center; }
         .cart-item:last-child { border-bottom: none; }
-        .cart-item-image {
-            background: #f1f4f8;
-            border-radius: 12px;
-            width: 80px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: #2a7de1;
-        }
-        .cart-item-details h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 2px; }
-        .cart-item-details .price { font-weight: 700; color: #2a7de1; font-size: 1rem; }
-        .cart-item-details .stock-warning {
-            font-size: 0.7rem;
-            color: #dc3545;
-            display: block;
-            margin-top: 2px;
-        }
-        .cart-item-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .qty-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            border: 1px solid #eef2f6;
-            background: #f8f9fa;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .qty-btn:hover { background: #f1f4f8; border-color: #dce5ed; }
-        .qty-display {
-            font-weight: 600;
-            min-width: 24px;
-            text-align: center;
-            font-size: 0.95rem;
-        }
-        .remove-btn {
-            background: none;
-            border: none;
-            color: #dc3545;
-            cursor: pointer;
-            font-size: 1rem;
-            padding: 4px 8px;
-            border-radius: 8px;
-            transition: 0.2s;
-        }
-        .remove-btn:hover { background: #fde8e8; }
+        .cart-item-image { background: #f1f4f8; border-radius: 10px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #2a7de1; }
+        .cart-item-details h4 { font-size: 0.85rem; font-weight: 600; }
+        .cart-item-details .price { font-weight: 700; color: #2a7de1; font-size: 0.9rem; }
+        .cart-item-actions { display: flex; align-items: center; gap: 6px; }
+        .qty-btn { width: 28px; height: 28px; border-radius: 8px; border: 1px solid #eef2f6; background: #f8f9fa; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .qty-btn:hover { background: #f1f4f8; }
+        .qty-display { font-weight: 600; min-width: 20px; text-align: center; font-size: 0.85rem; }
+        .remove-btn { background: none; border: none; color: #dc3545; cursor: pointer; font-size: 0.9rem; padding: 4px; transition: 0.2s; }
+        .remove-btn:hover { background: #fde8e8; border-radius: 6px; }
 
-        /* ===== EMPTY CART ===== */
-        .empty-cart {
-            text-align: center;
-            padding: 40px 20px;
-        }
-        .empty-cart i {
-            font-size: 3.5rem;
-            color: #dce5ed;
-            margin-bottom: 16px;
-            display: block;
-        }
-        .empty-cart h3 { font-size: 1.2rem; margin-bottom: 8px; }
-        .empty-cart p { color: #5b768b; margin-bottom: 20px; font-size: 0.95rem; }
-        .empty-cart .btn-shop {
-            display: inline-block;
-            padding: 0 32px;
-            height: 48px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 0.95rem;
-            text-decoration: none;
-            background: #2a7de1;
-            color: #ffffff;
-            line-height: 48px;
-            transition: 0.2s;
-        }
-        .empty-cart .btn-shop:hover {
-            background: #1a5fb0;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(42, 125, 225, 0.3);
-        }
+        /* Empty cart */
+        .empty-cart { text-align: center; padding: 30px 16px; }
+        .empty-cart i { font-size: 3rem; color: #dce5ed; margin-bottom: 12px; display: block; }
+        .empty-cart h3 { font-size: 1rem; margin-bottom: 4px; }
+        .empty-cart p { color: #5b768b; font-size: 0.85rem; margin-bottom: 12px; }
+        .btn-shop { display: inline-block; padding: 8px 24px; border-radius: 30px; font-weight: 600; font-size: 0.85rem; background: #2a7de1; color: #fff; transition: 0.2s; }
+        .btn-shop:hover { background: #1a5fb0; transform: translateY(-2px); }
 
-        /* ===== CART SUMMARY ===== */
-        .cart-summary {
-            background: #ffffff;
-            border-radius: 16px;
-            border: 1px solid #eef2f6;
-            padding: 20px;
-            height: fit-content;
-            position: sticky;
-            top: 100px;
-        }
-        .cart-summary h3 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-        }
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            font-size: 0.95rem;
-            color: #1f3a4b;
-        }
+        /* Cart Summary */
+        .cart-summary { background: #ffffff; border-radius: 12px; border: 1px solid #eef2f6; padding: 16px; }
+        .cart-summary h3 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; }
+        .summary-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.85rem; color: #1f3a4b; }
         .summary-row .label { color: #5b768b; }
-        .summary-row.total {
-            border-top: 2px solid #eef2f6;
-            padding-top: 16px;
-            margin-top: 8px;
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: #0b1b2b;
-        }
-        .summary-row .free-shipping {
-            color: #28a745;
-            font-size: 0.8rem;
-            padding-top: 0;
-        }
-        .checkout-btn {
-            width: 100%;
-            padding: 0;
-            height: 48px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.2s;
-            background: #f8b400;
-            color: #0b1b2b;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 12px;
-        }
-        .checkout-btn:hover {
-            background: #e0a000;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(248, 180, 0, 0.3);
-        }
-        .checkout-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .clear-cart-btn {
-            width: 100%;
-            padding: 0;
-            height: 44px;
-            border: 1px solid #dc3545;
-            border-radius: 10px;
-            background: transparent;
-            color: #dc3545;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: 0.2s;
-            margin-top: 8px;
-        }
-        .clear-cart-btn:hover {
-            background: #dc3545;
-            color: #ffffff;
-            transform: translateY(-2px);
-        }
+        .summary-row.total { border-top: 2px solid #eef2f6; padding-top: 12px; margin-top: 6px; font-weight: 700; font-size: 1rem; }
+        .checkout-btn { width: 100%; padding: 10px 0; border: none; border-radius: 30px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; background: #f8b400; color: #0b1b2b; margin-top: 8px; }
+        .checkout-btn:hover { background: #e0a000; transform: translateY(-2px); }
+        .checkout-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .clear-cart-btn { width: 100%; padding: 8px 0; border: 1px solid #dc3545; border-radius: 30px; background: transparent; color: #dc3545; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.2s; margin-top: 6px; }
+        .clear-cart-btn:hover { background: #dc3545; color: #fff; transform: translateY(-2px); }
 
-        /* ===== FOOTER ===== */
-        .footer {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 32px 32px 24px;
-            margin: 20px 20px 16px;
-            border: 1px solid #eef2f6;
-            max-width: 1240px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 24px;
-        }
-        .footer-brand .logo {
-            font-size: 1.4rem;
-            font-weight: 700;
-            text-decoration: none;
-            color: #0b1b2b;
-        }
-        .footer-brand .logo i { color: #f8b400; }
-        .footer-brand .logo span { color: #2a7de1; }
-        .footer-brand .contact {
-            margin-top: 6px;
-            font-size: 0.85rem;
-            color: #2c4a5e;
-        }
-        .footer-brand .contact i { color: #f8b400; width: 22px; }
-        .footer-social {
-            display: flex;
-            gap: 14px;
-        }
-        .footer-social a {
-            color: #1f3a4b;
-            font-size: 1.4rem;
-            text-decoration: none;
-            transition: 0.2s;
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            background: #f8f9fa;
-        }
-        .footer-social a:hover {
-            color: #f8b400;
-            background: #f1f4f8;
-            transform: translateY(-3px);
-        }
-        .footer-bottom {
-            text-align: center;
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid #eef2f6;
-            font-size: 0.8rem;
-            color: #5b768b;
-        }
-        .footer-bottom .brand { color: #f8b400; font-weight: 700; }
+        /* Footer */
+        .footer { background: #ffffff; border-radius: 12px; padding: 16px; margin: 8px 0 10px; border: 1px solid #eef2f6; text-align: center; }
+        .footer .logo { font-size: 1rem; }
+        .footer p { font-size: 0.65rem; color: #5b768b; margin-top: 4px; }
+        .footer .links { display: flex; justify-content: center; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
+        .footer .links a { color: #2a7de1; font-size: 0.65rem; }
 
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 860px) {
-            .header { padding: 10px 16px; }
-            .header-top { gap: 12px; }
-            .header-logo { font-size: 1.1rem; }
-            .header-search { height: 40px; max-width: 100%; }
-            .header-search input { font-size: 0.82rem; padding: 0 14px; }
-            .header-search button { padding: 0 16px; font-size: 0.82rem; height: 40px; }
-            .header-actions a { width: 38px; height: 38px; font-size: 0.95rem; }
-            .btn-signup, .btn-logout { height: 36px; font-size: 0.72rem; padding: 0 14px; }
-            .user-greeting { font-size: 0.72rem; }
-
-            .cart-grid { grid-template-columns: 1fr; padding: 0 12px; gap: 16px; }
-            .cart-item { grid-template-columns: 60px 1fr auto; gap: 12px; }
-            .cart-item-image { width: 60px; height: 60px; font-size: 1.5rem; }
-            .cart-summary { position: static; }
-            .page-header { padding: 0 12px; margin: 16px 0 12px; }
-            .page-header h1 { font-size: 1.2rem; }
-
-            .footer { padding: 20px 16px; margin: 0 12px 12px; }
-            .footer-content { flex-direction: column; text-align: center; gap: 16px; }
-            .footer-social { justify-content: center; }
+        @media (min-width: 640px) {
+            body { padding-bottom: 0; }
+            .bottom-nav { display: none; }
+            .cart-grid { grid-template-columns: 1fr 300px; gap: 20px; }
+            .header { padding: 12px 24px; }
+            .logo { font-size: 1.5rem; }
+            .search-bar { height: 44px; }
+            .search-bar input { font-size: 0.95rem; padding: 0 20px; }
+            .search-bar button { padding: 0 24px; font-size: 0.95rem; }
+            .page-header h1 { font-size: 1.4rem; }
         }
-
-        @media (max-width: 480px) {
-            .cart-item { grid-template-columns: 1fr; text-align: center; gap: 8px; }
-            .cart-item-image { margin: 0 auto; }
-            .cart-item-actions { justify-content: center; }
-            .bottom-nav { height: 56px; padding: 4px 0 8px; }
-            .bottom-nav a i { font-size: 1.1rem; }
-            .bottom-nav a span { font-size: 0.5rem; }
+        @media (min-width: 1024px) {
+            .container { padding: 0 24px; }
+            .cart-item { grid-template-columns: 80px 1fr auto; gap: 16px; }
+            .cart-item-image { width: 80px; height: 80px; font-size: 2rem; }
         }
     </style>
 </head>
 <body>
-    <!-- HEADER -->
+    <!-- Header -->
     <header class="header">
         <div class="header-top">
-            <a href="index.html" class="header-logo">
-                <i class="fas fa-store-alt"></i> Market<span>Stall</span>
-            </a>
-            <div class="header-search">
-                <input type="text" id="searchInput" placeholder="Search products..." aria-label="Search">
-                <button type="button" onclick="searchProducts()" aria-label="Search">
-                    <i class="fas fa-search"></i> Search
-                </button>
+            <a href="index.html" class="logo"><i class="fas fa-store-alt"></i> Market<span>Stall</span></a>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search products...">
+                <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
             </div>
             <div class="header-actions">
-                <a href="wishlist.html" aria-label="Wishlist">
-                    <i class="fas fa-heart"></i>
-                </a>
-                <a href="cart.html" aria-label="Cart">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-badge" id="cartCount">0</span>
-                </a>
+                <a href="wishlist.html"><i class="fas fa-heart"></i></a>
+                <a href="cart.html"><i class="fas fa-shopping-cart"></i> <span class="cart-badge" id="cartCount">0</span></a>
                 <span id="authButtons"></span>
             </div>
         </div>
     </header>
 
-    <!-- PAGE HEADER -->
-    <div class="page-header">
-        <h1><i class="fas fa-shopping-cart"></i> Shopping Cart</h1>
-        <span class="item-count" id="itemCount">0 items</span>
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-shopping-cart"></i> Shopping Cart</h1>
+            <span class="item-count" id="itemCount">0 items</span>
+        </div>
+
+        <div class="cart-grid">
+            <div class="cart-items" id="cartItems">
+                <!-- Rendered by JS -->
+            </div>
+            <div class="cart-summary">
+                <h3>Order Summary</h3>
+                <div id="summaryContent">
+                    <div class="summary-row"><span class="label">Subtotal</span><span>$0.00</span></div>
+                    <div class="summary-row"><span class="label">Shipping</span><span>Calculated at checkout</span></div>
+                    <div class="summary-row total"><span>Total</span><span id="totalAmount">$0.00</span></div>
+                    <button class="checkout-btn" id="checkoutBtn" onclick="proceedToCheckout()"><i class="fas fa-lock"></i> Proceed to Checkout</button>
+                    <button class="clear-cart-btn" onclick="clearCart()"><i class="fas fa-trash"></i> Clear Cart</button>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <a href="index.html" class="logo"><i class="fas fa-store-alt"></i> Market<span>Stall</span></a>
+            <p>&copy; 2026 MarketStall Investments.</p>
+            <div class="links">
+                <a href="index.html">Home</a>
+                <a href="products.html">Products</a>
+                <a href="cart.html">Cart</a>
+                <a href="transactions.html">Orders</a>
+            </div>
+        </footer>
     </div>
 
-    <!-- CART GRID -->
-    <div class="cart-grid">
-        <div class="cart-items" id="cartItems">
-            <!-- Rendered by JavaScript -->
-        </div>
-        <div class="cart-summary" id="cartSummary">
-            <h3>Order Summary</h3>
-            <div id="summaryContent">
-                <div class="summary-row">
-                    <span class="label">Subtotal</span>
-                    <span>$0.00</span>
-                </div>
-                <div class="summary-row">
-                    <span class="label">Shipping</span>
-                    <span>Calculated at checkout</span>
-                </div>
-                <div class="summary-row total">
-                    <span>Total</span>
-                    <span id="totalAmount">$0.00</span>
-                </div>
-                <button class="checkout-btn" id="checkoutBtn" onclick="proceedToCheckout()">
-                    <i class="fas fa-lock"></i> Proceed to Checkout
-                </button>
-                <button class="clear-cart-btn" onclick="clearCart()">
-                    <i class="fas fa-trash"></i> Clear Cart
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- FOOTER -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-brand">
-                <a href="index.html" class="logo">
-                    <i class="fas fa-store-alt"></i> Market<span>Stall</span>
-                </a>
-                <p class="contact">
-                    <i class="fas fa-envelope"></i> support@marketstall.com<br>
-                    <i class="fas fa-phone"></i> +1 (555) 123-4567
-                </p>
-            </div>
-            <div class="footer-social">
-                <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            &copy; 2026 <span class="brand">MarketStall</span> Investments. All rights reserved.
-        </div>
-    </footer>
-
-    <!-- BOTTOM NAV -->
+    <!-- Bottom Nav -->
     <nav class="bottom-nav">
         <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
         <a href="products.html"><i class="fas fa-th-list"></i><span>Products</span></a>
@@ -705,7 +193,7 @@
     </nav>
 
     <script>
-        // ===== TOAST SYSTEM =====
+        // Toast system
         class ToastManager {
             constructor() {
                 this.container = null;
@@ -762,7 +250,7 @@
         }
         window.toast = new ToastManager();
 
-        // ===== AUTH =====
+        // Auth
         function updateAuthButtons() {
             var authContainer = document.getElementById('authButtons');
             var currentUser = JSON.parse(localStorage.getItem('currentUser'));
@@ -771,8 +259,7 @@
                     '<span class="user-greeting"><i class="fas fa-user-circle"></i></span>' +
                     '<button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>';
             } else {
-                authContainer.innerHTML =
-                    '<a href="signup.html" class="btn-signup"><i class="fas fa-user-plus"></i> Sign Up</a>';
+                authContainer.innerHTML = '<a href="signup.html" class="btn-signup"><i class="fas fa-user-plus"></i> Sign Up</a>';
             }
         }
         window.logout = function() {
@@ -784,10 +271,9 @@
             }
         };
 
-        // ===== CART FUNCTIONS =====
+        // Cart
         function getCart() { return JSON.parse(localStorage.getItem('cart')) || []; }
         function saveCart(cart) { localStorage.setItem('cart', JSON.stringify(cart)); }
-        function getProducts() { return JSON.parse(localStorage.getItem('products')) || []; }
 
         function updateCartCount() {
             var cart = getCart();
@@ -801,7 +287,6 @@
             if (itemCount) itemCount.textContent = count + ' items';
         }
 
-        // ===== RENDER CART =====
         function renderCart() {
             var cart = getCart();
             var container = document.getElementById('cartItems');
@@ -811,93 +296,47 @@
             updateCartCount();
 
             if (cart.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-cart">
-                        <i class="fas fa-shopping-cart"></i>
-                        <h3>Your cart is empty</h3>
-                        <p>Looks like you haven't added any items yet.</p>
-                        <a href="products.html" class="btn-shop"><i class="fas fa-shopping-bag"></i> Start Shopping</a>
-                    </div>
-                `;
-                summary.innerHTML = `
-                    <div class="summary-row"><span class="label">Subtotal</span><span>$0.00</span></div>
-                    <div class="summary-row"><span class="label">Shipping</span><span>Calculated at checkout</span></div>
-                    <div class="summary-row total"><span>Total</span><span id="totalAmount">$0.00</span></div>
-                    <button class="checkout-btn" onclick="proceedToCheckout()" disabled><i class="fas fa-lock"></i> Proceed to Checkout</button>
-                    <button class="clear-cart-btn" onclick="clearCart()" disabled><i class="fas fa-trash"></i> Clear Cart</button>
-                `;
+                container.innerHTML = '<div class="empty-cart"><i class="fas fa-shopping-cart"></i><h3>Your cart is empty</h3><p>Start shopping to add items!</p><a href="products.html" class="btn-shop"><i class="fas fa-shopping-bag"></i> Start Shopping</a></div>';
+                summary.innerHTML =
+                    '<div class="summary-row"><span class="label">Subtotal</span><span>$0.00</span></div>' +
+                    '<div class="summary-row"><span class="label">Shipping</span><span>Calculated at checkout</span></div>' +
+                    '<div class="summary-row total"><span>Total</span><span id="totalAmount">$0.00</span></div>' +
+                    '<button class="checkout-btn" onclick="proceedToCheckout()" disabled><i class="fas fa-lock"></i> Proceed to Checkout</button>' +
+                    '<button class="clear-cart-btn" onclick="clearCart()" disabled><i class="fas fa-trash"></i> Clear Cart</button>';
                 return;
             }
 
-            var allProducts = getProducts();
-            var html = '';
             var subtotal = 0;
-            var totalItems = 0;
-
+            var html = '';
             for (var i = 0; i < cart.length; i++) {
                 var item = cart[i];
                 var itemTotal = item.price * item.quantity;
                 subtotal += itemTotal;
-                totalItems += item.quantity;
-
-                var product = null;
-                for (var p = 0; p < allProducts.length; p++) {
-                    if (allProducts[p].id === item.id) { product = allProducts[p]; break; }
-                }
-                var stockWarning = '';
-                if (product && item.quantity > product.stock) {
-                    stockWarning = '<span class="stock-warning"><i class="fas fa-exclamation-triangle"></i> Only ' + product.stock + ' left in stock</span>';
-                }
-
-                html += `
-                    <div class="cart-item" data-id="${item.id}">
-                        <div class="cart-item-image"><i class="fas ${item.image || 'fa-box'}"></i></div>
-                        <div class="cart-item-details">
-                            <h4>${item.name}</h4>
-                            <span class="price">$${item.price.toFixed(2)}</span>
-                            ${stockWarning}
-                        </div>
-                        <div class="cart-item-actions">
-                            <button class="qty-btn" onclick="updateQuantity(${item.id}, -1)">−</button>
-                            <span class="qty-display">${item.quantity}</span>
-                            <button class="qty-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
-                            <button class="remove-btn" onclick="removeItem(${item.id})"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
+                html += '<div class="cart-item"><div class="cart-item-image"><i class="fas ' + (item.image || 'fa-box') + '"></i></div>' +
+                    '<div class="cart-item-details"><h4>' + item.name + '</h4><span class="price">$' + item.price.toFixed(2) + '</span></div>' +
+                    '<div class="cart-item-actions"><button class="qty-btn" onclick="updateQuantity(' + item.id + ', -1)">−</button>' +
+                    '<span class="qty-display">' + item.quantity + '</span>' +
+                    '<button class="qty-btn" onclick="updateQuantity(' + item.id + ', 1)">+</button>' +
+                    '<button class="remove-btn" onclick="removeItem(' + item.id + ')"><i class="fas fa-trash"></i></button></div></div>';
             }
-
             container.innerHTML = html;
 
-            var shipping = subtotal > 0 && subtotal < 50 ? 5.99 : 0;
-            var total = subtotal + shipping;
-
-            summary.innerHTML = `
-                <div class="summary-row"><span class="label">Subtotal (${totalItems} items)</span><span>$${subtotal.toFixed(2)}</span></div>
-                ${shipping > 0 ? `<div class="summary-row"><span class="label">Shipping</span><span>$${shipping.toFixed(2)}</span></div><div class="summary-row free-shipping"><span class="label">Add $${(50 - subtotal).toFixed(2)} more for FREE shipping</span></div>` : `<div class="summary-row"><span class="label">Shipping</span><span>FREE</span></div>`}
-                <div class="summary-row total"><span>Total</span><span id="totalAmount">$${total.toFixed(2)}</span></div>
-                <button class="checkout-btn" onclick="proceedToCheckout()"><i class="fas fa-lock"></i> Proceed to Checkout</button>
-                <button class="clear-cart-btn" onclick="clearCart()"><i class="fas fa-trash"></i> Clear Cart</button>
-            `;
+            summary.innerHTML =
+                '<div class="summary-row"><span class="label">Subtotal</span><span>$' + subtotal.toFixed(2) + '</span></div>' +
+                '<div class="summary-row"><span class="label">Shipping</span><span>Calculated at checkout</span></div>' +
+                '<div class="summary-row total"><span>Total</span><span id="totalAmount">$' + subtotal.toFixed(2) + '</span></div>' +
+                '<button class="checkout-btn" onclick="proceedToCheckout()"><i class="fas fa-lock"></i> Proceed to Checkout</button>' +
+                '<button class="clear-cart-btn" onclick="clearCart()"><i class="fas fa-trash"></i> Clear Cart</button>';
         }
 
-        // ===== CART ACTIONS =====
         window.updateQuantity = function(productId, change) {
             var cart = getCart();
-            var allProducts = getProducts();
-            var product = null;
-            for (var p = 0; p < allProducts.length; p++) {
-                if (allProducts[p].id === productId) { product = allProducts[p]; break; }
-            }
             for (var i = 0; i < cart.length; i++) {
                 if (cart[i].id === productId) {
                     var newQty = cart[i].quantity + change;
                     if (newQty <= 0) {
                         cart.splice(i, 1);
                         toast.success('Item removed.', 'Removed');
-                    } else if (product && newQty > product.stock) {
-                        toast.warning('Only ' + product.stock + ' left in stock.', 'Stock Limit');
-                        return;
                     } else {
                         cart[i].quantity = newQty;
                     }
@@ -911,13 +350,16 @@
         window.removeItem = function(productId) {
             if (!confirm('Remove this item?')) return;
             var cart = getCart();
-            var removedItem = null;
             for (var i = 0; i < cart.length; i++) {
-                if (cart[i].id === productId) { removedItem = cart[i]; cart.splice(i, 1); break; }
+                if (cart[i].id === productId) {
+                    var removed = cart[i];
+                    cart.splice(i, 1);
+                    saveCart(cart);
+                    renderCart();
+                    toast.success(removed.name + ' removed.', 'Removed');
+                    return;
+                }
             }
-            saveCart(cart);
-            renderCart();
-            if (removedItem) toast.success(removedItem.name + ' removed.', 'Removed');
         };
 
         window.clearCart = function() {
@@ -933,8 +375,7 @@
                 toast.error('Your cart is empty.', 'Error');
                 return;
             }
-            toast.info('Redirecting to checkout...', 'Processing');
-            setTimeout(function() { window.location.href = 'checkout.html'; }, 600);
+            window.location.href = 'checkout.html';
         };
 
         window.searchProducts = function() {
@@ -946,9 +387,10 @@
             if (e.key === 'Enter') searchProducts();
         });
 
-        // ===== INIT =====
+        // INIT
         document.addEventListener('DOMContentLoaded', function() {
             renderCart();
+            updateCartCount();
             updateAuthButtons();
             console.log('Cart page loaded!');
         });
