@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sign Up - MarketStall</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="supabase.js"></script>
@@ -53,6 +53,10 @@
         .btn-outline:hover { background: #f1f4f8; transform: translateY(-2px); }
         .foot-note { margin-top: 16px; font-size: 0.8rem; color: #5b768b; text-align: center; border-top: 1px solid #eef2f6; padding-top: 16px; }
         .foot-note a { color: #2a7de1; text-decoration: none; font-weight: 500; }
+
+        .error-message { background: #fde8e8; color: #dc3545; padding: 10px 14px; border-radius: 10px; font-size: 0.85rem; margin-bottom: 12px; display: none; border: 1px solid #f5c6cb; }
+        .error-message.show { display: block; }
+        .error-message i { margin-right: 6px; }
     </style>
 </head>
 <body>
@@ -60,6 +64,8 @@
         <a href="index.html" class="logo"><i class="fas fa-store-alt"></i> Market<span>Stall</span></a>
         <h2>Create Account</h2>
         <p class="sub"><i class="far fa-envelope"></i> Join and start shopping</p>
+
+        <div id="errorMessage" class="error-message"><i class="fas fa-exclamation-circle"></i> <span id="errorText"></span></div>
 
         <form id="signupForm">
             <div class="field">
@@ -141,11 +147,21 @@
         window.toast = new ToastManager();
 
         function waitForSupabase() {
-            return new Promise((resolve) => {
+            return new Promise(function(resolve) {
                 if (window.supabaseClient) { resolve(window.supabaseClient); return; }
-                document.addEventListener('supabaseReady', function() { resolve(window.supabaseClient); });
-                setTimeout(() => { resolve(window.supabaseClient || null); }, 5000);
+                var checkInterval = setInterval(function() {
+                    if (window.supabaseClient) { clearInterval(checkInterval); resolve(window.supabaseClient); }
+                }, 200);
+                setTimeout(function() { clearInterval(checkInterval); resolve(window.supabaseClient || null); }, 8000);
             });
+        }
+
+        function showError(message) {
+            var errorEl = document.getElementById('errorMessage');
+            var textEl = document.getElementById('errorText');
+            textEl.textContent = message;
+            errorEl.classList.add('show');
+            setTimeout(function() { errorEl.classList.remove('show'); }, 8000);
         }
 
         // Signup form
@@ -171,7 +187,7 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Creating account...';
 
             try {
-                const client = await waitForSupabase();
+                var client = await waitForSupabase();
 
                 if (!client) {
                     // Fallback to local storage
@@ -193,7 +209,7 @@
                 }
 
                 // Sign up with Supabase
-                const { data, error } = await client.auth.signUp({
+                var { data, error } = await client.auth.signUp({
                     email: email,
                     password: password,
                     options: {
@@ -204,17 +220,34 @@
                 });
 
                 if (error) {
-                    toast.error(error.message, 'Error');
+                    // Check if it's a rate limit error
+                    if (error.message && error.message.toLowerCase().includes('rate limit')) {
+                        showError('Too many signup attempts. Please wait a few minutes and try again.');
+                        toast.warning('Rate limit reached. Please wait a few minutes.', 'Slow Down');
+                    } else if (error.message && error.message.toLowerCase().includes('already registered')) {
+                        toast.error('Email already registered. Please login.', 'Exists');
+                    } else {
+                        toast.error(error.message, 'Signup Error');
+                    }
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-user-plus"></i> Sign up';
                     return;
                 }
 
-                toast.success('Account created successfully!', 'Welcome!');
-                setTimeout(function() { window.location.href = 'login.html'; }, 1500);
+                if (data && data.user) {
+                    // Store user info in localStorage for fallback
+                    var users = JSON.parse(localStorage.getItem('users')) || [];
+                    users.push({ name: name, email: email, password: password });
+                    localStorage.setItem('users', JSON.stringify(users));
+                    localStorage.setItem('currentUser', JSON.stringify({ name: name, email: email }));
+
+                    toast.success('Account created successfully!', 'Welcome!');
+                    setTimeout(function() { window.location.href = 'login.html'; }, 1500);
+                }
 
             } catch (e) {
-                toast.error('Error creating account.', 'Error');
+                console.error('Signup error:', e);
+                toast.error('Error creating account. Please try again.', 'Error');
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-user-plus"></i> Sign up';
             }
