@@ -10,6 +10,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }
         body { background: #f5f7fa; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
 
+        /* Toast */
         .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 380px; width: 90%; pointer-events: none; }
         .toast { background: #ffffff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); border-left: 4px solid #2a7de1; display: flex; align-items: center; gap: 12px; transform: translateX(120%); opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); pointer-events: auto; position: relative; overflow: hidden; }
         .toast.show { transform: translateX(0); opacity: 1; }
@@ -164,7 +165,7 @@
             setTimeout(function() { errorEl.classList.remove('show'); }, 8000);
         }
 
-        // Signup form - USING DIRECT API CALL INSTEAD
+        // Signup form
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -190,7 +191,6 @@
                 var client = await waitForSupabase();
 
                 if (!client) {
-                    // Fallback to local storage
                     var users = JSON.parse(localStorage.getItem('users')) || [];
                     for (var i = 0; i < users.length; i++) {
                         if (users[i].email === email) {
@@ -208,10 +208,14 @@
                     return;
                 }
 
-                // Try signup - remove all options to avoid 500 error
                 var { data, error } = await client.auth.signUp({
                     email: email,
-                    password: password
+                    password: password,
+                    options: {
+                        data: {
+                            full_name: name
+                        }
+                    }
                 });
 
                 if (error) {
@@ -225,26 +229,7 @@
                     } else if (error.message && error.message.toLowerCase().includes('password')) {
                         toast.error('Password must be at least 6 characters.', 'Password Error');
                     } else {
-                        // Try with email confirm false
-                        try {
-                            var { data: data2, error: error2 } = await client.auth.signUp({
-                                email: email,
-                                password: password,
-                                options: {
-                                    emailRedirectTo: window.location.origin
-                                }
-                            });
-                            if (error2) {
-                                showError('Signup failed: ' + (error2.message || 'Unknown error'));
-                                toast.error('Signup failed. Please try again.', 'Error');
-                            } else if (data2 && data2.user) {
-                                // Success with redirect
-                                handleSignupSuccess(data2, name, email, btn);
-                            }
-                        } catch (e2) {
-                            showError('Server error. Please try again later.');
-                            toast.error('Server error. Please try again.', 'Error');
-                        }
+                        toast.error(error.message || 'Signup failed. Please try again.', 'Error');
                     }
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-user-plus"></i> Sign up';
@@ -252,7 +237,29 @@
                 }
 
                 if (data && data.user) {
-                    handleSignupSuccess(data, name, email, btn);
+                    var users = JSON.parse(localStorage.getItem('users')) || [];
+                    var userExists = false;
+                    for (var j = 0; j < users.length; j++) {
+                        if (users[j].email === email) { userExists = true; break; }
+                    }
+                    if (!userExists) {
+                        users.push({ name: name, email: email, password: password });
+                        localStorage.setItem('users', JSON.stringify(users));
+                    }
+                    localStorage.setItem('currentUser', JSON.stringify({ name: name, email: email }));
+
+                    toast.success('Account created successfully! 🎉', 'Welcome!');
+                    
+                    if (data.user && data.user.confirmation_sent_at) {
+                        toast.info('Confirmation email sent! Check your inbox.', 'Confirm Email');
+                        btn.innerHTML = '<i class="fas fa-check"></i> Check your email';
+                        setTimeout(function() { window.location.href = 'login.html'; }, 3000);
+                    } else if (data.session) {
+                        toast.info('You are now logged in!', 'Logged In');
+                        setTimeout(function() { window.location.href = 'index.html'; }, 1500);
+                    } else {
+                        setTimeout(function() { window.location.href = 'login.html'; }, 1500);
+                    }
                 }
 
             } catch (e) {
@@ -263,33 +270,6 @@
                 btn.innerHTML = '<i class="fas fa-user-plus"></i> Sign up';
             }
         });
-
-        function handleSignupSuccess(data, name, email, btn) {
-            // Store user info in localStorage for fallback
-            var users = JSON.parse(localStorage.getItem('users')) || [];
-            var userExists = false;
-            for (var j = 0; j < users.length; j++) {
-                if (users[j].email === email) { userExists = true; break; }
-            }
-            if (!userExists) {
-                users.push({ name: name, email: email });
-                localStorage.setItem('users', JSON.stringify(users));
-            }
-            localStorage.setItem('currentUser', JSON.stringify({ name: name, email: email }));
-
-            toast.success('Account created successfully! 🎉', 'Welcome!');
-            
-            if (data.user && data.user.confirmation_sent_at) {
-                toast.info('Confirmation email sent! Check your inbox.', 'Confirm Email');
-                btn.innerHTML = '<i class="fas fa-check"></i> Check your email';
-                setTimeout(function() { window.location.href = 'login.html'; }, 3000);
-            } else if (data.session) {
-                toast.info('You are now logged in!', 'Logged In');
-                setTimeout(function() { window.location.href = 'index.html'; }, 1500);
-            } else {
-                setTimeout(function() { window.location.href = 'login.html'; }, 1500);
-            }
-        }
 
         document.querySelectorAll('.field input').forEach(function(el) {
             el.addEventListener('input', function() { this.classList.remove('error'); });
