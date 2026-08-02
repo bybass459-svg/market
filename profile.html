@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="supabase.js"></script>
     <style>
-        /* Same styles as index */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }
         body { background: #f5f7fa; color: #0b1b2b; padding-bottom: 70px; }
         a { text-decoration: none; color: inherit; }
@@ -39,22 +38,8 @@
         @keyframes toastProgress { 0% { width: 100%; } 100% { width: 0%; } }
 
         /* ===== HEADER ===== */
-        .header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: #ffffff;
-            padding: 12px 16px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            border-bottom: 1px solid #eef2f6;
-        }
-        .header-top {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            max-width: 1280px;
-            margin: 0 auto;
-        }
+        .header { position: sticky; top: 0; z-index: 100; background: #ffffff; padding: 12px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border-bottom: 1px solid #eef2f6; }
+        .header-top { display: flex; align-items: center; gap: 12px; max-width: 1280px; margin: 0 auto; }
         .logo { font-size: 1.3rem; font-weight: 700; color: #0b1b2b; flex-shrink: 0; }
         .logo i { color: #f8b400; }
         .logo span { color: #2a7de1; }
@@ -63,7 +48,6 @@
         .search-bar button { border: none; background: #f8b400; color: #0b1b2b; padding: 0 18px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
         .search-bar button:hover { background: #e0a000; }
 
-        /* ===== PROFILE DROPDOWN ===== */
         .profile-menu { position: relative; display: inline-block; }
         .profile-btn { background: #f1f4f8; border: none; border-radius: 30px; padding: 6px 14px 6px 10px; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s; font-size: 0.85rem; font-weight: 500; color: #1f3a4b; }
         .profile-btn:hover { background: #e3eaf2; }
@@ -84,7 +68,6 @@
         .profile-dropdown .user-info .name { font-weight: 600; font-size: 0.9rem; }
         .profile-dropdown .user-info .email { font-size: 0.75rem; color: #5b768b; }
 
-        /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; display: flex; justify-content: space-around; align-items: center; padding: 6px 0 10px; box-shadow: 0 -2px 16px rgba(0,0,0,0.06); border-top: 1px solid #eef2f6; z-index: 999; height: 64px; }
         .bottom-nav a { display: flex; flex-direction: column; align-items: center; color: #868e96; font-size: 0.6rem; font-weight: 500; transition: 0.2s; padding: 2px 8px; position: relative; min-width: 50px; }
         .bottom-nav a i { font-size: 1.2rem; margin-bottom: 2px; }
@@ -92,73 +75,328 @@
         .bottom-nav a.active { color: #f8b400; }
         .bottom-nav a .nav-badge { position: absolute; top: -4px; right: 2px; background: #dc3545; color: #fff; border-radius: 50%; font-size: 0.5rem; font-weight: 700; padding: 1px 5px; min-width: 16px; text-align: center; }
 
-        /* Profile */
+        /* ===== PROFILE ===== */
         .page-header { margin: 16px 0 12px; }
         .page-header h1 { font-size: 1.2rem; font-weight: 700; }
         .page-header h1 i { color: #f8b400; margin-right: 6px; }
 
-        .profile-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-        .profile-card { background: #ffffff; border-radius: 12px; border: 1px solid #eef2f6; padding: 16px; }
-        .profile-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        .profile-card h3 i { color: #f8b400; }
+        .profile-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
 
-        .avatar-section { text-align: center; padding: 12px 0; }
-        .avatar { width: 80px; height: 80px; border-radius: 50%; background: #f1f4f8; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #2a7de1; margin: 0 auto 8px; border: 3px solid #f8b400; }
-        .avatar-section .name { font-weight: 700; font-size: 1rem; }
-        .avatar-section .email { color: #5b768b; font-size: 0.85rem; }
+        /* Profile Sidebar */
+        .profile-sidebar { 
+            background: #ffffff; 
+            border-radius: 16px; 
+            border: 1px solid #eef2f6; 
+            padding: 24px 20px; 
+            text-align: center;
+            height: fit-content;
+            position: sticky;
+            top: 80px;
+        }
+        .profile-avatar { 
+            position: relative; 
+            width: 120px; 
+            height: 120px; 
+            margin: 0 auto 16px; 
+            border-radius: 50%; 
+            background: #f1f4f8; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 4rem; 
+            color: #2a7de1;
+            border: 4px solid #f8b400;
+            overflow: hidden;
+        }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-avatar .avatar-placeholder { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            width: 100%; 
+            height: 100%; 
+            background: #f1f4f8;
+        }
+        .avatar-upload-btn { 
+            position: absolute; 
+            bottom: 4px; 
+            right: 4px; 
+            background: #f8b400; 
+            color: #0b1b2b; 
+            border: none; 
+            border-radius: 50%; 
+            width: 36px; 
+            height: 36px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 0.9rem;
+            transition: 0.2s;
+            border: 2px solid #fff;
+        }
+        .avatar-upload-btn:hover { background: #e0a000; transform: scale(1.05); }
+        .profile-sidebar .name { font-weight: 700; font-size: 1.1rem; margin-top: 4px; }
+        .profile-sidebar .email { color: #5b768b; font-size: 0.85rem; }
+        .profile-sidebar .member-since { color: #999; font-size: 0.75rem; margin-top: 4px; }
 
-        .form-group { margin-bottom: 12px; }
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 8px; 
+            margin: 16px 0; 
+        }
+        .stat-box { 
+            background: #f8f9fa; 
+            border-radius: 12px; 
+            padding: 12px 8px; 
+            text-align: center;
+        }
+        .stat-box .number { font-size: 1.2rem; font-weight: 700; color: #0b1b2b; }
+        .stat-box .label { font-size: 0.65rem; color: #5b768b; display: block; margin-top: 2px; }
+
+        .sidebar-buttons { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+        .sidebar-buttons .btn-logout { 
+            background: #dc3545; 
+            color: #fff; 
+            border: none; 
+            padding: 10px 0; 
+            border-radius: 30px; 
+            font-weight: 600; 
+            font-size: 0.85rem; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            width: 100%;
+        }
+        .sidebar-buttons .btn-logout:hover { background: #c82333; transform: translateY(-2px); }
+
+        /* Profile Content */
+        .profile-content { display: flex; flex-direction: column; gap: 16px; }
+        .profile-card { 
+            background: #ffffff; 
+            border-radius: 16px; 
+            border: 1px solid #eef2f6; 
+            padding: 20px 24px; 
+        }
+        .profile-card .card-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 16px; 
+            padding-bottom: 12px; 
+            border-bottom: 1px solid #eef2f6;
+        }
+        .profile-card .card-header h3 { 
+            font-size: 1rem; 
+            font-weight: 700; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
+        .profile-card .card-header h3 i { color: #f8b400; }
+        .profile-card .card-header .edit-btn { 
+            background: none; 
+            border: none; 
+            color: #2a7de1; 
+            font-size: 0.8rem; 
+            cursor: pointer; 
+            font-weight: 500; 
+            padding: 4px 12px; 
+            border-radius: 30px; 
+            transition: 0.2s;
+        }
+        .profile-card .card-header .edit-btn:hover { background: #f1f4f8; }
+
+        .form-group { margin-bottom: 14px; }
         .form-group label { display: block; font-weight: 500; font-size: 0.8rem; color: #1f3a4b; margin-bottom: 4px; }
-        .form-group input { width: 100%; padding: 8px 14px; border: 1px solid #eef2f6; border-radius: 10px; font-size: 0.9rem; background: #f8f9fa; outline: none; transition: 0.2s; }
-        .form-group input:focus { border-color: #f8b400; background: #ffffff; }
-        .form-group input:disabled { background: #f1f4f8; color: #5b768b; cursor: not-allowed; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 8px 14px; 
+            border: 1px solid #eef2f6; 
+            border-radius: 10px; 
+            font-size: 0.9rem; 
+            background: #f8f9fa; 
+            outline: none; 
+            transition: 0.2s; 
+        }
+        .form-group input:focus, .form-group select:focus { 
+            border-color: #f8b400; 
+            background: #ffffff; 
+            box-shadow: 0 0 0 4px rgba(248,180,0,0.08); 
+        }
+        .form-group input:disabled { 
+            background: #f1f4f8; 
+            color: #5b768b; 
+            cursor: not-allowed; 
+        }
+        .form-group input.error { border-color: #dc3545; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-        .btn-save { padding: 8px 24px; border: none; border-radius: 30px; font-weight: 600; font-size: 0.85rem; background: #2a7de1; color: #fff; cursor: pointer; transition: 0.2s; }
+        .btn-save { 
+            padding: 8px 24px; 
+            border: none; 
+            border-radius: 30px; 
+            font-weight: 600; 
+            font-size: 0.85rem; 
+            background: #2a7de1; 
+            color: #fff; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            margin-top: 4px;
+        }
         .btn-save:hover { background: #1a5fb0; transform: translateY(-2px); }
+        .btn-save i { margin-right: 6px; }
 
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .stat-box { background: #f8f9fa; border-radius: 10px; padding: 12px; text-align: center; }
-        .stat-box .number { font-size: 1.3rem; font-weight: 700; color: #0b1b2b; }
-        .stat-box .label { font-size: 0.7rem; color: #5b768b; display: block; }
+        .address-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 10px 0; 
+            border-bottom: 1px solid #eef2f6; 
+        }
+        .address-item:last-child { border-bottom: none; }
+        .address-item .address-text { font-size: 0.85rem; color: #1f3a4b; }
+        .address-item .address-text .default-badge { 
+            background: #28a745; 
+            color: #fff; 
+            font-size: 0.55rem; 
+            padding: 1px 8px; 
+            border-radius: 30px; 
+            margin-left: 8px; 
+        }
+        .address-item .address-actions { display: flex; gap: 6px; }
+        .address-item .address-actions button { 
+            padding: 2px 10px; 
+            border-radius: 30px; 
+            border: 1px solid #eef2f6; 
+            background: #f8f9fa; 
+            cursor: pointer; 
+            font-size: 0.7rem; 
+            transition: 0.2s; 
+        }
+        .address-item .address-actions button:hover { background: #f1f4f8; }
+        .address-item .address-actions .delete-btn { color: #dc3545; border-color: #dc3545; }
+        .address-item .address-actions .delete-btn:hover { background: #dc3545; color: #fff; }
+
+        .btn-add-address { 
+            padding: 6px 16px; 
+            border-radius: 30px; 
+            border: 1px solid #eef2f6; 
+            background: #f8f9fa; 
+            cursor: pointer; 
+            font-size: 0.8rem; 
+            font-weight: 500; 
+            transition: 0.2s; 
+            margin-top: 8px;
+        }
+        .btn-add-address:hover { background: #f1f4f8; }
+
+        .wishlist-preview { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .wishlist-item { 
+            background: #f8f9fa; 
+            border-radius: 10px; 
+            padding: 12px; 
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+        }
+        .wishlist-item .icon { font-size: 1.6rem; color: #2a7de1; margin-bottom: 4px; }
+        .wishlist-item .wish-name { font-size: 0.75rem; font-weight: 500; }
+        .wishlist-item .wish-price { font-size: 0.8rem; font-weight: 700; color: #2a7de1; }
+
+        .order-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 8px 0; 
+            border-bottom: 1px solid #eef2f6; 
+        }
+        .order-row:last-child { border-bottom: none; }
+        .order-row .order-info { flex: 1; }
+        .order-row .order-id { font-weight: 600; font-size: 0.85rem; }
+        .order-row .order-date { font-size: 0.7rem; color: #5b768b; display: block; }
+        .order-row .order-status { 
+            padding: 2px 12px; 
+            border-radius: 30px; 
+            font-size: 0.65rem; 
+            font-weight: 600; 
+        }
+        .order-status-pending { background: #fff3cd; color: #856404; }
+        .order-status-processing { background: #fef3e6; color: #a8641a; }
+        .order-status-shipped { background: #e6f0fa; color: #1f5680; }
+        .order-status-delivered { background: #e6f3e6; color: #0f5c3a; }
+        .order-status-cancelled { background: #fde8e8; color: #dc3545; }
+
+        .view-all-link { 
+            display: inline-block; 
+            margin-top: 8px; 
+            color: #2a7de1; 
+            font-size: 0.8rem; 
+            font-weight: 500; 
+            text-decoration: none; 
+        }
+        .view-all-link:hover { text-decoration: underline; }
+
+        .empty-state-mini { 
+            color: #5b768b; 
+            font-size: 0.85rem; 
+            padding: 8px 0; 
+        }
+
+        .login-prompt { text-align: center; padding: 60px 20px; background: #ffffff; border-radius: 16px; border: 1px solid #eef2f6; }
+        .login-prompt i { font-size: 3.5rem; color: #dce5ed; margin-bottom: 16px; display: block; }
+        .login-prompt h3 { font-size: 1.2rem; margin-bottom: 4px; }
+        .login-prompt p { color: #5b768b; margin-bottom: 20px; }
+        .login-prompt .btn-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .login-prompt .btn-group a { 
+            padding: 10px 32px; 
+            border-radius: 30px; 
+            font-weight: 600; 
+            font-size: 0.9rem; 
+            text-decoration: none; 
+            display: inline-block; 
+            transition: 0.2s; 
+        }
+        .login-prompt .btn-group .btn-primary { background: #2a7de1; color: #fff; }
+        .login-prompt .btn-group .btn-primary:hover { background: #1a5fb0; transform: translateY(-2px); }
+        .login-prompt .btn-group .btn-secondary { background: #f8f9fa; color: #1f3a4b; border: 1px solid #eef2f6; }
+        .login-prompt .btn-group .btn-secondary:hover { background: #f1f4f8; transform: translateY(-2px); }
 
         .footer { background: #ffffff; border-radius: 12px; padding: 16px; margin: 8px 0 10px; border: 1px solid #eef2f6; text-align: center; }
         .footer .logo { font-size: 1rem; }
         .footer p { font-size: 0.65rem; color: #5b768b; margin-top: 4px; }
         .loading-spinner { display: flex; justify-content: center; align-items: center; padding: 40px 0; }
         .loading-spinner i { font-size: 2rem; color: #f8b400; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .login-prompt { text-align: center; padding: 40px 20px; background: #ffffff; border-radius: 12px; border: 1px solid #eef2f6; }
-        .login-prompt i { font-size: 3rem; color: #dce5ed; margin-bottom: 12px; display: block; }
-        .login-prompt h3 { font-size: 1rem; margin-bottom: 4px; }
-        .login-prompt p { color: #5b768b; margin-bottom: 16px; }
-        .login-prompt .btn-group { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-        .login-prompt .btn-group a { padding: 8px 24px; border-radius: 30px; font-weight: 600; font-size: 0.85rem; text-decoration: none; display: inline-block; transition: 0.2s; }
-        .login-prompt .btn-group .btn-primary { background: #2a7de1; color: #fff; }
-        .login-prompt .btn-group .btn-primary:hover { background: #1a5fb0; transform: translateY(-2px); }
-        .login-prompt .btn-group .btn-secondary { background: #f8f9fa; color: #1f3a4b; border: 1px solid #eef2f6; }
-        .login-prompt .btn-group .btn-secondary:hover { background: #f1f4f8; transform: translateY(-2px); }
 
         @media (min-width: 640px) {
             body { padding-bottom: 0; }
             .bottom-nav { display: none; }
-            .profile-grid { grid-template-columns: 280px 1fr; }
             .header { padding: 12px 24px; }
             .logo { font-size: 1.5rem; }
             .search-bar { height: 44px; }
             .search-bar input { font-size: 0.95rem; padding: 0 20px; }
             .search-bar button { padding: 0 24px; font-size: 0.95rem; }
             .page-header h1 { font-size: 1.4rem; }
-            .profile-card { padding: 20px; }
+            .profile-grid { grid-template-columns: 280px 1fr; }
+            .profile-avatar { width: 140px; height: 140px; font-size: 4.5rem; }
+            .wishlist-preview { grid-template-columns: repeat(2, 1fr); }
         }
         @media (min-width: 1024px) {
             .container { padding: 0 24px; }
+            .profile-grid { grid-template-columns: 300px 1fr; gap: 24px; }
+            .profile-sidebar { padding: 32px 24px; }
+        }
+        @media (max-width: 640px) {
+            .profile-grid { grid-template-columns: 1fr; }
+            .profile-sidebar { position: static; }
+            .form-row { grid-template-columns: 1fr; }
+            .wishlist-preview { grid-template-columns: 1fr 1fr; }
+            .profile-avatar { width: 100px; height: 100px; font-size: 3.5rem; }
         }
     </style>
 </head>
 <body>
-    <!-- HEADER -->
     <header class="header">
         <div class="header-top">
             <a href="index.html" class="logo"><i class="fas fa-store-alt"></i> Market<span>Stall</span></a>
@@ -173,10 +411,7 @@
                     <i class="fas fa-chevron-down chevron"></i>
                 </button>
                 <div class="profile-dropdown" id="profileDropdown">
-                    <div class="user-info">
-                        <div class="name" id="dropdownName">User</div>
-                        <div class="email" id="dropdownEmail">user@example.com</div>
-                    </div>
+                    <div class="user-info"><div class="name" id="dropdownName">User</div><div class="email" id="dropdownEmail">user@example.com</div></div>
                     <a href="profile.html" class="dropdown-item"><i class="fas fa-user"></i> My Profile</a>
                     <a href="wishlist.html" class="dropdown-item"><i class="fas fa-heart"></i> Wishlist</a>
                     <a href="cart.html" class="dropdown-item"><i class="fas fa-shopping-cart"></i> Cart <span class="badge" id="dropdownCartBadge">0</span></a>
@@ -205,7 +440,6 @@
         </footer>
     </div>
 
-    <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
         <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
         <a href="products.html"><i class="fas fa-th-list"></i><span>Products</span></a>
@@ -215,9 +449,7 @@
     </nav>
 
     <script>
-        // ============================================================
-        // TOAST SYSTEM
-        // ============================================================
+        // ===== TOAST =====
         class ToastManager {
             constructor() { this.container = null; this.init(); }
             init() {
@@ -231,7 +463,7 @@
                 options = options || {};
                 var type = options.type || 'info';
                 var title = options.title || '';
-                var duration = options.duration || 3000;
+                var duration = options.duration || 4000;
                 var toast = document.createElement('div');
                 toast.className = 'toast toast-' + type;
                 var icons = { success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-circle', info: 'fa-info-circle' };
@@ -269,14 +501,10 @@
         }
         window.toast = new ToastManager();
 
-        // ============================================================
-        // PROFILE DROPDOWN
-        // ============================================================
+        // ===== PROFILE =====
         function toggleProfileMenu() {
-            var dropdown = document.getElementById('profileDropdown');
-            dropdown.classList.toggle('show');
+            document.getElementById('profileDropdown').classList.toggle('show');
         }
-
         document.addEventListener('click', function(e) {
             var menu = document.querySelector('.profile-menu');
             if (menu && !menu.contains(e.target)) {
@@ -284,23 +512,6 @@
             }
         });
 
-        // ============================================================
-        // SUPABASE HELPERS
-        // ============================================================
-        function getSupabaseClient() { return window.supabaseClient || null; }
-        function waitForSupabase() {
-            return new Promise(function(resolve) {
-                if (window.supabaseClient) { resolve(window.supabaseClient); return; }
-                var checkInterval = setInterval(function() {
-                    if (window.supabaseClient) { clearInterval(checkInterval); resolve(window.supabaseClient); }
-                }, 200);
-                setTimeout(function() { clearInterval(checkInterval); resolve(window.supabaseClient || null); }, 8000);
-            });
-        }
-
-        // ============================================================
-        // AUTH & PROFILE
-        // ============================================================
         function updateProfileUI() {
             var currentUser = JSON.parse(localStorage.getItem('currentUser'));
             var dropdown = document.getElementById('profileDropdown');
@@ -347,9 +558,18 @@
             } catch (e) { toast.error('Error logging out.', 'Error'); }
         };
 
-        // ============================================================
-        // CART
-        // ============================================================
+        function getSupabaseClient() { return window.supabaseClient || null; }
+        function waitForSupabase() {
+            return new Promise(function(resolve) {
+                if (window.supabaseClient) { resolve(window.supabaseClient); return; }
+                var checkInterval = setInterval(function() {
+                    if (window.supabaseClient) { clearInterval(checkInterval); resolve(window.supabaseClient); }
+                }, 200);
+                setTimeout(function() { clearInterval(checkInterval); resolve(window.supabaseClient || null); }, 8000);
+            });
+        }
+
+        // ===== CART =====
         function updateCartCount() {
             var cart = JSON.parse(localStorage.getItem('cart')) || [];
             var count = 0;
@@ -360,9 +580,28 @@
             if (bottomBadge) bottomBadge.textContent = count;
         }
 
-        // ============================================================
-        // PROFILE
-        // ============================================================
+        // ===== SEARCH =====
+        window.searchProducts = function() {
+            var query = document.getElementById('searchInput').value.trim();
+            if (query === '') { toast.info('Enter a search term.', 'Search'); return; }
+            window.location.href = 'products.html?search=' + encodeURIComponent(query);
+        };
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') searchProducts();
+        });
+
+        // ===== PROFILE DATA =====
+        function getStatusClass(status) {
+            var map = {
+                'Pending': 'order-status-pending',
+                'Processing': 'order-status-processing',
+                'Shipped': 'order-status-shipped',
+                'Delivered': 'order-status-delivered',
+                'Cancelled': 'order-status-cancelled'
+            };
+            return map[status] || 'order-status-processing';
+        }
+
         function loadProfile() {
             var container = document.getElementById('profileContent');
             var currentUser = JSON.parse(localStorage.getItem('currentUser'));
@@ -384,111 +623,344 @@
 
             var name = currentUser.name || 'User';
             var email = currentUser.email || 'user@example.com';
+            var initial = name.charAt(0).toUpperCase();
 
+            // Get orders
             var orders = JSON.parse(localStorage.getItem('orders')) || [];
             var totalOrders = orders.length;
             var totalSpent = 0;
             for (var j = 0; j < orders.length; j++) { totalSpent += (orders[j].total || 0); }
+            var pendingOrders = orders.filter(function(o) { 
+                return o.status === 'Pending' || o.status === 'Processing' || o.status === 'Shipped'; 
+            }).length;
 
+            // Get wishlist
             var wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+
+            // Get user data for addresses
+            var users = JSON.parse(localStorage.getItem('users')) || [];
+            var userData = null;
+            for (var i = 0; i < users.length; i++) {
+                if (users[i].email === email) { userData = users[i]; break; }
+            }
+
+            var addresses = (userData && userData.addresses) || [];
+            var phone = (userData && userData.phone) || '';
+            var dob = (userData && userData.dob) || '';
+
+            // Build addresses HTML
+            var addressesHtml = '';
+            if (addresses.length > 0) {
+                for (var a = 0; a < addresses.length; a++) {
+                    var isDefault = a === 0;
+                    addressesHtml += `
+                        <div class="address-item">
+                            <div class="address-text">
+                                ${addresses[a]}
+                                ${isDefault ? '<span class="default-badge">Default</span>' : ''}
+                            </div>
+                            <div class="address-actions">
+                                <button onclick="editAddress(${a})"><i class="fas fa-edit"></i></button>
+                                <button class="delete-btn" onclick="deleteAddress(${a})"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                addressesHtml = '<div class="empty-state-mini">No saved addresses.</div>';
+            }
+
+            // Build wishlist HTML
+            var wishlistHtml = '';
+            if (wishlist.length > 0) {
+                var displayItems = wishlist.slice(0, 4);
+                wishlistHtml = '<div class="wishlist-preview">';
+                for (var w = 0; w < displayItems.length; w++) {
+                    var item = displayItems[w];
+                    wishlistHtml += `
+                        <div class="wishlist-item">
+                            <div class="icon"><i class="fas ${item.image || 'fa-heart'}"></i></div>
+                            <div class="wish-name">${item.name}</div>
+                            <div class="wish-price">$${parseFloat(item.price).toFixed(2)}</div>
+                        </div>
+                    `;
+                }
+                wishlistHtml += '</div>';
+                if (wishlist.length > 4) {
+                    wishlistHtml += '<a href="wishlist.html" class="view-all-link">View all ' + wishlist.length + ' items →</a>';
+                }
+            } else {
+                wishlistHtml = '<div class="empty-state-mini">Your wishlist is empty.</div>';
+            }
+
+            // Build orders HTML
+            var ordersHtml = '';
+            if (orders.length > 0) {
+                var recentOrders = orders.slice(-3);
+                for (var o = 0; o < recentOrders.length; o++) {
+                    var order = recentOrders[o];
+                    var statusClass = getStatusClass(order.status);
+                    var orderNumber = order.order_number || order.id || 'N/A';
+                    var orderDate = order.date || order.created_at ? new Date(order.created_at).toLocaleDateString() : 'N/A';
+                    ordersHtml += `
+                        <div class="order-row">
+                            <div class="order-info">
+                                <span class="order-id">#${orderNumber}</span>
+                                <span class="order-date">${orderDate}</span>
+                            </div>
+                            <div>
+                                <span style="font-weight:600; margin-right:12px; font-size:0.85rem;">$${(order.total || 0).toFixed(2)}</span>
+                                <span class="order-status ${statusClass}">${order.status || 'Processing'}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+                ordersHtml += '<a href="transactions.html" class="view-all-link">View all orders →</a>';
+            } else {
+                ordersHtml = '<div class="empty-state-mini">No orders yet.</div>';
+            }
 
             container.innerHTML = `
                 <div class="profile-grid">
-                    <div class="profile-card">
-                        <div class="avatar-section">
-                            <div class="avatar"><i class="fas fa-user-circle"></i></div>
-                            <div class="name">${name}</div>
-                            <div class="email"><i class="far fa-envelope"></i> ${email}</div>
+                    <!-- Sidebar -->
+                    <div class="profile-sidebar">
+                        <div class="profile-avatar">
+                            <div class="avatar-placeholder" id="avatarPlaceholder">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <button class="avatar-upload-btn" onclick="uploadProfilePicture()" title="Upload profile picture">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                            <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
                         </div>
-                        <div class="stat-grid">
+                        <div class="name">${name}</div>
+                        <div class="email"><i class="far fa-envelope"></i> ${email}</div>
+                        <div class="member-since"><i class="far fa-calendar-alt"></i> Member since 2026</div>
+
+                        <div class="stats-grid">
                             <div class="stat-box"><div class="number">${totalOrders}</div><span class="label">Orders</span></div>
                             <div class="stat-box"><div class="number">$${totalSpent.toFixed(0)}</div><span class="label">Spent</span></div>
                             <div class="stat-box"><div class="number">${wishlist.length}</div><span class="label">Wishlist</span></div>
-                            <div class="stat-box"><div class="number">${totalOrders > 0 ? orders.filter(o => o.status === 'Processing' || o.status === 'Shipped').length : 0}</div><span class="label">Pending</span></div>
+                            <div class="stat-box"><div class="number">${pendingOrders}</div><span class="label">Pending</span></div>
                         </div>
-                        <button class="btn-save" onclick="logout()" style="width:100%; margin-top:12px; background:#dc3545;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+
+                        <div class="sidebar-buttons">
+                            <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                        </div>
                     </div>
-                    <div>
+
+                    <!-- Content -->
+                    <div class="profile-content">
+                        <!-- Personal Information -->
                         <div class="profile-card">
-                            <h3><i class="fas fa-user-edit"></i> Personal Information</h3>
+                            <div class="card-header">
+                                <h3><i class="fas fa-user-edit"></i> Personal Information</h3>
+                                <button class="edit-btn" onclick="toggleEdit()"><i class="fas fa-pen"></i> Edit</button>
+                            </div>
                             <form id="profileForm">
-                                <div class="form-group">
-                                    <label>Full Name</label>
-                                    <input type="text" id="profileName" value="${name}" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Email</label>
-                                    <input type="email" id="profileEmail" value="${email}" disabled>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Full Name *</label>
+                                        <input type="text" id="profileNameInput" value="${name}" disabled>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input type="email" id="profileEmail" value="${email}" disabled>
+                                    </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label>Phone</label>
-                                        <input type="tel" id="profilePhone" placeholder="+1 234 567 890">
+                                        <label>Phone Number</label>
+                                        <input type="tel" id="profilePhone" value="${phone}" placeholder="+1 234 567 890" disabled>
                                     </div>
                                     <div class="form-group">
                                         <label>Date of Birth</label>
-                                        <input type="date" id="profileDob">
+                                        <input type="date" id="profileDob" value="${dob}" disabled>
                                     </div>
                                 </div>
-                                <button type="submit" class="btn-save"><i class="fas fa-save"></i> Update Profile</button>
+                                <div class="form-group" style="display:none;" id="saveButtonContainer">
+                                    <button type="submit" class="btn-save"><i class="fas fa-save"></i> Save Changes</button>
+                                </div>
                             </form>
                         </div>
+
+                        <!-- Saved Addresses -->
                         <div class="profile-card">
-                            <h3><i class="fas fa-map-marker-alt"></i> Saved Addresses</h3>
-                            <div id="addressesContainer">
-                                <p style="color:#5b768b; font-size:0.85rem;">No saved addresses.</p>
+                            <div class="card-header">
+                                <h3><i class="fas fa-map-marker-alt"></i> Saved Addresses</h3>
+                                <button class="edit-btn" onclick="addAddress()"><i class="fas fa-plus"></i> Add Address</button>
                             </div>
-                            <button onclick="addAddress()" style="margin-top:8px; padding:6px 16px; border-radius:30px; border:1px solid #eef2f6; background:#f8f9fa; cursor:pointer; font-size:0.8rem;"><i class="fas fa-plus"></i> Add Address</button>
+                            <div id="addressesContainer">${addressesHtml}</div>
+                        </div>
+
+                        <!-- Wishlist -->
+                        <div class="profile-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-heart"></i> Wishlist</h3>
+                                <a href="wishlist.html" class="edit-btn">View All</a>
+                            </div>
+                            ${wishlistHtml}
+                        </div>
+
+                        <!-- Recent Orders -->
+                        <div class="profile-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-receipt"></i> Recent Orders</h3>
+                                <a href="transactions.html" class="edit-btn">View All</a>
+                            </div>
+                            ${ordersHtml}
                         </div>
                     </div>
                 </div>
             `;
 
+            // Attach form submit
             document.getElementById('profileForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 updateProfile();
             });
         }
 
-        // ============================================================
-        // PROFILE ACTIONS
-        // ============================================================
-        window.updateProfile = function() {
-            var name = document.getElementById('profileName').value.trim();
-            if (!name) { toast.error('Please enter your name.', 'Error'); return; }
+        // ===== PROFILE ACTIONS =====
+        var isEditing = false;
 
+        window.toggleEdit = function() {
+            isEditing = !isEditing;
+            var inputs = document.querySelectorAll('#profileForm input:not([disabled])');
+            var saveBtn = document.getElementById('saveButtonContainer');
+            
+            if (isEditing) {
+                document.getElementById('profileNameInput').disabled = false;
+                document.getElementById('profilePhone').disabled = false;
+                document.getElementById('profileDob').disabled = false;
+                saveBtn.style.display = 'block';
+                toast.info('Edit mode enabled. Make your changes and save.', 'Editing');
+            } else {
+                document.getElementById('profileNameInput').disabled = true;
+                document.getElementById('profilePhone').disabled = true;
+                document.getElementById('profileDob').disabled = true;
+                saveBtn.style.display = 'none';
+            }
+        };
+
+        window.updateProfile = function() {
+            var name = document.getElementById('profileNameInput').value.trim();
+            if (!name) {
+                toast.error('Please enter your name.', 'Error');
+                return;
+            }
+
+            var email = document.getElementById('profileEmail').value;
+            var phone = document.getElementById('profilePhone').value.trim();
+            var dob = document.getElementById('profileDob').value;
+
+            // Update in localStorage
+            var users = JSON.parse(localStorage.getItem('users')) || [];
+            var updated = false;
+            for (var i = 0; i < users.length; i++) {
+                if (users[i].email === email) {
+                    users[i].name = name;
+                    users[i].phone = phone;
+                    users[i].dob = dob;
+                    updated = true;
+                    break;
+                }
+            }
+            if (!updated) {
+                users.push({ name: name, email: email, phone: phone, dob: dob });
+            }
+            localStorage.setItem('users', JSON.stringify(users));
+
+            // Update current user
             var currentUser = JSON.parse(localStorage.getItem('currentUser'));
             if (currentUser) {
                 currentUser.name = name;
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                toast.success('Profile updated!', 'Saved');
-                loadProfile();
-                updateProfileUI();
             }
+
+            toast.success('Profile updated successfully!', 'Saved');
+            isEditing = false;
+            document.getElementById('profileNameInput').disabled = true;
+            document.getElementById('profilePhone').disabled = true;
+            document.getElementById('profileDob').disabled = true;
+            document.getElementById('saveButtonContainer').style.display = 'none';
+            
+            // Reload profile
+            loadProfile();
+            updateProfileUI();
         };
 
         window.addAddress = function() {
             var address = prompt('Enter your address:');
             if (address && address.trim()) {
-                toast.success('Address added!', 'Added');
+                var email = document.getElementById('profileEmail').value;
+                var users = JSON.parse(localStorage.getItem('users')) || [];
+                for (var i = 0; i < users.length; i++) {
+                    if (users[i].email === email) {
+                        if (!users[i].addresses) users[i].addresses = [];
+                        users[i].addresses.push(address.trim());
+                        localStorage.setItem('users', JSON.stringify(users));
+                        toast.success('Address added!', 'Added');
+                        loadProfile();
+                        return;
+                    }
+                }
             }
         };
 
-        // ============================================================
-        // SEARCH
-        // ============================================================
-        window.searchProducts = function() {
-            var query = document.getElementById('searchInput').value.trim();
-            if (query === '') { toast.info('Enter a search term.', 'Search'); return; }
-            window.location.href = 'products.html?search=' + encodeURIComponent(query);
+        window.editAddress = function(index) {
+            var email = document.getElementById('profileEmail').value;
+            var users = JSON.parse(localStorage.getItem('users')) || [];
+            for (var i = 0; i < users.length; i++) {
+                if (users[i].email === email && users[i].addresses && users[i].addresses[index]) {
+                    var newAddress = prompt('Edit address:', users[i].addresses[index]);
+                    if (newAddress && newAddress.trim()) {
+                        users[i].addresses[index] = newAddress.trim();
+                        localStorage.setItem('users', JSON.stringify(users));
+                        toast.success('Address updated!', 'Updated');
+                        loadProfile();
+                    }
+                    return;
+                }
+            }
         };
-        document.getElementById('searchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') searchProducts();
-        });
 
-        // ============================================================
-        // INIT
-        // ============================================================
+        window.deleteAddress = function(index) {
+            if (!confirm('Delete this address?')) return;
+            var email = document.getElementById('profileEmail').value;
+            var users = JSON.parse(localStorage.getItem('users')) || [];
+            for (var i = 0; i < users.length; i++) {
+                if (users[i].email === email && users[i].addresses) {
+                    users[i].addresses.splice(index, 1);
+                    localStorage.setItem('users', JSON.stringify(users));
+                    toast.success('Address deleted!', 'Deleted');
+                    loadProfile();
+                    return;
+                }
+            }
+        };
+
+        window.uploadProfilePicture = function() {
+            document.getElementById('avatarInput').click();
+        };
+
+        window.handleAvatarUpload = function(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var avatarPlaceholder = document.getElementById('avatarPlaceholder');
+                avatarPlaceholder.innerHTML = '<img src="' + e.target.result + '" alt="Profile picture" style="width:100%;height:100%;object-fit:cover;">';
+                toast.success('Profile picture updated!', 'Updated');
+            };
+            reader.readAsDataURL(file);
+            
+            // Reset input for next upload
+            document.getElementById('avatarInput').value = '';
+        };
+
+        // ===== INIT =====
         async function init() {
             var client = await waitForSupabase();
             if (client) { console.log('✅ Supabase connected'); } else { console.log('⚠️ Using fallback data'); }
