@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - MarketStall</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="supabase.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }
         body { background: #f5f7fa; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
 
-        /* Toast notifications */
         .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 380px; width: 90%; pointer-events: none; }
         .toast { background: #ffffff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); border-left: 4px solid #2a7de1; display: flex; align-items: center; gap: 12px; transform: translateX(120%); opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); pointer-events: auto; position: relative; overflow: hidden; }
         .toast.show { transform: translateX(0); opacity: 1; }
@@ -72,7 +72,7 @@
             </div>
             <div class="field">
                 <label><i class="fas fa-lock"></i> Password</label>
-                <input type="password" id="signupPassword" placeholder="••••••••" required minlength="6">
+                <input type="password" id="signupPassword" placeholder="•••••••• (min 6 chars)" required minlength="6">
             </div>
             <button type="submit" class="btn-primary" id="signupBtn"><i class="fas fa-user-plus"></i> Sign up</button>
         </form>
@@ -90,18 +90,13 @@
     <script>
         // Toast system
         class ToastManager {
-            constructor() {
-                this.container = null;
-                this.init();
-            }
+            constructor() { this.container = null; this.init(); }
             init() {
                 if (!document.querySelector('.toast-container')) {
                     this.container = document.createElement('div');
                     this.container.className = 'toast-container';
                     document.body.appendChild(this.container);
-                } else {
-                    this.container = document.querySelector('.toast-container');
-                }
+                } else { this.container = document.querySelector('.toast-container'); }
             }
             show(message, options) {
                 options = options || {};
@@ -145,8 +140,16 @@
         }
         window.toast = new ToastManager();
 
+        function waitForSupabase() {
+            return new Promise((resolve) => {
+                if (window.supabaseClient) { resolve(window.supabaseClient); return; }
+                document.addEventListener('supabaseReady', function() { resolve(window.supabaseClient); });
+                setTimeout(() => { resolve(window.supabaseClient || null); }, 5000);
+            });
+        }
+
         // Signup form
-        document.getElementById('signupForm').addEventListener('submit', function(e) {
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             var name = document.getElementById('signupName').value.trim();
@@ -163,25 +166,58 @@
                 return;
             }
 
-            var users = JSON.parse(localStorage.getItem('users')) || [];
-            for (var i = 0; i < users.length; i++) {
-                if (users[i].email === email) {
-                    toast.error('Email already registered! Please login.', 'Error');
-                    document.getElementById('signupEmail').classList.add('error');
-                    return;
-                }
-            }
-
-            users.push({ name: name, email: email, password: password });
-            localStorage.setItem('users', JSON.stringify(users));
-            localStorage.setItem('currentUser', JSON.stringify({ name: name, email: email }));
-
-            toast.success('Account created successfully! Welcome ' + name + '!', 'Welcome!');
             var btn = document.getElementById('signupBtn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Redirecting...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Creating account...';
 
-            setTimeout(function() { window.location.href = 'login.html'; }, 1500);
+            try {
+                const client = await waitForSupabase();
+
+                if (!client) {
+                    // Fallback to local storage
+                    var users = JSON.parse(localStorage.getItem('users')) || [];
+                    for (var i = 0; i < users.length; i++) {
+                        if (users[i].email === email) {
+                            toast.error('Email already registered!', 'Error');
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-user-plus"></i> Sign up';
+                            return;
+                        }
+                    }
+                    users.push({ name: name, email: email, password: password });
+                    localStorage.setItem('users', JSON.stringify(users));
+                    localStorage.setItem('currentUser', JSON.stringify({ name: name, email: email }));
+                    toast.success('Account created successfully!', 'Welcome!');
+                    setTimeout(function() { window.location.href = 'login.html'; }, 1500);
+                    return;
+                }
+
+                // Sign up with Supabase
+                const { data, error } = await client.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            full_name: name
+                        }
+                    }
+                });
+
+                if (error) {
+                    toast.error(error.message, 'Error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-user-plus"></i> Sign up';
+                    return;
+                }
+
+                toast.success('Account created successfully!', 'Welcome!');
+                setTimeout(function() { window.location.href = 'login.html'; }, 1500);
+
+            } catch (e) {
+                toast.error('Error creating account.', 'Error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-user-plus"></i> Sign up';
+            }
         });
 
         document.querySelectorAll('.field input').forEach(function(el) {
