@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cart - MarketStall</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="supabase.js"></script>
     <style>
         /* Same styles as index */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }
@@ -12,7 +13,6 @@
         a { text-decoration: none; color: inherit; }
         .container { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
 
-        /* Toast notifications (same as index) */
         .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 380px; width: 90%; pointer-events: none; }
         .toast { background: #ffffff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); border-left: 4px solid #2a7de1; display: flex; align-items: center; gap: 12px; transform: translateX(120%); opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); pointer-events: auto; position: relative; overflow: hidden; }
         .toast.show { transform: translateX(0); opacity: 1; }
@@ -37,7 +37,6 @@
         .toast-info .toast-progress { background: #17a2b8; }
         @keyframes toastProgress { 0% { width: 100%; } 100% { width: 0%; } }
 
-        /* Header */
         .header { position: sticky; top: 0; z-index: 100; background: #ffffff; padding: 12px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border-bottom: 1px solid #eef2f6; }
         .header-top { display: flex; align-items: center; gap: 12px; max-width: 1280px; margin: 0 auto; }
         .logo { font-size: 1.3rem; font-weight: 700; color: #0b1b2b; flex-shrink: 0; }
@@ -52,13 +51,12 @@
         .header-actions a:hover { color: #f8b400; }
         .cart-badge { position: absolute; top: -4px; right: -4px; background: #dc3545; color: #fff; border-radius: 50%; font-size: 0.55rem; font-weight: 700; padding: 1px 5px; min-width: 16px; text-align: center; }
         .btn-signup { background: #f8b400; color: #0b1b2b; padding: 4px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; transition: 0.2s; }
-        .btn-signup:hover { background: #e0a000; }
+        .btn-signup:hover { background: #e0a000; transform: translateY(-2px); }
         .btn-logout { background: #dc3545; color: #fff; padding: 4px 14px; border-radius: 30px; border: none; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-logout:hover { background: #c82333; }
+        .btn-logout:hover { background: #c82333; transform: translateY(-2px); }
         .user-greeting { font-size: 0.75rem; font-weight: 500; color: #1f3a4b; display: flex; align-items: center; gap: 4px; }
         .user-greeting i { color: #f8b400; }
 
-        /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; display: flex; justify-content: space-around; align-items: center; padding: 6px 0 10px; box-shadow: 0 -2px 16px rgba(0,0,0,0.06); border-top: 1px solid #eef2f6; z-index: 999; height: 64px; }
         .bottom-nav a { display: flex; flex-direction: column; align-items: center; color: #868e96; font-size: 0.6rem; font-weight: 500; transition: 0.2s; padding: 2px 8px; position: relative; min-width: 50px; }
         .bottom-nav a i { font-size: 1.2rem; margin-bottom: 2px; }
@@ -66,13 +64,11 @@
         .bottom-nav a.active { color: #f8b400; }
         .bottom-nav a .nav-badge { position: absolute; top: -4px; right: 2px; background: #dc3545; color: #fff; border-radius: 50%; font-size: 0.5rem; font-weight: 700; padding: 1px 5px; min-width: 16px; text-align: center; }
 
-        /* Page Header */
         .page-header { display: flex; justify-content: space-between; align-items: center; margin: 16px 0 12px; flex-wrap: wrap; gap: 8px; }
         .page-header h1 { font-size: 1.2rem; font-weight: 700; }
         .page-header h1 i { color: #f8b400; margin-right: 6px; }
         .page-header .item-count { font-size: 0.8rem; color: #5b768b; background: #f1f4f8; padding: 4px 14px; border-radius: 30px; }
 
-        /* Cart Grid */
         .cart-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
         .cart-items { background: #ffffff; border-radius: 12px; border: 1px solid #eef2f6; padding: 16px; min-height: 150px; }
         .cart-item { display: grid; grid-template-columns: 60px 1fr auto; gap: 12px; padding: 12px 0; border-bottom: 1px solid #eef2f6; align-items: center; }
@@ -87,7 +83,6 @@
         .remove-btn { background: none; border: none; color: #dc3545; cursor: pointer; font-size: 0.9rem; padding: 4px; transition: 0.2s; }
         .remove-btn:hover { background: #fde8e8; border-radius: 6px; }
 
-        /* Empty cart */
         .empty-cart { text-align: center; padding: 30px 16px; }
         .empty-cart i { font-size: 3rem; color: #dce5ed; margin-bottom: 12px; display: block; }
         .empty-cart h3 { font-size: 1rem; margin-bottom: 4px; }
@@ -95,7 +90,6 @@
         .btn-shop { display: inline-block; padding: 8px 24px; border-radius: 30px; font-weight: 600; font-size: 0.85rem; background: #2a7de1; color: #fff; transition: 0.2s; }
         .btn-shop:hover { background: #1a5fb0; transform: translateY(-2px); }
 
-        /* Cart Summary */
         .cart-summary { background: #ffffff; border-radius: 12px; border: 1px solid #eef2f6; padding: 16px; }
         .cart-summary h3 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; }
         .summary-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.85rem; color: #1f3a4b; }
@@ -107,12 +101,12 @@
         .clear-cart-btn { width: 100%; padding: 8px 0; border: 1px solid #dc3545; border-radius: 30px; background: transparent; color: #dc3545; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.2s; margin-top: 6px; }
         .clear-cart-btn:hover { background: #dc3545; color: #fff; transform: translateY(-2px); }
 
-        /* Footer */
         .footer { background: #ffffff; border-radius: 12px; padding: 16px; margin: 8px 0 10px; border: 1px solid #eef2f6; text-align: center; }
         .footer .logo { font-size: 1rem; }
         .footer p { font-size: 0.65rem; color: #5b768b; margin-top: 4px; }
-        .footer .links { display: flex; justify-content: center; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
-        .footer .links a { color: #2a7de1; font-size: 0.65rem; }
+        .loading-spinner { display: flex; justify-content: center; align-items: center; padding: 40px 0; }
+        .loading-spinner i { font-size: 2rem; color: #f8b400; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         @media (min-width: 640px) {
             body { padding-bottom: 0; }
@@ -133,7 +127,7 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
+    <!-- HEADER -->
     <header class="header">
         <div class="header-top">
             <a href="index.html" class="logo"><i class="fas fa-store-alt"></i> Market<span>Stall</span></a>
@@ -157,7 +151,7 @@
 
         <div class="cart-grid">
             <div class="cart-items" id="cartItems">
-                <!-- Rendered by JS -->
+                <div class="loading-spinner"><i class="fas fa-spinner"></i></div>
             </div>
             <div class="cart-summary">
                 <h3>Order Summary</h3>
@@ -174,16 +168,10 @@
         <footer class="footer">
             <a href="index.html" class="logo"><i class="fas fa-store-alt"></i> Market<span>Stall</span></a>
             <p>&copy; 2026 MarketStall Investments.</p>
-            <div class="links">
-                <a href="index.html">Home</a>
-                <a href="products.html">Products</a>
-                <a href="cart.html">Cart</a>
-                <a href="transactions.html">Orders</a>
-            </div>
         </footer>
     </div>
 
-    <!-- Bottom Nav -->
+    <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
         <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
         <a href="products.html"><i class="fas fa-th-list"></i><span>Products</span></a>
@@ -195,18 +183,13 @@
     <script>
         // Toast system
         class ToastManager {
-            constructor() {
-                this.container = null;
-                this.init();
-            }
+            constructor() { this.container = null; this.init(); }
             init() {
                 if (!document.querySelector('.toast-container')) {
                     this.container = document.createElement('div');
                     this.container.className = 'toast-container';
                     document.body.appendChild(this.container);
-                } else {
-                    this.container = document.querySelector('.toast-container');
-                }
+                } else { this.container = document.querySelector('.toast-container'); }
             }
             show(message, options) {
                 options = options || {};
@@ -250,52 +233,145 @@
         }
         window.toast = new ToastManager();
 
-        // Auth
-        function updateAuthButtons() {
+        let supabase = null;
+        let supabaseReady = false;
+
+        function waitForSupabase() {
+            return new Promise((resolve) => {
+                if (window.supabaseClient) { resolve(window.supabaseClient); return; }
+                document.addEventListener('supabaseReady', function() { resolve(window.supabaseClient); });
+                setTimeout(() => { resolve(window.supabaseClient || null); }, 5000);
+            });
+        }
+
+        // ===== AUTH =====
+        async function updateAuthButtons() {
             var authContainer = document.getElementById('authButtons');
-            var currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (currentUser) {
-                authContainer.innerHTML =
-                    '<span class="user-greeting"><i class="fas fa-user-circle"></i></span>' +
-                    '<button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>';
-            } else {
+            try {
+                const client = await waitForSupabase();
+                if (!client) { authContainer.innerHTML = '<a href="signup.html" class="btn-signup"><i class="fas fa-user-plus"></i> Sign Up</a>'; return; }
+                const { data: { session } } = await client.auth.getSession();
+                if (session) {
+                    const email = session.user.email || 'User';
+                    authContainer.innerHTML =
+                        '<span class="user-greeting"><i class="fas fa-user-circle"></i> ' + email.split('@')[0] + '</span>' +
+                        '<button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>';
+                } else {
+                    authContainer.innerHTML = '<a href="signup.html" class="btn-signup"><i class="fas fa-user-plus"></i> Sign Up</a>';
+                }
+            } catch (e) {
                 authContainer.innerHTML = '<a href="signup.html" class="btn-signup"><i class="fas fa-user-plus"></i> Sign Up</a>';
             }
         }
-        window.logout = function() {
-            if (confirm('Logout?')) {
+
+        window.logout = async function() {
+            if (!confirm('Logout?')) return;
+            try {
+                const client = await waitForSupabase();
+                if (client) await client.auth.signOut();
                 localStorage.removeItem('currentUser');
                 updateAuthButtons();
                 toast.success('Logged out.', 'Goodbye');
-                setTimeout(function() { location.reload(); }, 500);
-            }
+                setTimeout(() => location.reload(), 500);
+            } catch (e) { toast.error('Error logging out.', 'Error'); }
         };
 
-        // Cart
-        function getCart() { return JSON.parse(localStorage.getItem('cart')) || []; }
-        function saveCart(cart) { localStorage.setItem('cart', JSON.stringify(cart)); }
+        // ===== CART FUNCTIONS =====
+        let cartItems = [];
+        let cartId = null;
 
-        function updateCartCount() {
-            var cart = getCart();
-            var count = 0;
-            for (var i = 0; i < cart.length; i++) { count += cart[i].quantity; }
-            var badge = document.getElementById('cartCount');
-            if (badge) badge.textContent = count;
-            var bottomBadge = document.getElementById('bottomCartBadge');
-            if (bottomBadge) bottomBadge.textContent = count;
-            var itemCount = document.getElementById('itemCount');
-            if (itemCount) itemCount.textContent = count + ' items';
-        }
-
-        function renderCart() {
-            var cart = getCart();
+        async function loadCart() {
             var container = document.getElementById('cartItems');
             var summary = document.getElementById('summaryContent');
             var checkoutBtn = document.getElementById('checkoutBtn');
 
-            updateCartCount();
+            try {
+                const client = await waitForSupabase();
+                if (!client) {
+                    // Fallback to local storage
+                    loadLocalCart();
+                    return;
+                }
 
-            if (cart.length === 0) {
+                const { data: { session } } = await client.auth.getSession();
+
+                if (!session) {
+                    loadLocalCart();
+                    return;
+                }
+
+                // Get or create cart
+                let { data: cartData } = await client
+                    .from('carts')
+                    .select('*')
+                    .eq('user_id', session.user.id)
+                    .single();
+
+                if (!cartData) {
+                    const { data: newCart } = await client
+                        .from('carts')
+                        .insert({ user_id: session.user.id })
+                        .select()
+                        .single();
+                    cartData = newCart;
+                }
+
+                if (!cartData) {
+                    loadLocalCart();
+                    return;
+                }
+
+                cartId = cartData.id;
+
+                // Get cart items with product details
+                const { data: items, error } = await client
+                    .from('cart_items')
+                    .select(`
+                        *,
+                        products!inner(
+                            id, name, price, image, stock
+                        )
+                    `)
+                    .eq('cart_id', cartId);
+
+                if (error) throw error;
+
+                cartItems = items || [];
+                renderCartItems(cartItems);
+
+            } catch (e) {
+                console.warn('Error loading cart from Supabase:', e);
+                loadLocalCart();
+            }
+        }
+
+        function loadLocalCart() {
+            var cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cartItems = cart.map(function(item) {
+                return {
+                    id: item.id,
+                    product_id: item.id,
+                    quantity: item.quantity || 1,
+                    products: {
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        image: item.image || 'fa-box',
+                        stock: 999
+                    }
+                };
+            });
+            renderCartItems(cartItems);
+        }
+
+        function renderCartItems(items) {
+            var container = document.getElementById('cartItems');
+            var summary = document.getElementById('summaryContent');
+            var checkoutBtn = document.getElementById('checkoutBtn');
+
+            var itemCount = document.getElementById('itemCount');
+
+            if (!items || items.length === 0) {
                 container.innerHTML = '<div class="empty-cart"><i class="fas fa-shopping-cart"></i><h3>Your cart is empty</h3><p>Start shopping to add items!</p><a href="products.html" class="btn-shop"><i class="fas fa-shopping-bag"></i> Start Shopping</a></div>';
                 summary.innerHTML =
                     '<div class="summary-row"><span class="label">Subtotal</span><span>$0.00</span></div>' +
@@ -303,22 +379,40 @@
                     '<div class="summary-row total"><span>Total</span><span id="totalAmount">$0.00</span></div>' +
                     '<button class="checkout-btn" onclick="proceedToCheckout()" disabled><i class="fas fa-lock"></i> Proceed to Checkout</button>' +
                     '<button class="clear-cart-btn" onclick="clearCart()" disabled><i class="fas fa-trash"></i> Clear Cart</button>';
+                itemCount.textContent = '0 items';
+                updateBadges(0);
                 return;
             }
 
             var subtotal = 0;
+            var totalItems = 0;
             var html = '';
-            for (var i = 0; i < cart.length; i++) {
-                var item = cart[i];
-                var itemTotal = item.price * item.quantity;
+
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var product = item.products || {};
+                var price = parseFloat(product.price || 0);
+                var quantity = item.quantity || 1;
+                var itemTotal = price * quantity;
                 subtotal += itemTotal;
-                html += '<div class="cart-item"><div class="cart-item-image"><i class="fas ' + (item.image || 'fa-box') + '"></i></div>' +
-                    '<div class="cart-item-details"><h4>' + item.name + '</h4><span class="price">$' + item.price.toFixed(2) + '</span></div>' +
-                    '<div class="cart-item-actions"><button class="qty-btn" onclick="updateQuantity(' + item.id + ', -1)">−</button>' +
-                    '<span class="qty-display">' + item.quantity + '</span>' +
-                    '<button class="qty-btn" onclick="updateQuantity(' + item.id + ', 1)">+</button>' +
-                    '<button class="remove-btn" onclick="removeItem(' + item.id + ')"><i class="fas fa-trash"></i></button></div></div>';
+                totalItems += quantity;
+
+                var stockWarning = '';
+                if (product.stock !== undefined && quantity > product.stock) {
+                    stockWarning = '<span style="color:#dc3545; font-size:0.7rem; display:block;">⚠️ Only ' + product.stock + ' left</span>';
+                }
+
+                html += '<div class="cart-item" data-id="' + item.id + '">' +
+                    '<div class="cart-item-image"><i class="fas ' + (product.image || 'fa-box') + '"></i></div>' +
+                    '<div class="cart-item-details"><h4>' + (product.name || 'Product') + '</h4><span class="price">$' + price.toFixed(2) + '</span>' + stockWarning + '</div>' +
+                    '<div class="cart-item-actions">' +
+                    '<button class="qty-btn" onclick="updateQuantity(\'' + item.id + '\', ' + (item.product_id || item.id) + ', -1)">−</button>' +
+                    '<span class="qty-display">' + quantity + '</span>' +
+                    '<button class="qty-btn" onclick="updateQuantity(\'' + item.id + '\', ' + (item.product_id || item.id) + ', 1)">+</button>' +
+                    '<button class="remove-btn" onclick="removeItem(\'' + item.id + '\', ' + (item.product_id || item.id) + ')"><i class="fas fa-trash"></i></button>' +
+                    '</div></div>';
             }
+
             container.innerHTML = html;
 
             summary.innerHTML =
@@ -327,57 +421,193 @@
                 '<div class="summary-row total"><span>Total</span><span id="totalAmount">$' + subtotal.toFixed(2) + '</span></div>' +
                 '<button class="checkout-btn" onclick="proceedToCheckout()"><i class="fas fa-lock"></i> Proceed to Checkout</button>' +
                 '<button class="clear-cart-btn" onclick="clearCart()"><i class="fas fa-trash"></i> Clear Cart</button>';
+
+            itemCount.textContent = totalItems + ' items';
+            updateBadges(totalItems);
         }
 
-        window.updateQuantity = function(productId, change) {
-            var cart = getCart();
-            for (var i = 0; i < cart.length; i++) {
-                if (cart[i].id === productId) {
-                    var newQty = cart[i].quantity + change;
-                    if (newQty <= 0) {
-                        cart.splice(i, 1);
-                        toast.success('Item removed.', 'Removed');
-                    } else {
-                        cart[i].quantity = newQty;
+        // ===== CART ACTIONS =====
+        window.updateQuantity = async function(cartItemId, productId, change) {
+            try {
+                const client = await waitForSupabase();
+                if (!client) {
+                    // Local storage fallback
+                    var cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    for (var i = 0; i < cart.length; i++) {
+                        if (cart[i].id === productId) {
+                            var newQty = (cart[i].quantity || 1) + change;
+                            if (newQty <= 0) {
+                                cart.splice(i, 1);
+                                toast.success('Item removed.', 'Removed');
+                            } else {
+                                cart[i].quantity = newQty;
+                            }
+                            localStorage.setItem('cart', JSON.stringify(cart));
+                            loadCart();
+                            return;
+                        }
                     }
-                    break;
-                }
-            }
-            saveCart(cart);
-            renderCart();
-        };
-
-        window.removeItem = function(productId) {
-            if (!confirm('Remove this item?')) return;
-            var cart = getCart();
-            for (var i = 0; i < cart.length; i++) {
-                if (cart[i].id === productId) {
-                    var removed = cart[i];
-                    cart.splice(i, 1);
-                    saveCart(cart);
-                    renderCart();
-                    toast.success(removed.name + ' removed.', 'Removed');
                     return;
                 }
+
+                const { data: { session } } = await client.auth.getSession();
+                if (!session) {
+                    var cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    for (var j = 0; j < cart.length; j++) {
+                        if (cart[j].id === productId) {
+                            var newQty = (cart[j].quantity || 1) + change;
+                            if (newQty <= 0) {
+                                cart.splice(j, 1);
+                                toast.success('Item removed.', 'Removed');
+                            } else {
+                                cart[j].quantity = newQty;
+                            }
+                            localStorage.setItem('cart', JSON.stringify(cart));
+                            loadCart();
+                            return;
+                        }
+                    }
+                    return;
+                }
+
+                // Get product to check stock
+                const { data: product } = await client
+                    .from('products')
+                    .select('stock')
+                    .eq('id', productId)
+                    .single();
+
+                // Get current cart item
+                const { data: currentItem } = await client
+                    .from('cart_items')
+                    .select('quantity')
+                    .eq('id', cartItemId)
+                    .single();
+
+                var currentQty = currentItem ? currentItem.quantity : 0;
+                var newQty = currentQty + change;
+
+                if (newQty <= 0) {
+                    await client
+                        .from('cart_items')
+                        .delete()
+                        .eq('id', cartItemId);
+                    toast.success('Item removed.', 'Removed');
+                } else if (product && newQty > product.stock) {
+                    toast.warning('Not enough stock! Only ' + product.stock + ' available.', 'Stock Limit');
+                    return;
+                } else {
+                    await client
+                        .from('cart_items')
+                        .update({ quantity: newQty })
+                        .eq('id', cartItemId);
+                }
+
+                loadCart();
+
+            } catch (e) {
+                toast.error('Error updating cart.', 'Error');
             }
         };
 
-        window.clearCart = function() {
+        window.removeItem = async function(cartItemId, productId) {
+            if (!confirm('Remove this item?')) return;
+
+            try {
+                const client = await waitForSupabase();
+                if (!client) {
+                    var cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    for (var i = 0; i < cart.length; i++) {
+                        if (cart[i].id === productId) {
+                            var removed = cart[i];
+                            cart.splice(i, 1);
+                            localStorage.setItem('cart', JSON.stringify(cart));
+                            loadCart();
+                            toast.success(removed.name + ' removed.', 'Removed');
+                            return;
+                        }
+                    }
+                    return;
+                }
+
+                const { data: { session } } = await client.auth.getSession();
+                if (!session) {
+                    var cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    for (var j = 0; j < cart.length; j++) {
+                        if (cart[j].id === productId) {
+                            var removed = cart[j];
+                            cart.splice(j, 1);
+                            localStorage.setItem('cart', JSON.stringify(cart));
+                            loadCart();
+                            toast.success(removed.name + ' removed.', 'Removed');
+                            return;
+                        }
+                    }
+                    return;
+                }
+
+                await client
+                    .from('cart_items')
+                    .delete()
+                    .eq('id', cartItemId);
+
+                loadCart();
+                toast.success('Item removed.', 'Removed');
+
+            } catch (e) {
+                toast.error('Error removing item.', 'Error');
+            }
+        };
+
+        window.clearCart = async function() {
             if (!confirm('Clear all items?')) return;
-            saveCart([]);
-            renderCart();
-            toast.success('Cart cleared.', 'Cleared');
+
+            try {
+                const client = await waitForSupabase();
+                if (!client) {
+                    localStorage.setItem('cart', JSON.stringify([]));
+                    loadCart();
+                    toast.success('Cart cleared.', 'Cleared');
+                    return;
+                }
+
+                const { data: { session } } = await client.auth.getSession();
+                if (!session) {
+                    localStorage.setItem('cart', JSON.stringify([]));
+                    loadCart();
+                    toast.success('Cart cleared.', 'Cleared');
+                    return;
+                }
+
+                await client
+                    .from('cart_items')
+                    .delete()
+                    .eq('cart_id', cartId);
+
+                loadCart();
+                toast.success('Cart cleared.', 'Cleared');
+
+            } catch (e) {
+                toast.error('Error clearing cart.', 'Error');
+            }
         };
 
         window.proceedToCheckout = function() {
-            var cart = getCart();
-            if (cart.length === 0) {
+            if (!cartItems || cartItems.length === 0) {
                 toast.error('Your cart is empty.', 'Error');
                 return;
             }
             window.location.href = 'checkout.html';
         };
 
+        function updateBadges(count) {
+            var badge = document.getElementById('cartCount');
+            if (badge) badge.textContent = count;
+            var bottomBadge = document.getElementById('bottomCartBadge');
+            if (bottomBadge) bottomBadge.textContent = count;
+        }
+
+        // ===== SEARCH =====
         window.searchProducts = function() {
             var query = document.getElementById('searchInput').value.trim();
             if (query === '') { toast.info('Enter a search term.', 'Search'); return; }
@@ -387,13 +617,19 @@
             if (e.key === 'Enter') searchProducts();
         });
 
-        // INIT
-        document.addEventListener('DOMContentLoaded', function() {
-            renderCart();
-            updateCartCount();
-            updateAuthButtons();
-            console.log('Cart page loaded!');
-        });
+        // ===== INIT =====
+        async function init() {
+            const client = await waitForSupabase();
+            if (client) { console.log('✅ Supabase connected'); }
+
+            await updateAuthButtons();
+            await loadCart();
+
+            console.log('✅ Cart page loaded!');
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('supabaseReady', init);
     </script>
 </body>
 </html>
