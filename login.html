@@ -10,6 +10,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }
         body { background: #f5f7fa; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
 
+        /* Toast */
         .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 380px; width: 90%; pointer-events: none; }
         .toast { background: #ffffff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); border-left: 4px solid #2a7de1; display: flex; align-items: center; gap: 12px; transform: translateX(120%); opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); pointer-events: auto; position: relative; overflow: hidden; }
         .toast.show { transform: translateX(0); opacity: 1; }
@@ -173,7 +174,6 @@
                 var client = await waitForSupabase();
 
                 if (!client) {
-                    // Fallback to local storage
                     var users = JSON.parse(localStorage.getItem('users')) || [];
                     var user = null;
                     for (var i = 0; i < users.length; i++) {
@@ -204,7 +204,6 @@
                     return;
                 }
 
-                // Login with Supabase
                 var { data, error } = await client.auth.signInWithPassword({
                     email: email,
                     password: password
@@ -222,7 +221,6 @@
                 }
 
                 if (data && data.user) {
-                    // Store in localStorage for fallback
                     var name = data.user.user_metadata?.full_name || email.split('@')[0];
                     localStorage.setItem('currentUser', JSON.stringify({ name: name, email: email }));
 
