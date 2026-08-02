@@ -2,57 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarketStall Investments - Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MarketStall - Home</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="supabase.js"></script>
     <style>
-        /* ===== RESET & BASE ===== */
+        /* ===== RESET ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
         body { background: #f5f7fa; color: #0b1b2b; padding-bottom: 70px; }
         a { text-decoration: none; color: inherit; }
         .container { max-width: 1280px; margin: 0 auto; padding: 0 16px; }
 
-        /* ===== TOAST NOTIFICATIONS ===== */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-width: 380px;
-            width: 90%;
-            pointer-events: none;
-        }
-        .toast {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 14px 18px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-            border-left: 4px solid #2a7de1;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transform: translateX(120%);
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            pointer-events: auto;
-            position: relative;
-            overflow: hidden;
-        }
+        /* ===== TOAST ===== */
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 380px; width: 90%; pointer-events: none; }
+        .toast { background: #ffffff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); border-left: 4px solid #2a7de1; display: flex; align-items: center; gap: 12px; transform: translateX(120%); opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); pointer-events: auto; position: relative; overflow: hidden; }
         .toast.show { transform: translateX(0); opacity: 1; }
         .toast.hide { transform: translateX(120%); opacity: 0; }
-        .toast-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            flex-shrink: 0;
-        }
+        .toast-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
         .toast-success .toast-icon { background: #d4edda; color: #155724; }
         .toast-error .toast-icon { background: #f8d7da; color: #721c24; }
         .toast-warning .toast-icon { background: #fff3cd; color: #856404; }
@@ -65,21 +31,12 @@
         .toast-content .toast-title { font-weight: 600; font-size: 0.9rem; color: #0b1b2b; }
         .toast-content .toast-message { font-size: 0.82rem; color: #5b768b; }
         .toast-close { background: none; border: none; color: #999; cursor: pointer; font-size: 1.1rem; padding: 0 4px; }
-        .toast-progress {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 3px;
-            animation: toastProgress 4s linear forwards;
-        }
+        .toast-progress { position: absolute; bottom: 0; left: 0; height: 3px; animation: toastProgress 4s linear forwards; }
         .toast-success .toast-progress { background: #28a745; }
         .toast-error .toast-progress { background: #dc3545; }
         .toast-warning .toast-progress { background: #ffc107; }
         .toast-info .toast-progress { background: #17a2b8; }
-        @keyframes toastProgress {
-            0% { width: 100%; }
-            100% { width: 0%; }
-        }
+        @keyframes toastProgress { 0% { width: 100%; } 100% { width: 0%; } }
 
         /* ===== HEADER ===== */
         .header {
@@ -98,12 +55,7 @@
             max-width: 1280px;
             margin: 0 auto;
         }
-        .logo {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #0b1b2b;
-            flex-shrink: 0;
-        }
+        .logo { font-size: 1.3rem; font-weight: 700; color: #0b1b2b; flex-shrink: 0; }
         .logo i { color: #f8b400; }
         .logo span { color: #2a7de1; }
         .search-bar {
@@ -115,38 +67,11 @@
             height: 40px;
             max-width: 500px;
         }
-        .search-bar input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 0 16px;
-            font-size: 0.85rem;
-            outline: none;
-        }
-        .search-bar button {
-            border: none;
-            background: #f8b400;
-            color: #0b1b2b;
-            padding: 0 18px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: 0.2s;
-        }
+        .search-bar input { flex: 1; border: none; background: transparent; padding: 0 16px; font-size: 0.85rem; outline: none; }
+        .search-bar button { border: none; background: #f8b400; color: #0b1b2b; padding: 0 18px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
         .search-bar button:hover { background: #e0a000; }
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-        .header-actions a {
-            color: #1f3a4b;
-            font-size: 1.1rem;
-            position: relative;
-            padding: 4px 6px;
-            transition: 0.2s;
-        }
+        .header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .header-actions a { color: #1f3a4b; font-size: 1.1rem; position: relative; padding: 4px 6px; transition: 0.2s; }
         .header-actions a:hover { color: #f8b400; }
         .cart-badge {
             position: absolute;
@@ -170,7 +95,7 @@
             font-weight: 600;
             transition: 0.2s;
         }
-        .btn-signup:hover { background: #e0a000; }
+        .btn-signup:hover { background: #e0a000; transform: translateY(-2px); }
         .btn-logout {
             background: #dc3545;
             color: #fff;
@@ -182,15 +107,8 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        .btn-logout:hover { background: #c82333; }
-        .user-greeting {
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: #1f3a4b;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
+        .btn-logout:hover { background: #c82333; transform: translateY(-2px); }
+        .user-greeting { font-size: 0.75rem; font-weight: 500; color: #1f3a4b; display: flex; align-items: center; gap: 4px; }
         .user-greeting i { color: #f8b400; }
 
         /* ===== BOTTOM NAV ===== */
@@ -313,7 +231,7 @@
         .category-card i { font-size: 1.4rem; color: #f8b400; margin-bottom: 2px; }
         .category-card span { font-size: 0.6rem; font-weight: 500; text-align: center; }
 
-        /* ===== PRODUCT GRID ===== */
+        /* ===== PRODUCTS ===== */
         .product-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -364,7 +282,7 @@
         .btn-add:hover { background: #f8b400; color: #0b1b2b; }
         .btn-add i { margin-right: 4px; }
 
-        /* ===== PROMO BANNER ===== */
+        /* ===== PROMO ===== */
         .promo-banner {
             background: #ffffff;
             border-radius: 12px;
@@ -449,8 +367,17 @@
         }
         .footer .logo { font-size: 1rem; }
         .footer p { font-size: 0.65rem; color: #5b768b; margin-top: 4px; }
-        .footer .links { display: flex; justify-content: center; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
-        .footer .links a { color: #2a7de1; font-size: 0.65rem; }
+
+        /* ===== LOADING ===== */
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 0;
+            grid-column: 1/-1;
+        }
+        .loading-spinner i { font-size: 2rem; color: #f8b400; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* ===== RESPONSIVE ===== */
         @media (min-width: 640px) {
@@ -489,7 +416,7 @@
     </style>
 </head>
 <body>
-    <!-- ===== HEADER ===== -->
+    <!-- HEADER -->
     <header class="header">
         <div class="header-top">
             <a href="index.html" class="logo"><i class="fas fa-store-alt"></i> Market<span>Stall</span></a>
@@ -506,7 +433,7 @@
     </header>
 
     <div class="container">
-        <!-- ===== HERO ===== -->
+        <!-- HERO -->
         <section class="hero">
             <div class="hero-content">
                 <h1><i class="fas fa-gem"></i> Smart Investments</h1>
@@ -516,65 +443,57 @@
             <div class="hero-image"><i class="fas fa-gem"></i></div>
         </section>
 
-        <!-- ===== CATEGORIES ===== -->
+        <!-- CATEGORIES -->
         <div class="section-header">
             <h2><i class="fas fa-th-large"></i> Categories</h2>
             <a href="products.html">View All</a>
         </div>
         <div class="categories-scroll" id="categoriesGrid">
-            <!-- Injected by JS -->
+            <div class="loading-spinner"><i class="fas fa-spinner"></i></div>
         </div>
 
-        <!-- ===== FEATURED ===== -->
+        <!-- FEATURED -->
         <div class="section-header">
             <h2><i class="fas fa-star"></i> Featured</h2>
             <a href="products.html">View All</a>
         </div>
         <div class="product-grid" id="featuredGrid">
-            <!-- Injected by JS -->
+            <div class="loading-spinner"><i class="fas fa-spinner"></i></div>
         </div>
 
-        <!-- ===== PROMO BANNER ===== -->
+        <!-- PROMO -->
         <section class="promo-banner">
             <div class="promo-content">
                 <h3><i class="fas fa-tags"></i> Summer Sale</h3>
                 <p>Exclusive discounts on selected items.</p>
-                <a href="deals.html" class="btn-secondary">Shop Sale</a>
+                <a href="products.html" class="btn-secondary">Shop Sale</a>
             </div>
             <div class="promo-image"><i class="fas fa-tags"></i></div>
         </section>
 
-        <!-- ===== BEST SELLERS ===== -->
+        <!-- BEST SELLERS -->
         <div class="section-header">
             <h2><i class="fas fa-fire"></i> Best Sellers</h2>
             <a href="products.html">View All</a>
         </div>
         <div class="product-grid" id="bestsellerGrid">
-            <!-- Injected by JS -->
+            <div class="loading-spinner"><i class="fas fa-spinner"></i></div>
         </div>
 
-        <!-- ===== TESTIMONIALS ===== -->
+        <!-- TESTIMONIALS -->
         <div class="section-header">
             <h2><i class="fas fa-quote-right"></i> Reviews</h2>
         </div>
-        <div class="testimonials-scroll" id="testimonialsGrid">
-            <!-- Injected by JS -->
-        </div>
+        <div class="testimonials-scroll" id="testimonialsGrid"></div>
 
-        <!-- ===== FOOTER ===== -->
+        <!-- FOOTER -->
         <footer class="footer">
             <a href="index.html" class="logo"><i class="fas fa-store-alt"></i> Market<span>Stall</span></a>
             <p>&copy; 2026 MarketStall Investments. All rights reserved.</p>
-            <div class="links">
-                <a href="index.html">Home</a>
-                <a href="products.html">Products</a>
-                <a href="cart.html">Cart</a>
-                <a href="transactions.html">Orders</a>
-            </div>
         </footer>
     </div>
 
-    <!-- ===== BOTTOM NAV ===== -->
+    <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
         <a href="index.html" class="active"><i class="fas fa-home"></i><span>Home</span></a>
         <a href="products.html"><i class="fas fa-th-list"></i><span>Products</span></a>
@@ -584,20 +503,17 @@
     </nav>
 
     <script>
-        // ===== TOAST SYSTEM =====
+        // ============================================================
+        // TOAST SYSTEM
+        // ============================================================
         class ToastManager {
-            constructor() {
-                this.container = null;
-                this.init();
-            }
+            constructor() { this.container = null; this.init(); }
             init() {
                 if (!document.querySelector('.toast-container')) {
                     this.container = document.createElement('div');
                     this.container.className = 'toast-container';
                     document.body.appendChild(this.container);
-                } else {
-                    this.container = document.querySelector('.toast-container');
-                }
+                } else { this.container = document.querySelector('.toast-container'); }
             }
             show(message, options) {
                 options = options || {};
@@ -641,154 +557,336 @@
         }
         window.toast = new ToastManager();
 
-        // ===== AUTH =====
-        function updateAuthButtons() {
+        // ============================================================
+        // SUPABASE FUNCTIONS
+        // ============================================================
+        let supabase = null;
+
+        function getSupabase() {
+            if (window.supabaseClient) {
+                return window.supabaseClient;
+            }
+            return null;
+        }
+
+        async function waitForSupabase() {
+            return new Promise((resolve) => {
+                if (window.supabaseClient) {
+                    resolve(window.supabaseClient);
+                    return;
+                }
+                document.addEventListener('supabaseReady', function() {
+                    resolve(window.supabaseClient);
+                });
+                // Fallback timeout
+                setTimeout(() => {
+                    if (window.supabaseClient) resolve(window.supabaseClient);
+                    else resolve(null);
+                }, 5000);
+            });
+        }
+
+        // ============================================================
+        // AUTH
+        // ============================================================
+        async function updateAuthButtons() {
             var authContainer = document.getElementById('authButtons');
-            var currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (currentUser) {
-                authContainer.innerHTML =
-                    '<span class="user-greeting"><i class="fas fa-user-circle"></i></span>' +
-                    '<button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>';
-            } else {
+            try {
+                const client = await waitForSupabase();
+                if (!client) {
+                    authContainer.innerHTML = '<a href="signup.html" class="btn-signup"><i class="fas fa-user-plus"></i> Sign Up</a>';
+                    return;
+                }
+                const { data: { session } } = await client.auth.getSession();
+                if (session) {
+                    const email = session.user.email || 'User';
+                    authContainer.innerHTML =
+                        '<span class="user-greeting"><i class="fas fa-user-circle"></i> ' + email.split('@')[0] + '</span>' +
+                        '<button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>';
+                } else {
+                    authContainer.innerHTML = '<a href="signup.html" class="btn-signup"><i class="fas fa-user-plus"></i> Sign Up</a>';
+                }
+            } catch (e) {
                 authContainer.innerHTML = '<a href="signup.html" class="btn-signup"><i class="fas fa-user-plus"></i> Sign Up</a>';
             }
         }
-        window.logout = function() {
-            if (confirm('Logout?')) {
+
+        window.logout = async function() {
+            if (!confirm('Logout?')) return;
+            try {
+                const client = await waitForSupabase();
+                if (client) {
+                    await client.auth.signOut();
+                }
                 localStorage.removeItem('currentUser');
                 updateAuthButtons();
                 toast.success('Logged out.', 'Goodbye');
                 setTimeout(function() { location.reload(); }, 500);
+            } catch (e) {
+                toast.error('Error logging out.', 'Error');
             }
         };
 
-        // ===== CART =====
-        function getCart() { return JSON.parse(localStorage.getItem('cart')) || []; }
-        function updateCartCount() {
-            var cart = getCart();
-            var count = 0;
-            for (var i = 0; i < cart.length; i++) { count += cart[i].quantity; }
+        // ============================================================
+        // CART COUNT
+        // ============================================================
+        async function updateCartCount() {
+            try {
+                const client = await waitForSupabase();
+                if (!client) return;
+                const { data: { session } } = await client.auth.getSession();
+                if (!session) {
+                    // Try local cart
+                    var cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    var count = 0;
+                    for (var i = 0; i < cart.length; i++) { count += cart[i].quantity || 0; }
+                    updateBadges(count);
+                    return;
+                }
+                // Get cart from Supabase
+                const { data: cartData } = await client
+                    .from('carts')
+                    .select('*')
+                    .eq('user_id', session.user.id)
+                    .single();
+                if (cartData) {
+                    const { data: items } = await client
+                        .from('cart_items')
+                        .select('quantity')
+                        .eq('cart_id', cartData.id);
+                    var count = 0;
+                    for (var i = 0; i < (items || []).length; i++) { count += items[i].quantity || 0; }
+                    updateBadges(count);
+                } else {
+                    updateBadges(0);
+                }
+            } catch (e) {
+                // Fallback to local
+                var cart = JSON.parse(localStorage.getItem('cart')) || [];
+                var count = 0;
+                for (var i = 0; i < cart.length; i++) { count += cart[i].quantity || 0; }
+                updateBadges(count);
+            }
+        }
+
+        function updateBadges(count) {
             var badge = document.getElementById('cartCount');
             if (badge) badge.textContent = count;
             var bottomBadge = document.getElementById('bottomCartBadge');
             if (bottomBadge) bottomBadge.textContent = count;
         }
 
-        // ===== PRODUCT DATA =====
-        var products = [
-            { id: 1, name: 'Wireless Headphones', price: 149.99, oldPrice: 199.99, rating: 4.8, stock: 15, image: 'fa-headphones', category: 'Electronics', featured: true, bestseller: true },
-            { id: 2, name: 'Smart Watch Pro', price: 199.00, oldPrice: 279.00, rating: 4.6, stock: 8, image: 'fa-watch', category: 'Electronics', featured: true, bestseller: true },
-            { id: 3, name: 'Leather Jacket', price: 89.99, oldPrice: null, rating: 4.7, stock: 20, image: 'fa-tshirt', category: 'Fashion', featured: true, bestseller: false },
-            { id: 4, name: 'Skincare Set', price: 59.99, oldPrice: 79.99, rating: 4.9, stock: 25, image: 'fa-spa', category: 'Beauty', featured: true, bestseller: true },
-            { id: 5, name: 'LED TV 55"', price: 499.00, oldPrice: 699.00, rating: 4.5, stock: 5, image: 'fa-tv', category: 'Electronics', featured: false, bestseller: true },
-            { id: 6, name: 'Handbag', price: 129.00, oldPrice: 159.00, rating: 4.4, stock: 12, image: 'fa-bag-shopping', category: 'Fashion', featured: true, bestseller: false },
-            { id: 7, name: 'Yoga Mat', price: 34.99, oldPrice: null, rating: 4.3, stock: 30, image: 'fa-person-walking', category: 'Sports', featured: false, bestseller: true },
-            { id: 8, name: 'Coffee Maker', price: 79.99, oldPrice: 99.99, rating: 4.6, stock: 18, image: 'fa-mug-saucer', category: 'Home', featured: true, bestseller: true }
-        ];
-
-        if (!localStorage.getItem('products')) { localStorage.setItem('products', JSON.stringify(products)); }
-
-        // ===== CATEGORIES =====
-        var categories = [
-            { name: 'Electronics', icon: 'fa-laptop' },
-            { name: 'Fashion', icon: 'fa-tshirt' },
-            { name: 'Home', icon: 'fa-couch' },
-            { name: 'Beauty', icon: 'fa-spa' },
-            { name: 'Sports', icon: 'fa-running' },
-            { name: 'Books', icon: 'fa-book' }
-        ];
-
-        function renderCategories() {
-            var grid = document.getElementById('categoriesGrid');
-            grid.innerHTML = categories.map(function(c) {
-                return '<a href="products.html?category=' + c.name + '" class="category-card"><i class="fas ' + c.icon + '"></i><span>' + c.name + '</span></a>';
-            }).join('');
-        }
-
-        // ===== RENDER PRODUCTS =====
-        function renderProducts(containerId, productList, limit) {
-            var container = document.getElementById(containerId);
-            if (!container) return;
-            var items = productList;
-            if (limit) items = items.slice(0, limit);
-            if (items.length === 0) {
-                container.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">No products found.</p>';
-                return;
-            }
-            var html = '';
-            for (var i = 0; i < items.length; i++) {
-                var p = items[i];
-                var oldPrice = p.oldPrice ? '<span class="old">$' + p.oldPrice.toFixed(2) + '</span>' : '';
-                var stockText = p.stock > 0 ? 'In Stock' : 'Out of Stock';
-                var stockClass = p.stock > 0 ? '' : 'out';
-                var stars = '';
-                for (var s = 0; s < Math.floor(p.rating); s++) stars += '<i class="fas fa-star"></i>';
-                if (p.rating - Math.floor(p.rating) >= 0.5) stars += '<i class="fas fa-star-half-alt"></i>';
-                for (var e = 0; e < 5 - Math.ceil(p.rating); e++) stars += '<i class="far fa-star"></i>';
-
-                html += '<div class="product-card">' +
-                    '<div class="product-image"><i class="fas ' + p.image + '"></i></div>' +
-                    '<div class="product-body">' +
-                    '<div class="name">' + p.name + '</div>' +
-                    '<div class="price">$' + p.price.toFixed(2) + ' ' + oldPrice + '</div>' +
-                    '<div class="rating">' + stars + ' <span class="count">(' + p.rating + ')</span></div>' +
-                    '<div class="stock ' + stockClass + '"><i class="fas ' + (p.stock > 0 ? 'fa-check-circle' : 'fa-times-circle') + '"></i> ' + stockText + '</div>' +
-                    '<button class="btn-add" onclick="addToCart(' + p.id + ')"><i class="fas fa-cart-plus"></i> Add</button>' +
-                    '</div></div>';
-            }
-            container.innerHTML = html;
-        }
-
-        // ===== ADD TO CART =====
-        window.addToCart = function(productId) {
-            var allProducts = JSON.parse(localStorage.getItem('products')) || products;
-            var product = null;
-            for (var i = 0; i < allProducts.length; i++) {
-                if (allProducts[i].id === productId) { product = allProducts[i]; break; }
-            }
-            if (!product || product.stock <= 0) {
-                toast.error('Out of stock.', 'Error');
-                return;
-            }
-            var cart = getCart();
-            var existing = null;
-            for (var j = 0; j < cart.length; j++) {
-                if (cart[j].id === productId) { existing = cart[j]; break; }
-            }
-            if (existing) {
-                if (existing.quantity >= product.stock) {
-                    toast.warning('Stock limit reached.', 'Warning');
+        // ============================================================
+        // ADD TO CART
+        // ============================================================
+        window.addToCart = async function(productId) {
+            try {
+                const client = await waitForSupabase();
+                if (!client) {
+                    toast.error('Supabase not connected.', 'Error');
                     return;
                 }
-                existing.quantity += 1;
-            } else {
-                cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, quantity: 1 });
+
+                // Get product
+                const { data: product, error: productError } = await client
+                    .from('products')
+                    .select('*')
+                    .eq('id', productId)
+                    .single();
+
+                if (productError || !product || product.stock <= 0) {
+                    toast.error('Out of stock.', 'Error');
+                    return;
+                }
+
+                const { data: { session } } = await client.auth.getSession();
+
+                if (!session) {
+                    // Guest cart in localStorage
+                    var cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    var existing = null;
+                    for (var i = 0; i < cart.length; i++) {
+                        if (cart[i].id === productId) { existing = cart[i]; break; }
+                    }
+                    if (existing) {
+                        if (existing.quantity >= product.stock) {
+                            toast.warning('Stock limit reached.', 'Warning');
+                            return;
+                        }
+                        existing.quantity += 1;
+                    } else {
+                        cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, quantity: 1 });
+                    }
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    updateCartCount();
+                    toast.success('Added to cart!', 'Added');
+                    return;
+                }
+
+                // Get or create cart
+                let { data: cartData } = await client
+                    .from('carts')
+                    .select('*')
+                    .eq('user_id', session.user.id)
+                    .single();
+
+                if (!cartData) {
+                    const { data: newCart } = await client
+                        .from('carts')
+                        .insert({ user_id: session.user.id })
+                        .select()
+                        .single();
+                    cartData = newCart;
+                }
+
+                if (!cartData) {
+                    toast.error('Could not create cart.', 'Error');
+                    return;
+                }
+
+                // Check if item exists in cart
+                const { data: existingItem } = await client
+                    .from('cart_items')
+                    .select('*')
+                    .eq('cart_id', cartData.id)
+                    .eq('product_id', productId)
+                    .single();
+
+                if (existingItem) {
+                    if (existingItem.quantity >= product.stock) {
+                        toast.warning('Stock limit reached.', 'Warning');
+                        return;
+                    }
+                    await client
+                        .from('cart_items')
+                        .update({ quantity: existingItem.quantity + 1 })
+                        .eq('id', existingItem.id);
+                } else {
+                    await client
+                        .from('cart_items')
+                        .insert({
+                            cart_id: cartData.id,
+                            product_id: productId,
+                            quantity: 1
+                        });
+                }
+
+                updateCartCount();
+                toast.success('Added to cart!', 'Added');
+
+            } catch (e) {
+                toast.error('Error adding to cart.', 'Error');
             }
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartCount();
-            toast.success('Added to cart!', 'Added');
         };
 
-        // ===== SEARCH =====
-        window.searchProducts = function() {
-            var query = document.getElementById('searchInput').value.trim();
-            if (query === '') { toast.info('Enter a search term.', 'Search'); return; }
-            window.location.href = 'products.html?search=' + encodeURIComponent(query);
-        };
-        document.getElementById('searchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') searchProducts();
-        });
+        // ============================================================
+        // LOAD CATEGORIES
+        // ============================================================
+        async function loadCategories() {
+            var grid = document.getElementById('categoriesGrid');
+            try {
+                const client = await waitForSupabase();
+                if (!client) {
+                    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">Failed to load categories.</p>';
+                    return;
+                }
+                const { data, error } = await client
+                    .from('categories')
+                    .select('*')
+                    .eq('is_active', true)
+                    .order('name');
 
-        // ===== TESTIMONIALS =====
-        var testimonials = [
-            { name: 'Sarah J.', review: 'Great quality and fast delivery!', rating: 5 },
-            { name: 'Michael C.', review: 'Excellent service and prices.', rating: 5 },
-            { name: 'Emily R.', review: 'Love the variety and quality!', rating: 4.5 },
-            { name: 'David K.', review: 'Best shopping experience!', rating: 5 }
-        ];
+                if (error) throw error;
 
-        function renderTestimonials() {
+                if (!data || data.length === 0) {
+                    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">No categories found.</p>';
+                    return;
+                }
+
+                grid.innerHTML = data.map(function(c) {
+                    return '<a href="products.html?category=' + c.slug + '" class="category-card"><i class="fas ' + (c.icon || 'fa-tag') + '"></i><span>' + c.name + '</span></a>';
+                }).join('');
+            } catch (e) {
+                grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">Error loading categories.</p>';
+            }
+        }
+
+        // ============================================================
+        // LOAD PRODUCTS
+        // ============================================================
+        async function loadProducts(containerId, filter, limit) {
+            var container = document.getElementById(containerId);
+            try {
+                const client = await waitForSupabase();
+                if (!client) {
+                    container.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">Failed to load products.</p>';
+                    return;
+                }
+
+                let query = client
+                    .from('products')
+                    .select(`
+                        *,
+                        categories!inner(name, slug)
+                    `)
+                    .eq('is_active', true);
+
+                if (filter === 'featured') {
+                    query = query.eq('is_featured', true);
+                } else if (filter === 'bestseller') {
+                    query = query.eq('is_bestseller', true);
+                }
+
+                if (limit) query = query.limit(limit);
+
+                const { data, error } = await query;
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">No products found.</p>';
+                    return;
+                }
+
+                var html = '';
+                for (var i = 0; i < data.length; i++) {
+                    var p = data[i];
+                    var oldPrice = p.old_price ? '<span class="old">$' + parseFloat(p.old_price).toFixed(2) + '</span>' : '';
+                    var stockText = p.stock > 0 ? 'In Stock' : 'Out of Stock';
+                    var stockClass = p.stock > 0 ? '' : 'out';
+                    var stars = '';
+                    var rating = parseFloat(p.rating) || 0;
+                    for (var s = 0; s < Math.floor(rating); s++) stars += '<i class="fas fa-star"></i>';
+                    if (rating - Math.floor(rating) >= 0.5) stars += '<i class="fas fa-star-half-alt"></i>';
+                    for (var e = 0; e < 5 - Math.ceil(rating); e++) stars += '<i class="far fa-star"></i>';
+
+                    html += '<div class="product-card">' +
+                        '<div class="product-image"><i class="fas ' + (p.image || 'fa-box') + '"></i></div>' +
+                        '<div class="product-body">' +
+                        '<div class="name">' + p.name + '</div>' +
+                        '<div class="price">$' + parseFloat(p.price).toFixed(2) + ' ' + oldPrice + '</div>' +
+                        '<div class="rating">' + stars + ' <span class="count">(' + rating.toFixed(1) + ')</span></div>' +
+                        '<div class="stock ' + stockClass + '"><i class="fas ' + (p.stock > 0 ? 'fa-check-circle' : 'fa-times-circle') + '"></i> ' + stockText + '</div>' +
+                        '<button class="btn-add" onclick="addToCart(\'' + p.id + '\')"><i class="fas fa-cart-plus"></i> Add</button>' +
+                        '</div></div>';
+                }
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:1rem; color:#5b768b;">Error loading products.</p>';
+            }
+        }
+
+        // ============================================================
+        // LOAD TESTIMONIALS
+        // ============================================================
+        function loadTestimonials() {
             var grid = document.getElementById('testimonialsGrid');
+            var testimonials = [
+                { name: 'Sarah J.', review: 'Great quality and fast delivery!', rating: 5 },
+                { name: 'Michael C.', review: 'Excellent service and prices.', rating: 5 },
+                { name: 'Emily R.', review: 'Love the variety and quality!', rating: 4.5 },
+                { name: 'David K.', review: 'Best shopping experience!', rating: 5 }
+            ];
             grid.innerHTML = testimonials.map(function(t) {
                 var stars = '';
                 for (var s = 0; s < Math.floor(t.rating); s++) stars += '<i class="fas fa-star"></i>';
@@ -798,21 +896,42 @@
             }).join('');
         }
 
-        // ===== INIT =====
-        document.addEventListener('DOMContentLoaded', function() {
-            var allProducts = JSON.parse(localStorage.getItem('products')) || products;
-            var featured = allProducts.filter(function(p) { return p.featured; });
-            var bestsellers = allProducts.filter(function(p) { return p.bestseller; });
-
-            renderCategories();
-            renderProducts('featuredGrid', featured, 4);
-            renderProducts('bestsellerGrid', bestsellers, 4);
-            renderTestimonials();
-            updateCartCount();
-            updateAuthButtons();
-
-            console.log('MarketStall loaded!');
+        // ============================================================
+        // SEARCH
+        // ============================================================
+        window.searchProducts = function() {
+            var query = document.getElementById('searchInput').value.trim();
+            if (query === '') { toast.info('Enter a search term.', 'Search'); return; }
+            window.location.href = 'products.html?search=' + encodeURIComponent(query);
+        };
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') searchProducts();
         });
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        async function init() {
+            // Wait for Supabase
+            const client = await waitForSupabase();
+            if (client) {
+                console.log('✅ Supabase connected');
+            } else {
+                console.warn('⚠️ Supabase not connected, using fallback data');
+            }
+
+            await updateAuthButtons();
+            await loadCategories();
+            await loadProducts('featuredGrid', 'featured', 4);
+            await loadProducts('bestsellerGrid', 'bestseller', 4);
+            loadTestimonials();
+            await updateCartCount();
+
+            console.log('✅ MarketStall loaded!');
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('supabaseReady', init);
     </script>
 </body>
 </html>
