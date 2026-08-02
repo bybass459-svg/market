@@ -57,6 +57,9 @@
         .error-message { background: #fde8e8; color: #dc3545; padding: 10px 14px; border-radius: 10px; font-size: 0.85rem; margin-bottom: 12px; display: none; border: 1px solid #f5c6cb; }
         .error-message.show { display: block; }
         .error-message i { margin-right: 6px; }
+        
+        .loading-spinner { display: inline-block; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -208,8 +211,7 @@
                     return;
                 }
 
-                // SIGN UP WITHOUT EMAIL CONFIRMATION
-                // Remove emailRedirectTo to avoid 500 error
+                // IMPORTANT: No redirect_to parameter - this is what causes the 500 error
                 var { data, error } = await client.auth.signUp({
                     email: email,
                     password: password,
@@ -217,7 +219,7 @@
                         data: {
                             full_name: name
                         }
-                        // DO NOT include emailRedirectTo - this causes 500 error
+                        // DO NOT include emailRedirectTo - it causes 500 error
                     }
                 });
 
@@ -232,14 +234,11 @@
                         toast.error('Email already registered. Please login.', 'Exists');
                     } else if (error.message && error.message.toLowerCase().includes('password')) {
                         toast.error('Password must be at least 6 characters.', 'Password Error');
+                    } else if (error.status === 500) {
+                        showError('Server error. Please try again or use a different email.');
+                        toast.error('Server error. Please try again.', 'Error');
                     } else {
-                        // Generic error - try to provide helpful message
-                        if (error.status === 500) {
-                            showError('Server error. Please try again or use a different email.');
-                            toast.error('Server error. Please try again.', 'Error');
-                        } else {
-                            toast.error(error.message || 'Signup failed. Please try again.', 'Error');
-                        }
+                        toast.error(error.message || 'Signup failed. Please try again.', 'Error');
                     }
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-user-plus"></i> Sign up';
@@ -266,14 +265,12 @@
                         toast.info('Confirmation email sent! Please check your inbox.', 'Confirm Email');
                         btn.innerHTML = '<i class="fas fa-check"></i> Check your email';
                         setTimeout(function() { window.location.href = 'login.html'; }, 3000);
+                    } else if (data.session) {
+                        // Auto-login - user is already logged in
+                        toast.info('You are now logged in!', 'Logged In');
+                        setTimeout(function() { window.location.href = 'index.html'; }, 1500);
                     } else {
-                        // Auto-login - set session
-                        if (data.session) {
-                            toast.info('You are now logged in!', 'Logged In');
-                            setTimeout(function() { window.location.href = 'index.html'; }, 1500);
-                        } else {
-                            setTimeout(function() { window.location.href = 'login.html'; }, 1500);
-                        }
+                        setTimeout(function() { window.location.href = 'login.html'; }, 1500);
                     }
                 }
 
