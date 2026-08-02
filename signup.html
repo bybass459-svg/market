@@ -208,15 +208,16 @@
                     return;
                 }
 
-                // Sign up with Supabase
+                // SIGN UP WITHOUT EMAIL CONFIRMATION
+                // Remove emailRedirectTo to avoid 500 error
                 var { data, error } = await client.auth.signUp({
                     email: email,
                     password: password,
                     options: {
                         data: {
                             full_name: name
-                        },
-                        emailRedirectTo: window.location.origin + '/login.html'
+                        }
+                        // DO NOT include emailRedirectTo - this causes 500 error
                     }
                 });
 
@@ -232,7 +233,13 @@
                     } else if (error.message && error.message.toLowerCase().includes('password')) {
                         toast.error('Password must be at least 6 characters.', 'Password Error');
                     } else {
-                        toast.error(error.message || 'Signup failed. Please try again.', 'Error');
+                        // Generic error - try to provide helpful message
+                        if (error.status === 500) {
+                            showError('Server error. Please try again or use a different email.');
+                            toast.error('Server error. Please try again.', 'Error');
+                        } else {
+                            toast.error(error.message || 'Signup failed. Please try again.', 'Error');
+                        }
                     }
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-user-plus"></i> Sign up';
@@ -242,7 +249,6 @@
                 if (data && data.user) {
                     // Store user info in localStorage for fallback
                     var users = JSON.parse(localStorage.getItem('users')) || [];
-                    // Check if user already exists
                     var userExists = false;
                     for (var j = 0; j < users.length; j++) {
                         if (users[j].email === email) { userExists = true; break; }
@@ -253,20 +259,27 @@
                     }
                     localStorage.setItem('currentUser', JSON.stringify({ name: name, email: email }));
 
-                    toast.success('Account created successfully! Please check your email to confirm.', 'Welcome!');
+                    toast.success('Account created successfully! 🎉', 'Welcome!');
                     
-                    // If email confirmation is required, show message
+                    // Check if email confirmation is required
                     if (data.user && data.user.confirmation_sent_at) {
                         toast.info('Confirmation email sent! Please check your inbox.', 'Confirm Email');
                         btn.innerHTML = '<i class="fas fa-check"></i> Check your email';
                         setTimeout(function() { window.location.href = 'login.html'; }, 3000);
                     } else {
-                        setTimeout(function() { window.location.href = 'login.html'; }, 1500);
+                        // Auto-login - set session
+                        if (data.session) {
+                            toast.info('You are now logged in!', 'Logged In');
+                            setTimeout(function() { window.location.href = 'index.html'; }, 1500);
+                        } else {
+                            setTimeout(function() { window.location.href = 'login.html'; }, 1500);
+                        }
                     }
                 }
 
             } catch (e) {
                 console.error('Signup error:', e);
+                showError('Error creating account. Please try again.');
                 toast.error('Error creating account. Please try again.', 'Error');
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-user-plus"></i> Sign up';
